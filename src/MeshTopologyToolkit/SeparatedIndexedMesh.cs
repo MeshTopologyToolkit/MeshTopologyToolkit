@@ -5,9 +5,20 @@
         struct AttributeAndIndices
         {
             public IMeshVertexAttribute Attribute;
-            public List<int> Indices;
+            public IReadOnlyList<int> Indices;
+
+            public AttributeAndIndices(IMeshVertexAttribute attr, IReadOnlyList<int> indices)
+            {
+                Attribute = attr;
+                Indices = indices;
+            }
         }
         private Dictionary<MeshAttributeKey, AttributeAndIndices> _attributes = new Dictionary<MeshAttributeKey, AttributeAndIndices>();
+
+        public void AddAttribute(MeshAttributeKey key, IMeshVertexAttribute attribute, IReadOnlyList<int> indices)
+        {
+            _attributes.Add(key, new AttributeAndIndices(attribute, indices));
+        }
 
         /// <inheritdoc/>
         public bool TryGetAttribute(MeshAttributeKey key, out IMeshVertexAttribute? attribute)

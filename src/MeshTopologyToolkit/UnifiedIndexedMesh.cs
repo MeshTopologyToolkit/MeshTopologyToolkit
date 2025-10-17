@@ -5,6 +5,11 @@
         private Dictionary<MeshAttributeKey, IMeshVertexAttribute> _attributes = new Dictionary<MeshAttributeKey, IMeshVertexAttribute>();
         private List<int> _indices = new List<int>();
 
+        public void AddAttribute(MeshAttributeKey key, IMeshVertexAttribute attribute)
+        {
+            _attributes.Add(key, attribute);
+        }
+
         /// <inheritdoc/>
         public SeparatedIndexedMesh AsSeparated()
         {

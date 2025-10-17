@@ -72,7 +72,8 @@ class Program
             cl.Draw(3);
             cl.End();
             gd.SubmitCommands(cl);
-            gd.SwapBuffers();
+            if (window.Exists)
+                gd.SwapBuffers();
             cl.Dispose();
         }
 
