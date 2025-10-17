@@ -1,0 +1,51 @@
+﻿namespace MeshTopologyToolkit
+{
+    public class UnifiedIndexedMesh : IMesh
+    {
+        private Dictionary<MeshAttributeKey, IMeshVertexAttribute> _attributes = new Dictionary<MeshAttributeKey, IMeshVertexAttribute>();
+        private List<int> _indices = new List<int>();
+
+        /// <inheritdoc/>
+        public SeparatedIndexedMesh AsSeparated()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc/>
+        public UnifiedIndexedMesh AsUnified()
+        {
+            return this;
+        }
+
+        /// <inheritdoc/>
+        public bool TryGetAttribute(MeshAttributeKey key, out IMeshVertexAttribute? attribute)
+        {
+            if (_attributes.TryGetValue(key, out var value))
+            {
+                attribute = value;
+                return attribute != null;
+            }
+            attribute = null;
+            return false;
+        }
+
+        /// <inheritdoc/>
+        public bool TryGetAttribute<T>(MeshAttributeKey key, out IMeshVertexAttribute<T>? attribute)
+        {
+            if (_attributes.TryGetValue(key, out var value))
+            {
+                attribute = value as IMeshVertexAttribute<T>;
+                return attribute != null;
+            }
+            attribute = null;
+            return false;
+        }
+
+        /// <inheritdoc/>
+        public bool TryGetAttributeIndices(MeshAttributeKey key, out IReadOnlyList<int>? indices)
+        {
+            indices = _indices;
+            return true;
+        }
+    }
+}
