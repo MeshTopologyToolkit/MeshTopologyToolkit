@@ -15,6 +15,26 @@
         }
         private Dictionary<MeshAttributeKey, AttributeAndIndices> _attributes = new Dictionary<MeshAttributeKey, AttributeAndIndices>();
 
+        public SeparatedIndexedMesh()
+        {
+        }
+
+        public SeparatedIndexedMesh(IMesh mesh)
+        {
+            var attributes = mesh.GetAttributeKeys();
+            foreach (var attributeKey in attributes)
+            {
+                if (!mesh.TryGetAttribute(attributeKey, out var attribute) || attribute == null)
+                    throw new KeyNotFoundException($"Can't get attribute {attributeKey}");
+                if (!mesh.TryGetAttributeIndices(attributeKey, out var indices) || indices == null)
+                    throw new KeyNotFoundException($"Can't get attribute indices for {attributeKey}");
+
+                var compactAttr = attribute.Compact(out var mapping);
+                var compactIndices = indices.Select(_ => mapping[_]).ToList();
+                _attributes.Add(attributeKey, new AttributeAndIndices(compactAttr, compactIndices));
+            }
+        }
+
         public void AddAttribute(MeshAttributeKey key, IMeshVertexAttribute attribute, IReadOnlyList<int> indices)
         {
             _attributes.Add(key, new AttributeAndIndices(attribute, indices));
@@ -33,7 +53,7 @@
         }
 
         /// <inheritdoc/>
-        public bool TryGetAttribute<T>(MeshAttributeKey key, out IMeshVertexAttribute<T>? attribute)
+        public bool TryGetAttribute<T>(MeshAttributeKey key, out IMeshVertexAttribute<T>? attribute) where T : notnull
         {
             if (_attributes.TryGetValue(key, out var value))
             {
@@ -66,6 +86,11 @@
         public SeparatedIndexedMesh AsSeparated()
         {
             return this;
+        }
+
+        public IReadOnlyCollection<MeshAttributeKey> GetAttributeKeys()
+        {
+            return _attributes.Keys;
         }
     }
 }

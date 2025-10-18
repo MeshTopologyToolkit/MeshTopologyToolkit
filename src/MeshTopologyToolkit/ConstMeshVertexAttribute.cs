@@ -2,7 +2,7 @@
 
 namespace MeshTopologyToolkit
 {
-    public class ConstMeshVertexAttribute<T> : IMeshVertexAttribute<T>
+    public class ConstMeshVertexAttribute<T> : MeshVertexAttributeBase<T>, IMeshVertexAttribute<T> where T: notnull
     {
         T _value;
         public ConstMeshVertexAttribute(T value, int count = 1)
@@ -15,27 +15,22 @@ namespace MeshTopologyToolkit
 
         public int Count { get; set; }
 
+        public new IMeshVertexAttribute Compact(out IReadOnlyList<int> indexMap)
+        {
+            indexMap = new ConstMeshVertexAttribute<int>(0, Count);
+            var attr = new DictionaryMeshVertexAttribute<T>();
+            attr.Add(_value);
+            return attr;
+        }
+
         public IEnumerator<T> GetEnumerator()
         {
             return new MeshVertexAttributeEnumerator<T>(this);
         }
 
-        public bool TryCast<TTo>(IMeshVertexAttributeConverterProvider converterProvider, out IMeshVertexAttribute<TTo>? attribute)
+        int IMeshVertexAttribute<T>.Add(T value)
         {
-            if (typeof(T) == typeof(TTo))
-            {
-                attribute = (IMeshVertexAttribute<TTo>)this;
-                return true;
-            }
-
-            if (converterProvider.TryGetConverter<T, TTo>(out var converter))
-            {
-                attribute = new MeshVertexAttributeAdapter<T, TTo>(this, converter);
-                return true;
-            }
-
-            attribute = null;
-            return false;
+            throw new NotImplementedException("Can't add elements to immutable attribute container");
         }
 
         IEnumerator IEnumerable.GetEnumerator()

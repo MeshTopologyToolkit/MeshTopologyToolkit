@@ -18,6 +18,15 @@ namespace MeshTopologyToolkit
             _remainingText = text;
         }
 
+
+        /// <summary>
+        /// Initializes the tokenizer with an utf8 byte array, converting it to a Span.
+        /// </summary>
+        public SpanTokenizer(byte[] text)
+        {
+            _remainingText = new UTF8Encoding(false).GetChars(text);
+        }
+
         /// <summary>
         /// Initializes the tokenizer with a string, converting it to a Span.
         /// </summary>
@@ -289,6 +298,31 @@ namespace MeshTopologyToolkit
             }
 
             return false;
+        }
+
+        public void ConsumeToEndOfLine()
+        {
+            int endOfValue = 0;
+            while (endOfValue < _remainingText.Length)
+            {
+                var c = _remainingText[endOfValue];
+                if (c == 10)
+                {
+                    ++ endOfValue;
+                    if (endOfValue < _remainingText.Length && _remainingText[endOfValue] == 13)
+                        ++endOfValue;
+                    break;
+                }
+                if (c == 13)
+                {
+                    ++endOfValue;
+                    if (endOfValue < _remainingText.Length && _remainingText[endOfValue] == 10)
+                        ++endOfValue;
+                    break;
+                }
+                ++endOfValue;
+            }
+            _remainingText = _remainingText.Slice(endOfValue);
         }
     }
 }

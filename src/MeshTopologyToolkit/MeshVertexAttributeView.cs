@@ -2,7 +2,7 @@
 
 namespace MeshTopologyToolkit
 {
-    public class MeshVertexAttributeView<T> : MeshVertexAttributeBase<T>, IMeshVertexAttribute<T>
+    public class MeshVertexAttributeView<T> : MeshVertexAttributeBase<T>, IMeshVertexAttribute<T> where T : notnull
     {
         IReadOnlyList<T> _values;
         public MeshVertexAttributeView(IReadOnlyList<T> values)
@@ -17,6 +17,11 @@ namespace MeshTopologyToolkit
         public IEnumerator<T> GetEnumerator()
         {
             return _values.GetEnumerator();
+        }
+
+        int IMeshVertexAttribute<T>.Add(T value)
+        {
+            throw new NotImplementedException("Can't add value to attribute container view");
         }
 
         IEnumerator IEnumerable.GetEnumerator()

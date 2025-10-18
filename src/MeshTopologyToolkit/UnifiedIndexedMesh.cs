@@ -22,6 +22,11 @@
             return this;
         }
 
+        public IReadOnlyCollection<MeshAttributeKey> GetAttributeKeys()
+        {
+            return _attributes.Keys;
+        }
+
         /// <inheritdoc/>
         public bool TryGetAttribute(MeshAttributeKey key, out IMeshVertexAttribute? attribute)
         {
@@ -35,7 +40,7 @@
         }
 
         /// <inheritdoc/>
-        public bool TryGetAttribute<T>(MeshAttributeKey key, out IMeshVertexAttribute<T>? attribute)
+        public bool TryGetAttribute<T>(MeshAttributeKey key, out IMeshVertexAttribute<T>? attribute) where T : notnull
         {
             if (_attributes.TryGetValue(key, out var value))
             {

@@ -2,10 +2,11 @@
 
 namespace MeshTopologyToolkit
 {
-    public class MeshVertexAttributeAdapter<TFrom, TTo>: IMeshVertexAttribute<TTo>
+    public class MeshVertexAttributeAdapter<TFrom, TTo>: IMeshVertexAttribute<TTo> where TFrom : notnull where TTo: notnull
     {
         IMeshVertexAttribute<TFrom> _source;
         IMeshVertexAttributeConverter<TFrom, TTo> _converter;
+
         public MeshVertexAttributeAdapter(IMeshVertexAttribute<TFrom> source, IMeshVertexAttributeConverter<TFrom, TTo> converter)
         {
             _source = source;
@@ -16,14 +17,32 @@ namespace MeshTopologyToolkit
 
         public int Count => _source.Count;
 
-        public IEnumerator<TTo> GetEnumerator()
+        public IMeshVertexAttribute Compact(out IReadOnlyList<int> indexMap)
         {
-            throw new NotImplementedException();
+            var values = (IReadOnlyList<TTo>)this;
+            var map = new int[values.Count];
+            indexMap = map;
+            var res = new DictionaryMeshVertexAttribute<TTo>();
+            for (int i = 0; i < values.Count; ++i)
+            {
+                map[i] = res.Add(values[i]);
+            }
+            return res;
         }
 
-        public bool TryCast<T>(IMeshVertexAttributeConverterProvider converterProvider, out IMeshVertexAttribute<T>? attribute)
+        public IEnumerator<TTo> GetEnumerator()
+        {
+            return new MeshVertexAttributeEnumerator<TTo>(this);
+        }
+
+        public bool TryCast<T>(IMeshVertexAttributeConverterProvider converterProvider, out IMeshVertexAttribute<T>? attribute) where T : notnull
         {
             return _source.TryCast<T>(converterProvider, out attribute);
+        }
+
+        int IMeshVertexAttribute<TTo>.Add(TTo value)
+        {
+            throw new NotImplementedException("Can't add elements to attribute cast adapter");
         }
 
         IEnumerator IEnumerable.GetEnumerator()
