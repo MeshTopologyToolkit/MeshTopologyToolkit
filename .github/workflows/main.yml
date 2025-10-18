@@ -29,18 +29,18 @@ jobs:
       - name: Restore tools and dependencies
         run: |
           dotnet tool restore
-          dotnet restore
           dotnet tool run ezpipeline git-height-version -- -b 0.0.0 -v BUILD_VERSION
+          dotnet restore src/
 
       # 4 Build the solution in Release mode
       - name: Build solution
-        run: dotnet build --configuration Release --no-restore
+        run: dotnet build --configuration Release /p:Version=$BUILD_VERSION --no-restore
 
       # 5 Pack all class library projects into .nupkg files
       - name: Pack NuGet packages
         run: |
           mkdir -p output
-          dotnet pack "src/MeshTopologyToolkit/" --configuration Release --no-build --output ./output
+          dotnet pack "src/MeshTopologyToolkit/" --configuration Release /p:PackageVersion=$BUILD_VERSION --no-build --output ./output
 
       # 6 Upload packages as artifacts for debugging or inspection
       - name: Upload .nupkg artifacts
