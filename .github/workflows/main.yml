@@ -71,14 +71,14 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # 8 Publish packages to NuGet.org
-      # - name: Publish to NuGet.org
-      #   env:
-      #     NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
-      #   run: |
-      #     for pkg in output/*.nupkg; do
-      #       echo "Publishing $pkg to NuGet.org..."
-      #       dotnet nuget push "$pkg" \
-      #         --api-key "$NUGET_API_KEY" \
-      #         --source https://api.nuget.org/v3/index.json \
-      #         --skip-duplicate
-      #     done
+      - name: Publish to NuGet.org
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        run: |
+          for pkg in output/*.nupkg; do
+            echo "Publishing $pkg to NuGet.org..."
+            dotnet nuget push "$pkg" \
+              --api-key "$NUGET_API_KEY" \
+              --source https://api.nuget.org/v3/index.json \
+              --skip-duplicate
+          done
