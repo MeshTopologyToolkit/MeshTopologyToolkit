@@ -11,5 +11,12 @@ namespace MeshTopologyToolkit
             var z = reader.ReadSingle();
             return new Vector3(x, y, z);
         }
+
+        public static void Write(this BinaryWriter writer, Vector3 vector)
+        {
+            writer.Write(vector.X);
+            writer.Write(vector.Y);
+            writer.Write(vector.Z);
+        }
     }
 }

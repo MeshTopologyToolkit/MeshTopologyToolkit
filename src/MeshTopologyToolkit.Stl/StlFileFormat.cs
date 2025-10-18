@@ -1,6 +1,6 @@
-﻿using System.IO.Enumeration;
-using System.Numerics;
-using System.Reflection.PortableExecutable;
+﻿using System.Numerics;
+using System.Text;
+using static MeshTopologyToolkit.MeshDrawCall;
 
 namespace MeshTopologyToolkit.Stl
 {
@@ -9,8 +9,6 @@ namespace MeshTopologyToolkit.Stl
         public bool TryRead(IFileSystemEntry entry, out FileContainer? content)
         {
             content = null;
-            if (!entry.Exists)
-                return false;
 
             using (var stream = entry.OpenRead())
             {
@@ -119,10 +117,13 @@ namespace MeshTopologyToolkit.Stl
             var mesh = new SeparatedIndexedMesh();
             mesh.AddAttribute(MeshAttributeKey.Position, positions, positionIndices);
             mesh.AddAttribute(MeshAttributeKey.Normal, normals, normalIndices);
+            mesh.DrawCalls.Add(new MeshDrawCall(MeshTopology.TriangleList, 0, positionIndices.Count));
             content.Meshes.Add(mesh);
 
             var scene = new Scene();
-            scene.Children.Add(new Node() { Mesh = new MeshReference(mesh) });
+            scene.AddChild(new Node() { Mesh = new MeshReference(mesh) });
+            content.Scenes.Add(scene);
+
             return true;
         }
 
@@ -159,17 +160,98 @@ namespace MeshTopologyToolkit.Stl
             var mesh = new SeparatedIndexedMesh();
             mesh.AddAttribute(MeshAttributeKey.Position, positions, positionIndices);
             mesh.AddAttribute(MeshAttributeKey.Normal, normals, normalIndices);
+            mesh.DrawCalls.Add(new MeshDrawCall(MeshTopology.TriangleList, 0, positionIndices.Count));
             content.Meshes.Add(mesh);
 
             var scene = new Scene();
-            scene.Children.Add(new Node() { Mesh = new MeshReference(mesh) });
+            scene.AddChild(new Node() { Mesh = new MeshReference(mesh) });
+            content.Scenes.Add(scene);
 
             return true;
         }
 
         public bool TryWrite(IFileSystemEntry entry, FileContainer content)
         {
-            return false;
+            var position = new ListMeshVertexAttribute<Vector3>();
+
+            if (content.Scenes.Any())
+            {
+                Merge(position, content.Scenes[0]);
+            }
+            else
+            {
+                foreach (var mesh in content.Meshes)
+                {
+                    Merge(position, mesh, MatrixTransform.Identity);
+                }
+            }
+
+            using (var stream = entry.OpenWrite())
+            {
+                using (var binaryWriter = new BinaryWriter(stream))
+                {
+                    var start = new UTF8Encoding(false).GetBytes("STLEXP Name");
+                    binaryWriter.Write(start, 0, int.Min(80, start.Length));
+                    for (int i = start.Length; i < 80; ++i)
+                    {
+                        binaryWriter.Write((byte)0);
+                    }
+                    binaryWriter.Write((int)(position.Count / 3));
+                    for (int i=0; i<position.Count; i+=3)
+                    {
+                        var a = position[i];
+                        var b = position[i+1];
+                        var c = position[i+2];
+                        var n = Vector3.Cross(b - a, c - a);
+                        var nLength = n.Length();
+                        if (nLength < 1e-6f)
+                        {
+                            n = Vector3.UnitZ;
+                        }
+                        else
+                        {
+                            n = n / nLength;
+                        }
+                        binaryWriter.Write(n);
+                        binaryWriter.Write(a);
+                        binaryWriter.Write(b);
+                        binaryWriter.Write(c);
+                        binaryWriter.Write((ushort)0);
+                    }
+                }
+
+            }
+
+            return true;
+        }
+
+        private void Merge(IMeshVertexAttribute<Vector3> positions, Node node)
+        {
+            if (node.Mesh != null)
+            {
+                Merge(positions, node.Mesh.Mesh, node.GetWorldSpaceTransform());
+            }
+
+            foreach (var child in node.Children)
+            {
+                Merge(positions, child);
+            }
+        }
+
+        private void Merge(IMeshVertexAttribute<Vector3> positions, IMesh mesh, ITransform transform)
+        {
+            if (!mesh.TryGetAttribute<Vector3>(MeshAttributeKey.Position, out var pos) || pos == null) return;
+            if (!mesh.TryGetAttributeIndices(MeshAttributeKey.Position, out var indices) || indices == null) return;
+
+            foreach (var drawCall in mesh.DrawCalls)
+            {
+                foreach (var face in drawCall.GetFaces(indices))
+                {
+                    positions.Add(transform.TransformPosition(pos[face.A]));
+                    positions.Add(transform.TransformPosition(pos[face.B]));
+                    positions.Add(transform.TransformPosition(pos[face.C]));
+                }
+            }
         }
     }
 }

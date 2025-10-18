@@ -1,6 +1,6 @@
 ﻿namespace MeshTopologyToolkit
 {
-    public class UnifiedIndexedMesh : IMesh
+    public class UnifiedIndexedMesh : MeshBase, IMesh
     {
         private Dictionary<MeshAttributeKey, IMeshVertexAttribute> _attributes = new Dictionary<MeshAttributeKey, IMeshVertexAttribute>();
         private List<int> _indices = new List<int>();

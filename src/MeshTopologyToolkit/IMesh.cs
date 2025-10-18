@@ -10,5 +10,7 @@
 
         SeparatedIndexedMesh AsSeparated();
         IReadOnlyCollection<MeshAttributeKey> GetAttributeKeys();
+
+        IList<MeshDrawCall> DrawCalls { get; }
     }
 }

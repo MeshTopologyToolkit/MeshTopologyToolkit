@@ -1,6 +1,6 @@
 ﻿namespace MeshTopologyToolkit
 {
-    public class SeparatedIndexedMesh : IMesh
+    public class SeparatedIndexedMesh : MeshBase, IMesh
     {
         struct AttributeAndIndices
         {
@@ -32,6 +32,11 @@
                 var compactAttr = attribute.Compact(out var mapping);
                 var compactIndices = indices.Select(_ => mapping[_]).ToList();
                 _attributes.Add(attributeKey, new AttributeAndIndices(compactAttr, compactIndices));
+            }
+
+            foreach (var drawCall in mesh.DrawCalls)
+            {
+                DrawCalls.Add(drawCall.Clone());
             }
         }
 

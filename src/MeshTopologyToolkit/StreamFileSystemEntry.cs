@@ -4,18 +4,22 @@ namespace MeshTopologyToolkit
 {
     public class StreamFileSystemEntry : IFileSystemEntry
     {
-        Func<Stream?> _openRead;
-        public StreamFileSystemEntry(Func<Stream?> openRead)
+        Func<Stream?> _openStream;
+        public StreamFileSystemEntry(Func<Stream?> openStream)
         {
-            _openRead = openRead;
+            _openStream = openStream;
         }
 
-        public bool Exists { get { 
-                using (var stream = _openRead())
+        public bool Exists
+        {
+            get
+            {
+                using (var stream = _openStream())
                 {
                     return stream != null;
                 }
-            } }
+            }
+        }
 
         public static StreamFileSystemEntry FromEmbeddedResource(string resourceName)
         {
@@ -36,9 +40,9 @@ namespace MeshTopologyToolkit
             {
                 if (names.Length == 0)
                     throw new FileNotFoundException($"Embedded resource {resourceName} not found in {assembly}");
-                throw new FileNotFoundException($"Embedded resource {resourceName} not found in {assembly}, some candidates are "+string.Join(", ", names.Take(3)));
+                throw new FileNotFoundException($"Embedded resource {resourceName} not found in {assembly}, some candidates are " + string.Join(", ", names.Take(3)));
             }
-            return new StreamFileSystemEntry(()=>assembly.GetManifestResourceStream(resourceName));
+            return new StreamFileSystemEntry(() => assembly.GetManifestResourceStream(resourceName));
         }
 
         public IFileSystemEntry GetNeigbourEntry(string fileName)
@@ -48,17 +52,22 @@ namespace MeshTopologyToolkit
 
         public Stream OpenRead()
         {
-            var result = _openRead();
-            if (result == null)
+            var result = _openStream();
+            if (result == null || !result.CanRead)
             {
-                throw new FileNotFoundException("Can't open stream");
+                throw new FileNotFoundException("Can't open stream to read");
             }
             return result;
         }
 
         public Stream OpenWrite()
         {
-            throw new NotImplementedException();
+            var result = _openStream();
+            if (result == null || !result.CanWrite)
+            {
+                throw new FileNotFoundException("Can't open stream to write");
+            }
+            return result;
         }
     }
 
