@@ -1,0 +1,49 @@
+# 3ds Max Wavefront OBJ Exporter v0.99 - (c)2007 guruware
+# File Created: 18.10.2025 10:58:08
+
+#
+# object Corner0
+#
+
+v  0.0000 0.0000 0.0000
+v  10.0000 0.0000 0.0000
+v  0.0000 0.0000 30.0000
+v  0.0000 20.0000 0.0000
+# 4 vertices
+
+vt 0.0000 0.0000 0.0000
+vt 1.0000 0.0000 0.0000
+vt 0.0000 1.0000 0.0000
+vt 1.0000 1.0000 0.0000
+# 4 texture coords
+
+o Corner0
+g Corner0
+f 1/1 2/2 3/3 
+f 4/1 1/2 3/4 4/1 
+f 2/1 1/2 4/4 
+# 1 polygons - 2 triangles
+
+#
+# object ScaledCorner
+#
+
+v  20.0000 0.0000 0.0000
+v  20.0000 0.0000 -10.0000
+v  50.0000 0.0000 -0.0000
+v  20.0000 20.0000 0.0000
+# 4 vertices
+
+vt 0.0000 0.0000 0.0000
+vt 1.0000 0.0000 0.0000
+vt 0.0000 1.0000 0.0000
+vt 1.0000 1.0000 0.0000
+# 4 texture coords
+
+o ScaledCorner
+g ScaledCorner
+f 5/5 6/6 7/7 
+f 8/5 5/6 7/8 8/5 
+f 6/5 5/6 8/8 
+# 1 polygons - 2 triangles
+

@@ -1,6 +1,5 @@
 ﻿namespace MeshTopologyToolkit
 {
-
     public interface IMesh
     {
         bool TryGetAttribute(MeshAttributeKey key, out IMeshVertexAttribute? attribute);
