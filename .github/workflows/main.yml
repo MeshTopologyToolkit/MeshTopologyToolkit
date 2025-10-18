@@ -18,6 +18,8 @@ jobs:
       # 1 Checkout the repository
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       # 2 Setup .NET (adjust SDK version as needed)
       - name: Setup .NET SDK
