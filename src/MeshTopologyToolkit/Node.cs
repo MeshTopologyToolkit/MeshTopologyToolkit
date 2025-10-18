@@ -2,6 +2,8 @@
 {
     public class Node
     {
+        public string? Name { get; set; }
+
         private List<Node> _children = new List<Node>();
 
         public Node? _parent;

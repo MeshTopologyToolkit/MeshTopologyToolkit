@@ -8,6 +8,11 @@
             _fileInfo = fileInfo;
         }
 
+        public FileSystemEntry(string path)
+        {
+            _fileInfo = new FileInfo(path);
+        }
+
         public bool Exists => _fileInfo.Exists;
 
         public IFileSystemEntry GetNeigbourEntry(string fileName)

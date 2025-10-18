@@ -1,7 +1,6 @@
 ﻿namespace MeshTopologyToolkit
 {
-    public class Scene: Node
+    public class Scene : Node
     {
-
     }
 }

@@ -5,6 +5,11 @@
         private Dictionary<MeshAttributeKey, IMeshVertexAttribute> _attributes = new Dictionary<MeshAttributeKey, IMeshVertexAttribute>();
         private List<int> _indices = new List<int>();
 
+        /// <summary>
+        /// Index buffer for the mesh.
+        /// </summary>
+        public IList<int> Indices => _indices;
+
         public void AddAttribute(MeshAttributeKey key, IMeshVertexAttribute attribute)
         {
             _attributes.Add(key, attribute);

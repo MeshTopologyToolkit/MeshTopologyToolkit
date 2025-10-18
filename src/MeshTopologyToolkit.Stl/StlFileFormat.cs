@@ -174,23 +174,28 @@ namespace MeshTopologyToolkit.Stl
         {
             var position = new ListMeshVertexAttribute<Vector3>();
 
+            string name = "Mesh";
             if (content.Scenes.Any())
             {
                 Merge(position, content.Scenes[0]);
+                var sceneName = content.Scenes[0].Name;
+                name = string.IsNullOrWhiteSpace(sceneName) ?name: sceneName;
             }
-            else
+            else if (content.Meshes.Count > 0)
             {
                 foreach (var mesh in content.Meshes)
                 {
                     Merge(position, mesh, MatrixTransform.Identity);
                 }
+                //var sceneName = content.Mesh[0].Name;
+                //name = string.IsNullOrWhiteSpace(sceneName) ? name : sceneName;
             }
 
             using (var stream = entry.OpenWrite())
             {
                 using (var binaryWriter = new BinaryWriter(stream))
                 {
-                    var start = new UTF8Encoding(false).GetBytes("STLEXP Name");
+                    var start = new UTF8Encoding(false).GetBytes("STLEXP "+name);
                     binaryWriter.Write(start, 0, int.Min(80, start.Length));
                     for (int i = start.Length; i < 80; ++i)
                     {
