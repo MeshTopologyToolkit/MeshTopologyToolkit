@@ -32,6 +32,11 @@
             return _attributes.Keys;
         }
 
+        public bool HasAttribute(MeshAttributeKey key)
+        {
+            return _attributes.TryGetValue(key, out var value) && value != null;
+        }
+
         /// <inheritdoc/>
         public bool TryGetAttribute(MeshAttributeKey key, out IMeshVertexAttribute? attribute)
         {

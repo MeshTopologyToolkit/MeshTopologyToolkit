@@ -187,8 +187,8 @@ namespace MeshTopologyToolkit.Stl
                 {
                     Merge(position, mesh, MatrixTransform.Identity);
                 }
-                //var sceneName = content.Mesh[0].Name;
-                //name = string.IsNullOrWhiteSpace(sceneName) ? name : sceneName;
+                var sceneName = content.Meshes[0].Name;
+                name = string.IsNullOrWhiteSpace(sceneName) ? name : sceneName;
             }
 
             using (var stream = entry.OpenWrite())

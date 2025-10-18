@@ -4,6 +4,15 @@ namespace MeshTopologyToolkit
 {
     public static class ExtensionMethods
     {
+        public static IMeshVertexAttribute<T> GetAttribute<T>(this IMesh mesh, MeshAttributeKey key) where T: notnull
+        {
+            if (!mesh.TryGetAttribute<T>(key, out var result) || result == null)
+            {
+                throw new KeyNotFoundException($"Attribute {key} not found");
+            }
+            return result;
+        }
+
         public static Vector3 ReadVector3(this BinaryReader reader)
         {
             var x = reader.ReadSingle();

@@ -1,4 +1,8 @@
-﻿using System.Numerics;
+﻿using MeshTopologyToolkit;
+using System.Globalization;
+using System.Numerics;
+using System.Text;
+using static MeshTopologyToolkit.MeshDrawCall;
 
 namespace MeshTopologyToolkit.Obj
 {
@@ -29,15 +33,15 @@ namespace MeshTopologyToolkit.Obj
                 {
                     if (positions.Count > 0)
                     {
-                        positionIndices.Add(a.Position-1);
+                        positionIndices.Add(a.Position - 1);
                     }
                     if (normals.Count > 0)
                     {
-                        normalIndices.Add(a.Normal-1);
+                        normalIndices.Add(a.Normal - 1);
                     }
                     if (uvs.Count > 0)
                     {
-                        uvIndices.Add(a.TexCoord-1);
+                        uvIndices.Add(a.TexCoord - 1);
                     }
                 };
 
@@ -161,14 +165,181 @@ namespace MeshTopologyToolkit.Obj
 
         public bool TryWrite(IFileSystemEntry entry, FileContainer content)
         {
-            return false;
+            WriteData data = new WriteData();
+            string name = "Mesh";
+            if (content.Scenes.Any())
+            {
+                Merge(data, content.Scenes[0]);
+                var sceneName = content.Scenes[0].Name;
+                name = string.IsNullOrWhiteSpace(sceneName) ? name : sceneName;
+            }
+            else if (content.Meshes.Count > 0)
+            {
+                foreach (var mesh in content.Meshes)
+                {
+                    Merge(data, mesh, MatrixTransform.Identity);
+                }
+                var sceneName = content.Meshes[0].Name;
+                name = string.IsNullOrWhiteSpace(sceneName) ? name : sceneName;
+            }
+
+            using (var stream = entry.OpenWrite())
+            {
+                using (var writer = new StreamWriter(stream, new UTF8Encoding(false)))
+                {
+                    writer.WriteLine($"# MeshTopologyToolkit Wavefront OBJ Exporter v{GetType().Assembly.GetName().Version}");
+                    writer.WriteLine();
+                    foreach (var pos in data.Positions)
+                    {
+                        writer.WriteLine(string.Format(CultureInfo.InvariantCulture, "v  {0} {1} {2}", pos.X, pos.Y, pos.Z));
+                    }
+                    if (data.Normals.Count > 0)
+                    {
+                        writer.WriteLine();
+                        foreach (var normal in data.Normals)
+                        {
+                            writer.WriteLine(string.Format(CultureInfo.InvariantCulture, "vn {0} {1} {2}", normal.X, normal.Y, normal.Z));
+                        }
+                    }
+                    if (data.TexCoords.Count > 0)
+                    {
+                        writer.WriteLine();
+                        foreach (var texCoord in data.TexCoords)
+                        {
+                            writer.WriteLine(string.Format(CultureInfo.InvariantCulture, "vt {0} {1} {2}", texCoord.X, texCoord.Y, texCoord.Z));
+                        }
+                    }
+
+                    var indexFormatter = (int index) => { return string.Format(CultureInfo.InvariantCulture, "{0}", data.PositionIndices[index] + 1); };
+                    if (data.TexCoords.Count > 0)
+                    {
+                        if (data.NormalIndices.Count > 0)
+                        {
+                            indexFormatter = (int index) => { return string.Format(CultureInfo.InvariantCulture, "{0}/{1}/{2}", data.PositionIndices[index] + 1, data.TexCoordIndices[index] + 1, data.NormalIndices[index] + 1); };
+                        }
+                        else
+                        {
+                            indexFormatter = (int index) => { return string.Format(CultureInfo.InvariantCulture, "{0}/{1}", data.PositionIndices[index] + 1, data.TexCoordIndices[index] + 1); };
+                        }
+                    }
+                    else
+                    {
+                        if (data.NormalIndices.Count > 0)
+                        {
+                            indexFormatter = (int index) => { return string.Format(CultureInfo.InvariantCulture, "{0}//{1}", data.PositionIndices[index]+1, data.NormalIndices[index] + 1); };
+                        }
+                    }
+
+                    writer.WriteLine();
+                    writer.WriteLine("o Mesh");
+                    writer.WriteLine("g Mesh");
+                    for (int index=0; index<data.PositionIndices.Count; index+=3)
+                    {
+                        writer.WriteLine("f {0} {1} {2}", indexFormatter(index), indexFormatter(index+1), indexFormatter(index+2));
+                    }
+                }
+            }
+            return true;
+        }
+
+        private void Merge(WriteData data, Node node)
+        {
+            if (node.Mesh != null)
+            {
+                Merge(data, node.Mesh.Mesh, node.GetWorldSpaceTransform());
+            }
+
+            foreach (var child in node.Children)
+            {
+                Merge(data, child);
+            }
+        }
+
+        private void Merge(WriteData data, IMesh mesh, ITransform transform)
+        {
+            if (!mesh.TryGetAttribute<Vector3>(MeshAttributeKey.Position, out var pos) || pos == null) return;
+            if (!mesh.TryGetAttributeIndices(MeshAttributeKey.Position, out var indices) || indices == null) return;
+
+            mesh.TryGetAttributeIndices(MeshAttributeKey.Normal, out var normalIndices);
+            mesh.TryGetAttribute<Vector3>(MeshAttributeKey.Normal, out var normals);
+            bool hasNormals = mesh.HasAttribute(MeshAttributeKey.Normal);
+            bool needNormals = hasNormals || data.Normals.Count > 0;
+
+            if (needNormals && (data.NormalIndices.Count < data.PositionIndices.Count))
+            {
+                var normalIndex = data.Normals.Add(Vector3.UnitZ);
+                while (data.NormalIndices.Count < data.PositionIndices.Count)
+                {
+                    data.NormalIndices.Add(normalIndex);
+                }
+            }
+
+            mesh.TryGetAttributeIndices(MeshAttributeKey.TexCoord, out var texCoordIndices);
+            mesh.TryGetAttribute<Vector3>(MeshAttributeKey.TexCoord, out var texCoords);
+            bool hasTexCoords = texCoordIndices != null && texCoords != null;
+            bool needTexCoords = hasTexCoords || data.TexCoords.Count > 0;
+
+            if (needNormals && (data.TexCoordIndices.Count < data.PositionIndices.Count))
+            {
+                var uvIndex = data.TexCoords.Add(Vector3.Zero);
+                while (data.TexCoordIndices.Count < data.PositionIndices.Count)
+                {
+                    data.TexCoordIndices.Add(uvIndex);
+                }
+            }
+
+            foreach (var drawCall in mesh.DrawCalls)
+            {
+                foreach (var face in drawCall.GetFaces(indices))
+                {
+                    data.PositionIndices.Add(data.Positions.Add(transform.TransformPosition(pos[face.A])));
+                    data.PositionIndices.Add(data.Positions.Add(transform.TransformPosition(pos[face.B])));
+                    data.PositionIndices.Add(data.Positions.Add(transform.TransformPosition(pos[face.C])));
+                }
+                if (needNormals)
+                {
+                    if (normals != null && normalIndices != null)
+                    {
+                        foreach (var face in drawCall.GetFaces(normalIndices))
+                        {
+                            data.NormalIndices.Add(data.Normals.Add(transform.TransformDirection(normals[face.A])));
+                            data.NormalIndices.Add(data.Normals.Add(transform.TransformDirection(normals[face.B])));
+                            data.NormalIndices.Add(data.Normals.Add(transform.TransformDirection(normals[face.C])));
+                        }
+                    }
+                }
+                if (needTexCoords)
+                {
+                    if (texCoords != null && texCoordIndices != null)
+                    {
+                        foreach (var face in drawCall.GetFaces(texCoordIndices))
+                        {
+                            data.TexCoordIndices.Add(data.TexCoords.Add(transform.TransformDirection(texCoords[face.A])));
+                            data.TexCoordIndices.Add(data.TexCoords.Add(transform.TransformDirection(texCoords[face.B])));
+                            data.TexCoordIndices.Add(data.TexCoords.Add(transform.TransformDirection(texCoords[face.C])));
+                        }
+                    }
+                }
+            }
         }
     }
 
-    struct Indices
+    class WriteData
     {
-        public int Position;
-        public int TexCoord;
-        public int Normal;
+        IMeshVertexAttribute<Vector3> _positions = new DictionaryMeshVertexAttribute<Vector3>();
+        IMeshVertexAttribute<Vector3> _normals = new DictionaryMeshVertexAttribute<Vector3>();
+        IMeshVertexAttribute<Vector3> _texCoords = new DictionaryMeshVertexAttribute<Vector3>();
+
+        IList<int> _positionIndices = new List<int>();
+        IList<int> _normalIndices = new List<int>();
+        IList<int> _texCoordIndices = new List<int>();
+
+        public IMeshVertexAttribute<Vector3> Positions => _positions;
+        public IMeshVertexAttribute<Vector3> Normals => _normals;
+        public IMeshVertexAttribute<Vector3> TexCoords => _texCoords;
+        public IList<int> PositionIndices => _positionIndices;
+        public IList<int> NormalIndices => _normalIndices;
+        public IList<int> TexCoordIndices => _texCoordIndices;
     }
 }
+

@@ -97,5 +97,10 @@
         {
             return _attributes.Keys;
         }
+
+        public bool HasAttribute(MeshAttributeKey key)
+        {
+            return _attributes.TryGetValue(key, out var value) && value.Indices != null && value.Attribute != null;
+        }
     }
 }
