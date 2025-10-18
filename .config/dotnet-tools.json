@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "isRoot": true,
+  "tools": {
+    "ezpipeline": {
+      "version": "0.0.48",
+      "commands": [
+        "ezpipeline"
+      ]
+    }
+  }
+}

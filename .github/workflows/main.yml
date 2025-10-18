@@ -1,0 +1,75 @@
+name: Build & Publish NuGet Packages
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write   # to create releases and upload assets
+      packages: write   # to publish to GitHub Packages (optional)
+      id-token: write   # required for OIDC-based auth if used later
+
+    steps:
+      # 1 Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2 Setup .NET (adjust SDK version as needed)
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      # 3 Restore dependencies
+      - name: Restore tools and dependencies
+        run: |
+          dotnet tool restore
+          dotnet restore
+          dotnet tool run ezpipeline git-height-version -- -b 0.0.0 -v BUILD_VERSION
+
+      # 4 Build the solution in Release mode
+      - name: Build solution
+        run: dotnet build --configuration Release --no-restore
+
+      # 5 Pack all class library projects into .nupkg files
+      - name: Pack NuGet packages
+        run: |
+          mkdir -p output
+          dotnet pack "src/MeshTopologyToolkit/" --configuration Release --no-build --output ./output
+
+      # 6 Upload packages as artifacts for debugging or inspection
+      - name: Upload .nupkg artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-packages
+          path: output/*.nupkg
+
+      # 7 Create or update a GitHub Release for this commit
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "Automated Build - ${{ github.sha }}"
+          tag_name: "build-${{ github.sha }}"
+          files: output/*.nupkg
+          body: |
+            Automated build of NuGet packages for commit ${{ github.sha }}.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # 8 Publish packages to NuGet.org
+      - name: Publish to NuGet.org
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        run: |
+          for pkg in output/*.nupkg; do
+            echo "Publishing $pkg to NuGet.org..."
+            dotnet nuget push "$pkg" \
+              --api-key "$NUGET_API_KEY" \
+              --source https://api.nuget.org/v3/index.json \
+              --skip-duplicate
+          done
