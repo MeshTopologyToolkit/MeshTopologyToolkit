@@ -4,6 +4,16 @@
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    
+    <!-- NuGet Package Settings -->
+    <Authors>MeshTopologyToolkit contributors</Authors>
+    <Company>MeshTopologyToolkit</Company>
+    <Description>MeshTopologyToolkit is a lightweight, extensible C# library designed for developers working with 3D mesh data.</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/MeshTopologyToolkit/MeshTopologyToolkit</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/MeshTopologyToolkit/MeshTopologyToolkit.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>utilities;dotnet;library</PackageTags>
   </PropertyGroup>
 
 </Project>

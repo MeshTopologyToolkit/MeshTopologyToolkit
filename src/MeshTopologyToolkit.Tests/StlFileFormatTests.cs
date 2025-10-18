@@ -1,5 +1,4 @@
 ﻿using MeshTopologyToolkit.Stl;
-using System.Net.Mime;
 using System.Numerics;
 
 namespace MeshTopologyToolkit.Tests;
