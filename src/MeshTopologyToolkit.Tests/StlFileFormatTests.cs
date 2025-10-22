@@ -2,7 +2,6 @@
 using System.Numerics;
 
 namespace MeshTopologyToolkit.Tests;
-
 public class StlFileFormatTests
 {
     [Fact]
@@ -33,9 +32,9 @@ public class StlFileFormatTests
         Assert.NotNull(content);
 
         var memoryStream = new MemoryStream();
-        Assert.True(fileFormat.TryWrite(new StreamFileSystemEntry(() => memoryStream), content));
+        Assert.True(fileFormat.TryWrite(new StreamFileSystemEntry(() => memoryStream, "TwoCorners.stl"), content));
 
-        Assert.True(fileFormat.TryRead(new StreamFileSystemEntry(() => new MemoryStream(memoryStream.ToArray())), out var newContent));
+        Assert.True(fileFormat.TryRead(new StreamFileSystemEntry(() => new MemoryStream(memoryStream.ToArray()), "TwoCorners.stl"), out var newContent));
     }
 
     [Fact]
@@ -64,7 +63,7 @@ public class StlFileFormatTests
         // Add a draw call defining how to interpret the indices above.
         // Here, MeshTopology.TriangleList means every three indices form a triangle.
         // The parameters (0, 3) mean: start at index 0, use 3 indices → one triangle.
-        mesh.DrawCalls.Add(new MeshDrawCall(MeshTopology.TriangleList, 0, 3));
+        mesh.DrawCalls.Add(new MeshDrawCall(MeshTopology.TriangleList, 0, indices.Count));
 
         // Create a new file container to hold scene assets (e.g. meshes, textures, materials).
         var content = new FileContainer();

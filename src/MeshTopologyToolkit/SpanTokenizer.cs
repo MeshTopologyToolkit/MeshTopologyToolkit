@@ -1,11 +1,13 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
+using System.IO;
 using System.Text;
 
 namespace MeshTopologyToolkit
 {
     public ref struct SpanTokenizer
     {
-        static readonly System.Buffers.SearchValues<char> WhitespaceValues = System.Buffers.SearchValues.Create(' ', '\t', '\n', '\r');
+        static readonly char[] WhitespaceValues = new[] { ' ', '\t', '\n', '\r' };
 
         // The internal span representing the remainder of the input text.
         private ReadOnlySpan<char> _remainingText;
@@ -116,7 +118,7 @@ namespace MeshTopologyToolkit
             Func<char,bool> currentState = (char c)=> false;
             var expDidgits = (char c) =>
             {
-                if (char.IsAsciiDigit(c))
+                if (char.IsDigit(c))
                 {
                     return true;
                 }
@@ -129,7 +131,7 @@ namespace MeshTopologyToolkit
                     currentState = expDidgits;
                     return true;
                 }
-                if (char.IsAsciiDigit(c))
+                if (char.IsDigit(c))
                 {
                     currentState = expDidgits;
                     return true;
@@ -143,7 +145,7 @@ namespace MeshTopologyToolkit
                     currentState = expStart;
                     return true;
                 }
-                if (char.IsAsciiDigit(c))
+                if (char.IsDigit(c))
                 {
                     return true;
                 }
@@ -161,7 +163,7 @@ namespace MeshTopologyToolkit
                     currentState = expStart;
                     return true;
                 }
-                if (char.IsAsciiDigit(c))
+                if (char.IsDigit(c))
                 {
                     return true;
                 }
@@ -178,7 +180,7 @@ namespace MeshTopologyToolkit
                     currentState = dotDidgits;
                     return true;
                 }
-                if (char.IsAsciiDigit(c))
+                if (char.IsDigit(c))
                 {
                     currentState = intDidgits;
                     return true;
@@ -234,7 +236,7 @@ namespace MeshTopologyToolkit
             
             var intDidgits = (char c) =>
             {
-                if (char.IsAsciiDigit(c))
+                if (char.IsDigit(c))
                 {
                     return true;
                 }
@@ -246,7 +248,7 @@ namespace MeshTopologyToolkit
                     currentState = intDidgits;
                     return true;
                 }
-                if (char.IsAsciiDigit(c))
+                if (char.IsDigit(c))
                 {
                     currentState = intDidgits;
                     return true;

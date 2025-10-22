@@ -1,4 +1,7 @@
-﻿namespace MeshTopologyToolkit
+﻿using System;
+using System.Collections.Generic;
+
+namespace MeshTopologyToolkit
 {
     public class UnifiedIndexedMesh : MeshBase, IMesh
     {

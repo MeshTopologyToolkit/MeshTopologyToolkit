@@ -1,8 +1,6 @@
-﻿using MeshTopologyToolkit;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Numerics;
 using System.Text;
-using static MeshTopologyToolkit.MeshDrawCall;
 
 namespace MeshTopologyToolkit.Obj
 {

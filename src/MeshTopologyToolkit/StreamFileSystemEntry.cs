@@ -1,14 +1,20 @@
-﻿using System.Reflection;
+﻿using System;
+using System.IO;
+using System.Linq;
+using System.Reflection;
 
 namespace MeshTopologyToolkit
 {
     public class StreamFileSystemEntry : IFileSystemEntry
     {
         Func<Stream?> _openStream;
-        public StreamFileSystemEntry(Func<Stream?> openStream)
+        public StreamFileSystemEntry(Func<Stream?> openStream, string name)
         {
             _openStream = openStream;
+            Name = name;
         }
+
+        public string Name { get; }
 
         public bool Exists
         {
@@ -27,7 +33,7 @@ namespace MeshTopologyToolkit
             {
                 if (assembly.GetManifestResourceNames().Contains(resourceName))
                 {
-                    return new StreamFileSystemEntry(() => assembly.GetManifestResourceStream(resourceName));
+                    return new StreamFileSystemEntry(() => assembly.GetManifestResourceStream(resourceName), resourceName);
                 }
             }
             throw new FileNotFoundException($"Embedded resource {resourceName} not found");
@@ -42,7 +48,7 @@ namespace MeshTopologyToolkit
                     throw new FileNotFoundException($"Embedded resource {resourceName} not found in {assembly}");
                 throw new FileNotFoundException($"Embedded resource {resourceName} not found in {assembly}, some candidates are " + string.Join(", ", names.Take(3)));
             }
-            return new StreamFileSystemEntry(() => assembly.GetManifestResourceStream(resourceName));
+            return new StreamFileSystemEntry(() => assembly.GetManifestResourceStream(resourceName), resourceName);
         }
 
         public IFileSystemEntry GetNeigbourEntry(string fileName)

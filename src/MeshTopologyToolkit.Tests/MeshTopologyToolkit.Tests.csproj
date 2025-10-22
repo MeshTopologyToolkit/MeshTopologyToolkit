@@ -15,6 +15,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\MeshTopologyToolkit.Gltf\MeshTopologyToolkit.Gltf.csproj" />
 		<ProjectReference Include="..\MeshTopologyToolkit.Obj\MeshTopologyToolkit.Obj.csproj" />
 		<ProjectReference Include="..\MeshTopologyToolkit.Stl\MeshTopologyToolkit.Stl.csproj" />
 		<ProjectReference Include="..\MeshTopologyToolkit.Urho3D\MeshTopologyToolkit.Urho3D.csproj" />
@@ -37,6 +38,10 @@
 		<EmbeddedResource Include="..\..\samples\corner\TwoCorners_SmoothingGroops.obj" Link="Samples\Corner\TwoCorners_SmoothingGroops.obj" />
 		<EmbeddedResource Include="..\..\samples\corner\TwoCorners_Text.stl" Link="Samples\Corner\TwoCorners_Text.stl" />
 		<EmbeddedResource Include="..\..\samples\corner\TwoCorners_UV.obj" Link="Samples\Corner\TwoCorners_UV.obj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <EmbeddedResource Include="..\..\samples\corner\TwoCorners.glb" Link="Samples\Corner\TwoCorners.glb" />
 	</ItemGroup>
 
 </Project>

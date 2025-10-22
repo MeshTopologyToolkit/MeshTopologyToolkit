@@ -1,4 +1,6 @@
-﻿namespace MeshTopologyToolkit
+﻿using System.Collections.Generic;
+
+namespace MeshTopologyToolkit
 {
     public class FileContainer
     {

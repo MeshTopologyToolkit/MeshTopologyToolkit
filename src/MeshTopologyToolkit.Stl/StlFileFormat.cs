@@ -196,7 +196,7 @@ namespace MeshTopologyToolkit.Stl
                 using (var binaryWriter = new BinaryWriter(stream))
                 {
                     var start = new UTF8Encoding(false).GetBytes("STLEXP "+name);
-                    binaryWriter.Write(start, 0, int.Min(80, start.Length));
+                    binaryWriter.Write(start, 0, Math.Min(80, start.Length));
                     for (int i = start.Length; i < 80; ++i)
                     {
                         binaryWriter.Write((byte)0);

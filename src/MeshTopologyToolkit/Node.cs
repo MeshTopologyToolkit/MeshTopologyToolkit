@@ -1,7 +1,13 @@
-﻿namespace MeshTopologyToolkit
+﻿using System.Collections.Generic;
+
+namespace MeshTopologyToolkit
 {
     public class Node
     {
+        public Node(string? name = null)
+        {
+            Name = name;
+        }
         public string? Name { get; set; }
 
         private List<Node> _children = new List<Node>();

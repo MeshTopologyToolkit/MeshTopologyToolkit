@@ -1,4 +1,6 @@
 ﻿
+using System.Collections.Generic;
+
 namespace MeshTopologyToolkit
 {
     public struct MeshDrawCall
@@ -24,6 +26,30 @@ namespace MeshTopologyToolkit
                         for (int i=StartIndex; i<StartIndex+NumIndices-2; i+=3)
                         {
                             yield return new Face(indices[i], indices[i+1], indices[i+2]);
+                        }
+                    }
+                    break;
+                case MeshTopology.TriangleStrip:
+                    {
+                        bool swapDirection = false;
+                        for (int i = StartIndex; i < StartIndex + NumIndices - 2; ++i)
+                        {
+                            if (swapDirection)
+                            {
+                                yield return new Face(indices[i + 1], indices[i], indices[i + 2]);
+                            }
+                            else
+                            {
+                                yield return new Face(indices[i], indices[i + 1], indices[i + 2]);
+                            }
+                        }
+                    }
+                    break;
+                case MeshTopology.TriangleFan:
+                    {
+                        for (int i = StartIndex + 1; i < StartIndex + NumIndices - 1; ++i)
+                        {
+                            yield return new Face(indices[StartIndex], indices[i], indices[i + 1]);
                         }
                     }
                     break;

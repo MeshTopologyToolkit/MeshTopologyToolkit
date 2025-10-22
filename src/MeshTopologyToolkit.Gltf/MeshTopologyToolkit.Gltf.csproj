@@ -2,9 +2,8 @@
 
 	<PropertyGroup>
 		<TargetFramework>netstandard2.1</TargetFramework>
-		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
-		<LangVersion>11</LangVersion>
+		<LangVersion>10</LangVersion>
 
 		<!-- NuGet Package Settings -->
 		<Authors>MeshTopologyToolkit contributors</Authors>
@@ -19,7 +18,11 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\MeshTopologyToolkit\MeshTopologyToolkit.csproj" />
+	  <PackageReference Include="SharpGLTF.Core" Version="1.0.5" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\MeshTopologyToolkit\MeshTopologyToolkit.csproj" />
 	</ItemGroup>
 
 </Project>

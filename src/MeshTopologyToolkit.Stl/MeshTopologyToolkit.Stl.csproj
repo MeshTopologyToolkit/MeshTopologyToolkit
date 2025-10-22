@@ -1,11 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>netstandard2.1</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <LangVersion>10</LangVersion>
 
-    <!-- NuGet Package Settings -->
+	<!-- NuGet Package Settings -->
     <Authors>MeshTopologyToolkit contributors</Authors>
     <Company>MeshTopologyToolkit</Company>
     <Description>MeshTopologyToolkit is a lightweight, extensible C# library designed for developers working with 3D mesh data.</Description>

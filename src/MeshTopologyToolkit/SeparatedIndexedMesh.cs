@@ -1,4 +1,8 @@
-﻿namespace MeshTopologyToolkit
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace MeshTopologyToolkit
 {
     public class SeparatedIndexedMesh : MeshBase, IMesh
     {

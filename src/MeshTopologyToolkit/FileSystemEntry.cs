@@ -1,4 +1,6 @@
-﻿namespace MeshTopologyToolkit
+﻿using System.IO;
+
+namespace MeshTopologyToolkit
 {
     public class FileSystemEntry: IFileSystemEntry
     {
@@ -14,6 +16,8 @@
         }
 
         public bool Exists => _fileInfo.Exists;
+
+        public string Name => _fileInfo.Name;
 
         public IFileSystemEntry GetNeigbourEntry(string fileName)
         {
@@ -32,6 +36,11 @@
         public Stream OpenWrite()
         {
             return _fileInfo.Open(FileMode.Create, FileAccess.Write, FileShare.ReadWrite);
+        }
+
+        public override string ToString()
+        {
+            return Name ?? base.ToString();
         }
     }
 }
