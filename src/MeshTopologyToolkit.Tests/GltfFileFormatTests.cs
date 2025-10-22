@@ -11,6 +11,6 @@ public class GltfFileFormatTests
         Assert.True(fileFormat.TryRead(StreamFileSystemEntry.FromEmbeddedResource(this.GetType().Assembly, "MeshTopologyToolkit.Tests.Samples.Corner.TwoCorners.glb"), out var content));
 
         Assert.NotNull(content);
-        Assert.Single(content.Meshes);
+        Assert.Equal(2, content.Meshes.Count);
     }
 }

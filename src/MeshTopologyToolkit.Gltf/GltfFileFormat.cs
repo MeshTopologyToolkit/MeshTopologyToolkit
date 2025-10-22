@@ -1,6 +1,5 @@
 ﻿using SharpGLTF.Schema2;
 using System;
-using System.Collections.Generic;
 using System.IO;
 
 
@@ -22,36 +21,11 @@ namespace MeshTopologyToolkit.Gltf
 
                 content = new FileContainer();
 
-                foreach (var sourceScene in model.LogicalScenes)
-                {
-                    var scene = new Scene(sourceScene.Name);
-                    content.Scenes.Add(scene);
-                    VisitVisualChildren(scene, sourceScene.VisualChildren);
-                }
+                var visitor  = new GltfVisitor(content);
+                visitor.Visit(model);
 
                 return true;
             }
-        }
-
-        private void VisitVisualChildren(Node parent, IEnumerable<SharpGLTF.Schema2.Node> visualChildren)
-        {
-            foreach (var child in visualChildren)
-            {
-                parent.AddChild(VisitNode(child));
-            }
-        }
-
-        private Node VisitNode(SharpGLTF.Schema2.Node gltfNode)
-        {
-            var node = new Node(gltfNode.Name);
-            VisitVisualChildren(node, gltfNode.VisualChildren);
-
-            if (gltfNode.Mesh != null)
-            {
-
-            }
-
-            return node;
         }
 
         private ArraySegment<byte> ReadBytes(Stream? value)

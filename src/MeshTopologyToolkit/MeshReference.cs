@@ -1,4 +1,6 @@
-﻿namespace MeshTopologyToolkit
+﻿using System.Collections.Generic;
+
+namespace MeshTopologyToolkit
 {
     public class MeshReference
     {
@@ -8,5 +10,6 @@
         }
 
         public IMesh Mesh { get; set; }
+        public IList<Material> Materials { get; } = new List<Material>();
     }
 }
