@@ -104,14 +104,14 @@ namespace MeshTopologyToolkit
             while (stack.Count > 0)
             {
                 var node = stack.Pop();
-                if (!Intersects(node.Bounds, query)) continue;
+                if (!node.Bounds.Intersects(query)) continue;
 
                 if (node.IsLeaf)
                 {
                     // check leaf entries individually
                     foreach (var idx in node.Entries)
                     {
-                        if (Intersects(_boxes[idx], query))
+                        if (_boxes[idx].Intersects(query))
                             yield return idx;
                     }
                 }
@@ -119,7 +119,7 @@ namespace MeshTopologyToolkit
                 {
                     foreach (var child in node.Children)
                     {
-                        if (Intersects(child.Bounds, query))
+                        if (child.Bounds.Intersects(query))
                             stack.Push(child);
                     }
                 }
@@ -137,7 +137,7 @@ namespace MeshTopologyToolkit
 
             var leaf = ChooseLeaf(_root, box);
             // expand leaf bounds
-            leaf.Bounds = Merge(leaf.Bounds, box);
+            leaf.Bounds = leaf.Bounds.Merge(box);
             leaf.Entries.Add(index);
 
             if (leaf.Entries.Count > _maxEntries)
@@ -146,7 +146,7 @@ namespace MeshTopologyToolkit
                 if (leaf == _root)
                 {
                     // create new root
-                    var newRoot = new Node(Merge(n1.Bounds, n2.Bounds));
+                    var newRoot = new Node(n1.Bounds.Merge(n2.Bounds));
                     newRoot.AddChild(n1);
                     newRoot.AddChild(n2);
                     _root = newRoot;
@@ -169,7 +169,7 @@ namespace MeshTopologyToolkit
                         var (c1, c2) = SplitInternal(current);
                         if (current == _root)
                         {
-                            var newRoot = new Node(Merge(c1.Bounds, c2.Bounds));
+                            var newRoot = new Node(c1.Bounds.Merge(c2.Bounds));
                             newRoot.AddChild(c1);
                             newRoot.AddChild(c2);
                             _root = newRoot;
@@ -205,9 +205,9 @@ namespace MeshTopologyToolkit
 
             foreach (var child in node.Children)
             {
-                var oldVol = Volume(child.Bounds);
-                var merged = Merge(child.Bounds, box);
-                var newVol = Volume(merged);
+                var oldVol = child.Bounds.Volume();
+                var merged = child.Bounds.Merge(box);
+                var newVol = merged.Volume();
                 var inc = newVol - oldVol;
 
                 if (inc < bestInc || (inc == bestInc && oldVol < bestVol))
@@ -229,7 +229,7 @@ namespace MeshTopologyToolkit
                 entries.Add((idx, _boxes[idx]));
 
             // pick seeds
-            var (s1, s2) = PickSeeds(entries, (a, b) => Merge(a.box, b.box));
+            var (s1, s2) = PickSeeds(entries, (a, b) => a.box.Merge(b.box));
             var n1 = new Node(s1.box);
             var n2 = new Node(s2.box);
             n1.Entries.Add(s1.idx);
@@ -244,49 +244,44 @@ namespace MeshTopologyToolkit
                 if (n1.Entries.Count + 1 + (entries.Count - (n1.Entries.Count + n2.Entries.Count)) < _minEntries)
                 {
                     n1.Entries.Add(e.idx);
-                    n1.Bounds = Merge(n1.Bounds, e.box);
+                    n1.Bounds = n1.Bounds.Merge(e.box);
                     continue;
                 }
                 if (n2.Entries.Count + 1 + (entries.Count - (n1.Entries.Count + n2.Entries.Count)) < _minEntries)
                 {
                     n2.Entries.Add(e.idx);
-                    n2.Bounds = Merge(n2.Bounds, e.box);
+                    n2.Bounds = n2.Bounds.Merge(e.box);
                     continue;
                 }
 
-                var inc1 = Volume(Merge(n1.Bounds, e.box)) - Volume(n1.Bounds);
-                var inc2 = Volume(Merge(n2.Bounds, e.box)) - Volume(n2.Bounds);
+                var inc1 = n1.Bounds.Merge(e.box).Volume() - n1.Bounds.Volume();
+                var inc2 = n2.Bounds.Merge(e.box).Volume() - n2.Bounds.Volume();
 
                 if (inc1 < inc2)
                 {
                     n1.Entries.Add(e.idx);
-                    n1.Bounds = Merge(n1.Bounds, e.box);
+                    n1.Bounds = n1.Bounds.Merge(e.box);
                 }
                 else if (inc2 < inc1)
                 {
                     n2.Entries.Add(e.idx);
-                    n2.Bounds = Merge(n2.Bounds, e.box);
+                    n2.Bounds = n2.Bounds.Merge(e.box);
                 }
                 else
                 {
                     // tie: choose smaller volume, then fewer entries
-                    if (Volume(n1.Bounds) < Volume(n2.Bounds) || (Volume(n1.Bounds) == Volume(n2.Bounds) && n1.Entries.Count <= n2.Entries.Count))
+                    if (n1.Bounds.Volume() < n2.Bounds.Volume() || (n1.Bounds.Volume() == n2.Bounds.Volume() && n1.Entries.Count <= n2.Entries.Count))
                     {
                         n1.Entries.Add(e.idx);
-                        n1.Bounds = Merge(n1.Bounds, e.box);
+                        n1.Bounds = n1.Bounds.Merge(e.box);
                     }
                     else
                     {
                         n2.Entries.Add(e.idx);
-                        n2.Bounds = Merge(n2.Bounds, e.box);
+                        n2.Bounds = n2.Bounds.Merge(e.box);
                     }
                 }
             }
-
-            //// attach parents
-            //var parent = leaf.Parent;
-            //parent.AddChild(n1);
-            //parent.AddChild(n2);
 
             return (n1, n2);
         }
@@ -296,7 +291,7 @@ namespace MeshTopologyToolkit
             // split children into two nodes
             var children = new List<Node>(node.Children);
 
-            var (s1, s2) = PickSeeds(children, (a, b) => Merge(a.Bounds, b.Bounds));
+            var (s1, s2) = PickSeeds(children, (a, b) => a.Bounds.Merge(b.Bounds));
             var n1 = new Node(s1.Bounds);
             var n2 = new Node(s2.Bounds);
             node.RemoveChild(s1);
@@ -322,8 +317,8 @@ namespace MeshTopologyToolkit
                     continue;
                 }
 
-                var inc1 = Volume(Merge(n1.Bounds, child.Bounds)) - Volume(n1.Bounds);
-                var inc2 = Volume(Merge(n2.Bounds, child.Bounds)) - Volume(n2.Bounds);
+                var inc1 = n1.Bounds.Merge(child.Bounds).Volume() - n1.Bounds.Volume();
+                var inc2 = n2.Bounds.Merge(child.Bounds).Volume() - n2.Bounds.Volume();
 
                 if (inc1 < inc2)
                 {
@@ -335,7 +330,7 @@ namespace MeshTopologyToolkit
                 }
                 else
                 {
-                    if (Volume(n1.Bounds) < Volume(n2.Bounds) || (Volume(n1.Bounds) == Volume(n2.Bounds) && n1.Children.Count <= n2.Children.Count))
+                    if ((float)n1.Bounds.Volume() < (float)n2.Bounds.Volume() || ((float)n1.Bounds.Volume() == (float)n2.Bounds.Volume() && n1.Children.Count <= n2.Children.Count))
                     {
                         n1.AddChild(child);
                     }
@@ -363,7 +358,7 @@ namespace MeshTopologyToolkit
                     var a = items[i];
                     var b = items[j];
                     var mab = mergeFunc(a, b);
-                    var waste = Volume(mab) - Volume(GetBoxFor(items, i, mergeFunc)) - Volume(GetBoxFor(items, j, mergeFunc));
+                    var waste = mab.Volume() - GetBoxFor(items, i, mergeFunc).Volume() - GetBoxFor(items, j, mergeFunc).Volume();
                     if (waste > bestWaste)
                     {
                         bestWaste = waste;
@@ -393,7 +388,7 @@ namespace MeshTopologyToolkit
                     {
                         var b = _boxes[node.Entries[0]];
                         for (int i = 1; i < node.Entries.Count; ++i)
-                            b = Merge(b, _boxes[node.Entries[i]]);
+                            b = b.Merge(_boxes[node.Entries[i]]);
                         node.Bounds = b;
                     }
                 }
@@ -403,35 +398,12 @@ namespace MeshTopologyToolkit
                     {
                         var b = node.Children[0].Bounds;
                         for (int i = 1; i < node.Children.Count; ++i)
-                            b = Merge(b, node.Children[i].Bounds);
+                            b = b.Merge(node.Children[i].Bounds);
                         node.Bounds = b;
                     }
                 }
                 node = node.Parent;
             }
-        }
-
-        static BoundingBox3 Merge(BoundingBox3 a, BoundingBox3 b)
-        {
-            return a.Union(b);
-        }
-
-        static double Volume(BoundingBox3 b)
-        {
-            var d = b.Max - b.Min;
-            // guard against negative/degenerate extents
-            var x = Math.Max(0.0, d.X);
-            var y = Math.Max(0.0, d.Y);
-            var z = Math.Max(0.0, d.Z);
-            return x * y * z;
-        }
-
-        static bool Intersects(BoundingBox3 a, BoundingBox3 b)
-        {
-            // standard AABB overlap test
-            return !(a.Max.X < b.Min.X || a.Min.X > b.Max.X
-                  || a.Max.Y < b.Min.Y || a.Min.Y > b.Max.Y
-                  || a.Max.Z < b.Min.Z || a.Min.Z > b.Max.Z);
         }
 
         // internal node type
@@ -466,7 +438,7 @@ namespace MeshTopologyToolkit
                     throw new InvalidOperationException("Node already has a parent.");
                 _children.Add(child);
                 child.Parent = this;
-                Bounds = Merge(Bounds, child.Bounds);
+                Bounds = Bounds.Merge(child.Bounds);
             }
 
             internal void RemoveChild(Node current)
