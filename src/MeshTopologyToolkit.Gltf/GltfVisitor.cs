@@ -2,6 +2,7 @@
 using SharpGLTF.Transforms;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Numerics;
 using GltfMaterial = SharpGLTF.Schema2.Material;
@@ -96,33 +97,81 @@ namespace MeshTopologyToolkit.Gltf
             if (_visitedMeshes.TryGetValue(sourceMesh, out var meshRef))
                 return meshRef;
 
-            var mesh = new UnifiedIndexedMesh() { Name = sourceMesh.Name };
+            var mesh = new SeparatedIndexedMesh() { Name = sourceMesh.Name };
+
             meshRef = new MeshReference(mesh);
 
             int primIndex = 0;
             foreach (var prim in sourceMesh.Primitives)
             {
-                var startIndex = mesh.Indices.Count;
-                meshRef.Materials.Add(VisitMaterial(prim.Material));
-                var indexAccessor = prim.GetIndexAccessor();
-                if (indexAccessor != null)
-                {
-                    var indices = indexAccessor.AsIndicesArray();
-                    foreach (var index in indices)
-                    {
-                        mesh.Indices.Add((int)index);
-                    }
-                }
-                else
-                {
-                    throw new NotImplementedException();
-                }
-                mesh.DrawCalls.Add(new MeshDrawCall(VisitTopology(prim.DrawPrimitiveType), startIndex, mesh.Indices.Count));
-                primIndex++;
+                //if (mesh.HasAttribute(MeshAttributeKey.Position))
+                //{
+                //    foreach (var accessor in prim.VertexAccessors)
+                //    {
+                //        if (!mesh.HasAttribute(VisitAccessorKey(accessor.Key)))
+                //            throw new FormatException("Inconsistent set of attributes");
+                //    }
+                //}
+                //else
+                //{
+                //    foreach (var accessor in prim.VertexAccessors)
+                //    {
+                //        mesh.AddAttribute(VisitAccessorKey(accessor.Key), VisitAccessor(accessor));
+                //    }
+                //}
+
+
+                //var startIndex = mesh.Indices.Count;
+                //meshRef.Materials.Add(VisitMaterial(prim.Material));
+                //var indexAccessor = prim.GetIndexAccessor();
+                //if (indexAccessor != null)
+                //{
+                //    var indices = indexAccessor.AsIndicesArray();
+                //    foreach (var index in indices)
+                //    {
+                //        mesh.Indices.Add((int)index);
+                //    }
+                //}
+                //else
+                //{
+                //    throw new NotImplementedException();
+                //}
+                //mesh.DrawCalls.Add(new MeshDrawCall(VisitTopology(prim.DrawPrimitiveType), startIndex, mesh.Indices.Count));
+                //primIndex++;
             }
 
             _visitedMeshes.Add(sourceMesh, meshRef);
             return meshRef;
+        }
+
+        //private (IMeshVertexAttribute) VisitAccessor(Accessor accessor)
+        //{
+        //    switch (accessor.Dimensions)
+        //    {
+        //        case DimensionType.SCALAR:
+        //            {
+        //                switch (accessor.EncodingType)
+        //                {
+        //                    default:
+        //                        {
+        //                            var array = accessor.AsScalarArray();
+        //                            var buf = new DictionaryMeshVertexAttribute<float>();
+        //                            return (buf, (int index)=> );
+        //                        }
+        //                }
+        //            }
+        //            return new Dictionary<float>
+        //    }
+        //}
+
+        private MeshAttributeKey VisitAccessorKey(string key)
+        {
+            var channelDelimeter = key.LastIndexOf('_');
+            if (channelDelimeter >= 0)
+            {
+                return new MeshAttributeKey(key.Substring(0, channelDelimeter), int.Parse(key.Substring(channelDelimeter + 1), CultureInfo.InvariantCulture));
+            }
+            return new MeshAttributeKey(key, 0);
         }
 
         private MeshTopology VisitTopology(PrimitiveType drawPrimitiveType)
