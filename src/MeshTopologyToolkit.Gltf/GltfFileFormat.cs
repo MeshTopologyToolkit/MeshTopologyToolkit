@@ -1,6 +1,8 @@
-﻿using SharpGLTF.Schema2;
+﻿using SharpGLTF.Scenes;
+using SharpGLTF.Schema2;
 using System;
 using System.IO;
+using System.Xml.Linq;
 
 
 namespace MeshTopologyToolkit.Gltf
@@ -41,7 +43,32 @@ namespace MeshTopologyToolkit.Gltf
 
         public bool TryWrite(IFileSystemEntry entry, FileContainer content)
         {
-            return false;
+            var model = new ModelBuilder().BuildModel(content);
+
+            var isBinary = !entry.Name.EndsWith(".gltf", StringComparison.OrdinalIgnoreCase);
+            using (var stream = entry.OpenWrite())
+            {
+                if (stream == null)
+                    return false;
+                var writeContext = WriteContext.Create((assetName, assetData) => WriteFile(entry, Uri.UnescapeDataString(assetName), assetData));
+                writeContext.WithBinarySettings();
+                writeContext.WriteBinarySchema2(entry.Name, model);
+            }
+            return true;
+        }
+
+        private void WriteFile(IFileSystemEntry entry, string assetName, ArraySegment<byte> assetData)
+        {
+            if (entry.Name != assetName)
+            {
+                entry = entry.GetNeigbourEntry(assetName);
+            }
+            using (var stream = entry.OpenWrite())
+            {
+                if (stream == null)
+                    throw new IOException($"Could not open file {assetName} for writing.");
+                stream.Write(assetData.Array!, assetData.Offset, assetData.Count);
+            }
         }
     }
 }

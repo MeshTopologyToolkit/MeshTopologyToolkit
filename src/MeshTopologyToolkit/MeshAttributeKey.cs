@@ -7,6 +7,8 @@
         public static readonly MeshAttributeKey Tangent = new MeshAttributeKey(MeshAttributeNames.Tangent, 0);
         public static readonly MeshAttributeKey TexCoord = new MeshAttributeKey(MeshAttributeNames.TexCoord, 0);
         public static readonly MeshAttributeKey Color = new MeshAttributeKey(MeshAttributeNames.Color, 0);
+        public static readonly MeshAttributeKey Joints = new MeshAttributeKey(MeshAttributeNames.Joints, 0);
+        public static readonly MeshAttributeKey Weights = new MeshAttributeKey(MeshAttributeNames.Weights, 0);
 
         private string _name;
         private int _channel;
@@ -16,6 +18,10 @@
             _name = name;
             _channel = channel;
         }
+
+        public string Name => _name;
+
+        public int Channel => _channel;
 
         public bool IsValid { get
             {
