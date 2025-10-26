@@ -12,18 +12,18 @@ namespace MeshTopologyToolkit
             _values = values;
         }
 
-        public T this[int index] => _values[index];
+        public override T this[int index] => _values[index];
 
-        public int Count => _values.Count;
+        public override int Count => _values.Count;
 
-        public IEnumerator<T> GetEnumerator()
-        {
-            return _values.GetEnumerator();
-        }
-
-        int IMeshVertexAttribute<T>.Add(T value)
+        public override int Add(T value)
         {
             throw new NotImplementedException("Can't add value to attribute container view");
+        }
+
+        public override IEnumerator<T> GetEnumerator()
+        {
+            return _values.GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()

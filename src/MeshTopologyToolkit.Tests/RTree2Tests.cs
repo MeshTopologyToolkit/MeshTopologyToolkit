@@ -2,16 +2,16 @@
 
 namespace MeshTopologyToolkit.Tests;
 
-public class RTree3Tests
+public class RTree2Tests
 {
     [Fact]
     public void SplitRoot()
     {
         float boxHalfSize = 0.1f;
-        var tree = new RTree3();
-        for (int i = 0; i < tree.MaxEntries+2; ++i)
+        var tree = new RTree2();
+        for (int i = 0; i < tree.MaxEntries + 2; ++i)
         {
-            tree.Insert(new BoundingBox3(Vector3.UnitX * i, boxHalfSize));
+            tree.Insert(new BoundingBox2(Vector2.UnitX * i, boxHalfSize));
         }
 
         var root = tree._root!;
@@ -24,19 +24,18 @@ public class RTree3Tests
     public void AddRandomPositions_TreeIsBalanced()
     {
         float weldRadius = 0.1f;
-        var tree = new RTree3();
+        var tree = new RTree2();
         var rnd = new Random(12345);
-        for (int i=0; i<1000; ++i)
+        for (int i = 0; i < 1000; ++i)
         {
-            tree.Insert(new BoundingBox3(
-                new Vector3(
-                    rnd.NextSingle(),
+            tree.Insert(new BoundingBox2(
+                new Vector2(
                     rnd.NextSingle(),
                     rnd.NextSingle()),
                 weldRadius));
         }
 
-        IEnumerable<Tuple<int, RTree3.Node>> GetLeavesWithDepth(RTree3.Node node, int depth)
+        IEnumerable<Tuple<int, RTree2.Node>> GetLeavesWithDepth(RTree2.Node node, int depth)
         {
             if (node.IsLeaf)
                 yield return Tuple.Create(depth, node);
@@ -47,7 +46,7 @@ public class RTree3Tests
             }
         }
 
-        var leaves = GetLeavesWithDepth(tree._root!, 0).OrderBy(_=>_.Item1).ToList();
+        var leaves = GetLeavesWithDepth(tree._root!, 0).OrderBy(_ => _.Item1).ToList();
 
         Assert.DoesNotContain(leaves, _ => _.Item1 != 3);
     }
@@ -56,19 +55,18 @@ public class RTree3Tests
     public void AddRandomPositions_EachElementDiscoverable()
     {
         float weldRadius = 0.1f;
-        var tree = new RTree3();
+        var tree = new RTree2();
         var rnd = new Random(12345);
         for (int i = 0; i < 1000; ++i)
         {
-            tree.Insert(new BoundingBox3(
-                new Vector3(
-                    rnd.NextSingle(),
+            tree.Insert(new BoundingBox2(
+                new Vector2(
                     rnd.NextSingle(),
                     rnd.NextSingle()),
                 weldRadius));
         }
 
-        IEnumerable<RTree3.Node> GetLeaves(RTree3.Node node)
+        IEnumerable<RTree2.Node> GetLeaves(RTree2.Node node)
         {
             if (node.IsLeaf)
                 yield return node;

@@ -13,9 +13,20 @@ namespace MeshTopologyToolkit
             Count = count;
         }
 
-        public T this[int index] => _value;
+        public override T this[int index] => _value;
 
-        public int Count { get; set; }
+        public override int Count { get; }
+
+        public override int Add(T value)
+        {
+            throw new NotImplementedException("Can't add elements to immutable attribute container");
+        }
+
+        /// <inheritdoc/>
+        public new int Lerp(int from, int to, float amount)
+        {
+            return 0;
+        }
 
         public new IMeshVertexAttribute Compact(out IReadOnlyList<int> indexMap)
         {
@@ -25,14 +36,9 @@ namespace MeshTopologyToolkit
             return attr;
         }
 
-        public IEnumerator<T> GetEnumerator()
+        public override IEnumerator<T> GetEnumerator()
         {
             return new MeshVertexAttributeEnumerator<T>(this);
-        }
-
-        int IMeshVertexAttribute<T>.Add(T value)
-        {
-            throw new NotImplementedException("Can't add elements to immutable attribute container");
         }
 
         IEnumerator IEnumerable.GetEnumerator()

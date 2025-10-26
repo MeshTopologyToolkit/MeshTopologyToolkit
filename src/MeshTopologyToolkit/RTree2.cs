@@ -4,25 +4,25 @@ using System.Collections.Generic;
 namespace MeshTopologyToolkit
 {
     /// <summary>
-    /// A simple R-tree like spatial index for axis aligned 3D bounding boxes (AABBs).
+    /// A simple R-tree like spatial index for axis aligned 2D bounding boxes (AABBs).
     /// - Stores an internal list of inserted bounding boxes.
-    /// - Provides Insert(BoundingBox3) -> index into internal list.
+    /// - Provides Insert(BoundingBox2) -> index into internal list.
     /// - Provides Query/Enumerate of indices whose boxes overlap a given query box.
     /// - Provides a bulk constructor that builds the tree from an existing collection.
     /// 
     /// Notes:
     /// - This implementation uses a simple node split strategy with configurable max entries.
-    /// - It assumes a <c>BoundingBox3</c> type with <c>Min</c> and <c>Max</c> Vector3 properties
+    /// - It assumes a <c>BoundingBox2</c> type with <c>Min</c> and <c>Max</c> Vector2 properties
     ///   (common AABB representation). Intersection/merge/volume computations are implemented
     ///   using those vectors.
     /// </summary>
-    public class RTree3
+    public class RTree2
     {
         const int DefaultMaxEntries = 8; // typical small fanout, tuneable
         readonly int _maxEntries;
         readonly int _minEntries;
 
-        readonly List<BoundingBox3> _boxes = new List<BoundingBox3>();
+        readonly List<BoundingBox2> _boxes = new List<BoundingBox2>();
 
         internal Node? _root;
 
@@ -31,13 +31,13 @@ namespace MeshTopologyToolkit
         /// <summary>
         /// Creates an empty RTree3 with default node capacity.
         /// </summary>
-        public RTree3() : this(DefaultMaxEntries) { }
+        public RTree2() : this(DefaultMaxEntries) { }
 
         /// <summary>
         /// Creates an empty RTree3 with a specified maximum entries per node.
         /// </summary>
         /// <param name="maxEntries">Maximum number of entries per node (leaf or internal). Must be >= 4.</param>
-        public RTree3(int maxEntries)
+        public RTree2(int maxEntries)
         {
             if (maxEntries < 4) throw new ArgumentOutOfRangeException(nameof(maxEntries));
             _maxEntries = maxEntries;
@@ -49,14 +49,14 @@ namespace MeshTopologyToolkit
         /// </summary>
         /// <param name="index">Index of the bounding box.</param>
         /// <returns>Bounding box.</returns>
-        public BoundingBox3 this[int index] => _boxes[index];
+        public BoundingBox2 this[int index] => _boxes[index];
 
         /// <summary>
         /// Builds the tree from an existing collection of bounding boxes.
         /// The boxes are copied into the tree's internal list; returned indices refer to that list.
         /// </summary>
         /// <param name="boxes">Collection of bounding boxes to index.</param>
-        public RTree3(IEnumerable<BoundingBox3> boxes) : this(DefaultMaxEntries)
+        public RTree2(IEnumerable<BoundingBox2> boxes) : this(DefaultMaxEntries)
         {
             if (boxes == null) throw new ArgumentNullException(nameof(boxes));
 
@@ -78,7 +78,7 @@ namespace MeshTopologyToolkit
         /// </summary>
         /// <param name="aabb">Axis-aligned bounding box to insert.</param>
         /// <returns>Index of the inserted box in the tree's internal list.</returns>
-        public int Insert(BoundingBox3 aabb)
+        public int Insert(BoundingBox2 aabb)
         {
             int index = _boxes.Count;
             _boxes.Add(aabb);
@@ -91,7 +91,7 @@ namespace MeshTopologyToolkit
         /// </summary>
         /// <param name="query">Query bounding box.</param>
         /// <returns>IEnumerable of indices into the tree's internal box list.</returns>
-        public IEnumerable<int> Query(BoundingBox3 query)
+        public IEnumerable<int> Query(BoundingBox2 query)
         {
             if (_root == null) yield break;
 
@@ -123,7 +123,7 @@ namespace MeshTopologyToolkit
             }
         }
 
-        private void InsertIndex(int index, BoundingBox3 box)
+        private void InsertIndex(int index, BoundingBox2 box)
         {
             if (_root == null)
             {
@@ -191,7 +191,7 @@ namespace MeshTopologyToolkit
             }
         }
 
-        Node ChooseLeaf(Node node, BoundingBox3 box)
+        Node ChooseLeaf(Node node, BoundingBox2 box)
         {
             if (node.IsLeaf) return node;
 
@@ -202,9 +202,9 @@ namespace MeshTopologyToolkit
 
             foreach (var child in node.Children)
             {
-                var oldVol = child.Bounds.Volume();
+                var oldVol = child.Bounds.Area();
                 var merged = child.Bounds.Merge(box);
-                var newVol = merged.Volume();
+                var newVol = merged.Area();
                 var inc = newVol - oldVol;
 
                 if (inc < bestInc || (inc == bestInc && oldVol < bestVol))
@@ -221,7 +221,7 @@ namespace MeshTopologyToolkit
         (Node, Node) SplitLeaf(Node leaf)
         {
             // gather entries and their bounds
-            var entries = new List<(int idx, BoundingBox3 box)>(leaf.Entries.Count);
+            var entries = new List<(int idx, BoundingBox2 box)>(leaf.Entries.Count);
             foreach (var idx in leaf.Entries)
                 entries.Add((idx, _boxes[idx]));
 
@@ -251,8 +251,8 @@ namespace MeshTopologyToolkit
                     continue;
                 }
 
-                var inc1 = n1.Bounds.Merge(e.box).Volume() - n1.Bounds.Volume();
-                var inc2 = n2.Bounds.Merge(e.box).Volume() - n2.Bounds.Volume();
+                var inc1 = n1.Bounds.Merge(e.box).Area() - n1.Bounds.Area();
+                var inc2 = n2.Bounds.Merge(e.box).Area() - n2.Bounds.Area();
 
                 if (inc1 < inc2)
                 {
@@ -267,7 +267,7 @@ namespace MeshTopologyToolkit
                 else
                 {
                     // tie: choose smaller volume, then fewer entries
-                    if (n1.Bounds.Volume() < n2.Bounds.Volume() || (n1.Bounds.Volume() == n2.Bounds.Volume() && n1.Entries.Count <= n2.Entries.Count))
+                    if (n1.Bounds.Area() < n2.Bounds.Area() || (n1.Bounds.Area() == n2.Bounds.Area() && n1.Entries.Count <= n2.Entries.Count))
                     {
                         n1.Entries.Add(e.idx);
                         n1.Bounds = n1.Bounds.Merge(e.box);
@@ -314,8 +314,8 @@ namespace MeshTopologyToolkit
                     continue;
                 }
 
-                var inc1 = n1.Bounds.Merge(child.Bounds).Volume() - n1.Bounds.Volume();
-                var inc2 = n2.Bounds.Merge(child.Bounds).Volume() - n2.Bounds.Volume();
+                var inc1 = n1.Bounds.Merge(child.Bounds).Area() - n1.Bounds.Area();
+                var inc2 = n2.Bounds.Merge(child.Bounds).Area() - n2.Bounds.Area();
 
                 if (inc1 < inc2)
                 {
@@ -327,7 +327,7 @@ namespace MeshTopologyToolkit
                 }
                 else
                 {
-                    if ((float)n1.Bounds.Volume() < (float)n2.Bounds.Volume() || ((float)n1.Bounds.Volume() == (float)n2.Bounds.Volume() && n1.Children.Count <= n2.Children.Count))
+                    if ((float)n1.Bounds.Area() < (float)n2.Bounds.Area() || ((float)n1.Bounds.Area() == (float)n2.Bounds.Area() && n1.Children.Count <= n2.Children.Count))
                     {
                         n1.AddChild(child);
                     }
@@ -343,7 +343,7 @@ namespace MeshTopologyToolkit
 
         // Generic seed picker for either entries or child nodes.
         // The selector returns a bounding box for the item.
-        static (T left, T right) PickSeeds<T>(IList<T> items, Func<T, T, BoundingBox3> mergeFunc)
+        static (T left, T right) PickSeeds<T>(IList<T> items, Func<T, T, BoundingBox2> mergeFunc)
         {
             // pick pair with largest dead space when paired (heuristic used by classic R-tree)
             double bestWaste = double.NegativeInfinity;
@@ -355,7 +355,7 @@ namespace MeshTopologyToolkit
                     var a = items[i];
                     var b = items[j];
                     var mab = mergeFunc(a, b);
-                    var waste = mab.Volume() - GetBoxFor(items, i, mergeFunc).Volume() - GetBoxFor(items, j, mergeFunc).Volume();
+                    var waste = mab.Area() - GetBoxFor(items, i, mergeFunc).Area() - GetBoxFor(items, j, mergeFunc).Area();
                     if (waste > bestWaste)
                     {
                         bestWaste = waste;
@@ -367,7 +367,7 @@ namespace MeshTopologyToolkit
             return (items[i1], items[i2]);
 
             // helper to get box for item at index (calls mergeFunc with same item to get its box).
-            static BoundingBox3 GetBoxFor(IList<T> list, int idx, Func<T, T, BoundingBox3> merge)
+            static BoundingBox2 GetBoxFor(IList<T> list, int idx, Func<T, T, BoundingBox2> merge)
             {
                 // We assume merge(a,a) == box of a (caller provides merge such that this holds).
                 return merge(list[idx], list[idx]);
@@ -406,7 +406,7 @@ namespace MeshTopologyToolkit
         // internal node type
         internal class Node
         {
-            public BoundingBox3 Bounds = BoundingBox3.Empty;
+            public BoundingBox2 Bounds = BoundingBox2.Empty;
 
             public Node? Parent { get; private set; }
 
@@ -420,7 +420,7 @@ namespace MeshTopologyToolkit
 
             public bool IsLeaf => _children.Count == 0;
 
-            public Node(BoundingBox3 bounds)
+            public Node(BoundingBox2 bounds)
             {
                 Bounds = bounds;
                 Entries = new List<int>();

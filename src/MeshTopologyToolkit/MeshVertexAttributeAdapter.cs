@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Numerics;
 
 namespace MeshTopologyToolkit
 {
@@ -21,15 +22,46 @@ namespace MeshTopologyToolkit
 
         public IMeshVertexAttribute Compact(out IReadOnlyList<int> indexMap)
         {
-            var values = (IReadOnlyList<TTo>)this;
-            var map = new int[values.Count];
+            var map = new int[Count];
             indexMap = map;
             var res = new DictionaryMeshVertexAttribute<TTo>();
-            for (int i = 0; i < values.Count; ++i)
+            for (int i = 0; i < Count; ++i)
             {
-                map[i] = res.Add(values[i]);
+                map[i] = res.Add(this[i]);
             }
             return res;
+        }
+
+        public IMeshVertexAttribute Compact(float weldRadius, out IReadOnlyList<int> indexMap)
+        {
+            var map = new int[Count];
+            indexMap = map;
+
+            IMeshVertexAttribute<TTo> res;
+            if (typeof(TTo) == typeof(Vector2))
+            {
+                res = (IMeshVertexAttribute<TTo>)(new RTree2MeshVertexAttribute(weldRadius));
+            }
+            else if (typeof(TTo) == typeof(Vector3))
+            {
+                res = (IMeshVertexAttribute<TTo>)(new RTree3MeshVertexAttribute(weldRadius));
+            }
+            else
+            {
+                res = new DictionaryMeshVertexAttribute<TTo>();
+            }
+
+            for (int i = 0; i < Count; ++i)
+            {
+                map[i] = res.Add(this[i]);
+            }
+            return res;
+        }
+
+        /// <inheritdoc/>
+        public int Lerp(int from, int to, float amount)
+        {
+            return _source.Lerp(from, to, amount);
         }
 
         public IEnumerator<TTo> GetEnumerator()

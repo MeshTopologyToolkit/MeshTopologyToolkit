@@ -2,9 +2,7 @@
 using SharpGLTF.Transforms;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
-using System.Numerics;
 using GltfMaterial = SharpGLTF.Schema2.Material;
 using GltfMesh = SharpGLTF.Schema2.Mesh;
 
@@ -29,7 +27,9 @@ namespace MeshTopologyToolkit.Gltf
 
             foreach (var mesh in modelRoot.LogicalMeshes)
             {
-                _content.Meshes.Add(VisitMesh(mesh).Mesh);
+                var meshRef = VisitMesh(mesh);
+                if (meshRef?.Mesh != null)
+                    _content.Meshes.Add(meshRef.Mesh);
             }
             foreach (var material in modelRoot.LogicalMaterials)
             {
@@ -101,9 +101,64 @@ namespace MeshTopologyToolkit.Gltf
 
             meshRef = new MeshReference(mesh);
 
-            int primIndex = 0;
+            Dictionary<string, AccessorAdapter> meshAdapters = new Dictionary<string, AccessorAdapter>();
+            
+            int numIndices = 0;
+
             foreach (var prim in sourceMesh.Primitives)
             {
+                var topology = VisitTopology(prim.DrawPrimitiveType);
+
+                var primAdapters = new Dictionary<string, AccessorAdapter>();
+
+                foreach (var accessor in prim.VertexAccessors)
+                {
+                    var adapter = new AccessorAdapter(accessor.Key, accessor.Value);
+                    primAdapters[adapter.OriginalKey] = adapter;
+                    if (meshAdapters.TryGetValue(adapter.OriginalKey, out var existingAdapter))
+                    {
+                        if (existingAdapter.Accessor.Format != accessor.Value.Format)
+                        {
+                            throw new NotImplementedException("Inconsistent mesh attributes are not supported yet.");
+                        }
+                        adapter.MeshVertexAttribute = existingAdapter.MeshVertexAttribute;
+                        adapter.MeshVertexAttributeIndices = existingAdapter.MeshVertexAttributeIndices;
+                        meshAdapters[adapter.OriginalKey] = adapter;
+                    }
+                    else
+                    {
+                        if (numIndices > 0)
+                        {
+                            throw new NotImplementedException("Inconsistent mesh attributes are not supported yet.");
+                        }
+                        adapter.CreateMeshVertexAttribute();
+                        mesh.AddAttribute(adapter.AttributeKey, adapter.MeshVertexAttribute!, adapter.MeshVertexAttributeIndices!);
+                        meshAdapters[adapter.OriginalKey] = adapter;
+                    }
+                }
+
+                foreach (var accessor in meshAdapters)
+                {
+                    if (!primAdapters.ContainsKey(accessor.Key))
+                    {
+                        throw new NotImplementedException("Inconsistent mesh attributes are not supported yet.");
+                    }
+                }
+
+                int pimStartIndex = numIndices;
+                var indexAccessor = prim.GetIndexAccessor().AsIndicesArray();
+                foreach (var primIndex in indexAccessor)
+                {
+                    foreach (var meshAdapter in meshAdapters)
+                    {
+                        meshAdapter.Value.AddValueByIndex(primIndex);
+                    }
+                    ++numIndices;
+
+                }
+                mesh.DrawCalls.Add(new MeshDrawCall(topology, pimStartIndex, numIndices- pimStartIndex));
+
+
                 //if (mesh.HasAttribute(MeshAttributeKey.Position))
                 //{
                 //    foreach (var accessor in prim.VertexAccessors)
@@ -163,16 +218,6 @@ namespace MeshTopologyToolkit.Gltf
         //            return new Dictionary<float>
         //    }
         //}
-
-        private MeshAttributeKey VisitAccessorKey(string key)
-        {
-            var channelDelimeter = key.LastIndexOf('_');
-            if (channelDelimeter >= 0)
-            {
-                return new MeshAttributeKey(key.Substring(0, channelDelimeter), int.Parse(key.Substring(channelDelimeter + 1), CultureInfo.InvariantCulture));
-            }
-            return new MeshAttributeKey(key, 0);
-        }
 
         private MeshTopology VisitTopology(PrimitiveType drawPrimitiveType)
         {

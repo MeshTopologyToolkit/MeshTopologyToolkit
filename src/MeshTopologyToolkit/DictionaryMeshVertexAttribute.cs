@@ -8,16 +8,16 @@ namespace MeshTopologyToolkit
         private List<T> _values = new List<T>();
         private Dictionary<T, int> _map = new Dictionary<T, int>();
 
-        public T this[int index] => _values[index];
+        public override T this[int index] => _values[index];
 
-        public int Count => _values.Count;
+        public override int Count => _values.Count;
 
-        public IEnumerator<T> GetEnumerator()
+        public override IEnumerator<T> GetEnumerator()
         {
             return _values.GetEnumerator();
         }
 
-        public int Add(T value)
+        public override int Add(T value)
         {
             if (_map.TryGetValue(value, out var index))
                 return index;

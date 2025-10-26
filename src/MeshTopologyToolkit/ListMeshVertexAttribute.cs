@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Numerics;
 
 namespace MeshTopologyToolkit
 {
@@ -35,11 +36,44 @@ namespace MeshTopologyToolkit
             return res;
         }
 
+
+        public IMeshVertexAttribute Compact(float weldRadius, out IReadOnlyList<int> indexMap)
+        {
+            var map = new int[Count];
+            indexMap = map;
+
+            IMeshVertexAttribute<T> res;
+            if (typeof(T) == typeof(Vector2))
+            {
+                res = (IMeshVertexAttribute<T>)(new RTree2MeshVertexAttribute(weldRadius));
+            }
+            else if (typeof(T) == typeof(Vector3))
+            {
+                res = (IMeshVertexAttribute<T>)(new RTree3MeshVertexAttribute(weldRadius));
+            }
+            else
+            {
+                res = new DictionaryMeshVertexAttribute<T>();
+            }
+
+            for (int i = 0; i < Count; ++i)
+            {
+                map[i] = res.Add(this[i]);
+            }
+            return res;
+        }
+
         int IMeshVertexAttribute<T>.Add(T value)
         {
             var index = Count;
             Add(value);
             return index;
+        }
+
+        /// <inheritdoc/>
+        public int Lerp(int from, int to, float amount)
+        {
+            return ((IMeshVertexAttribute<T>)this).Add(MathHelper<T>.Default.Lerp(this[from], this[to], amount));
         }
     }
 }

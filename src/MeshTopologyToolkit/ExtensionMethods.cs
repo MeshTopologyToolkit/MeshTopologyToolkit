@@ -29,5 +29,7 @@ namespace MeshTopologyToolkit
             writer.Write(vector.Y);
             writer.Write(vector.Z);
         }
+
+
     }
 }
