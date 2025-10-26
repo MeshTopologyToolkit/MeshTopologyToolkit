@@ -3,30 +3,35 @@ using System.Numerics;
 
 namespace MeshTopologyToolkit.Gltf
 {
-    public class Vec3ConstAdapter : IAccessorAdapter
+    public class ConstAdapter<T> : IAccessorAdapter where T: notnull
     {
-        private Vector3 _value;
+        private T _value;
 
-        public Vec3ConstAdapter(Vector3 value)
+        public ConstAdapter(T value)
         {
             _value = value;
         }
 
         public void AddValueByIndex(uint primIndex, IMeshVertexAttribute values, List<int> indices)
         {
-            var vals = (IMeshVertexAttribute<Vector3>)values;
+            var vals = (IMeshVertexAttribute<T>)values;
             indices.Add(vals.Add(_value));
         }
 
         public void AddDefaultValue(IMeshVertexAttribute values, List<int> indices)
         {
-            var vals = (IMeshVertexAttribute<Vector3>)values;
+            var vals = (IMeshVertexAttribute<T>)values;
             indices.Add(vals.Add(_value));
         }
 
         public IMeshVertexAttribute CreateMeshAttribute()
         {
-            return new DictionaryMeshVertexAttribute<Vector3>();
+            return new DictionaryMeshVertexAttribute<T>();
+        }
+
+        public IAccessorAdapter MakeDefaultValueAdapter()
+        {
+            return this;
         }
     }
 }

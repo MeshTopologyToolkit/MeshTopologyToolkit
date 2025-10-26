@@ -141,12 +141,13 @@ namespace MeshTopologyToolkit.Gltf
                 {
                     if (!primAdapters.ContainsKey(accessor.Key))
                     {
-                        throw new NotImplementedException("Inconsistent mesh attributes are not supported yet.");
+                        accessor.Value.SwitchToDefaultAdapter();
                     }
                 }
 
                 int pimStartIndex = numIndices;
-                var indexAccessor = prim.GetIndexAccessor().AsIndicesArray();
+                var primIndexAccessor = prim.GetIndexAccessor();
+                IReadOnlyList<uint> indexAccessor = (primIndexAccessor != null)? primIndexAccessor.AsIndicesArray() : Enumerable.Range(0, prim.GetVertexAccessor("POSITION").Count).Select(_=>(uint)_).ToList();
                 foreach (var primIndex in indexAccessor)
                 {
                     foreach (var meshAdapter in meshAdapters)

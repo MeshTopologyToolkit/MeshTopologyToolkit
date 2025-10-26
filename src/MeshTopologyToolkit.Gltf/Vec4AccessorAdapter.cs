@@ -5,37 +5,37 @@ using System.Numerics;
 
 namespace MeshTopologyToolkit.Gltf
 {
-    public class Vec3AccessorAdapter : IAccessorAdapter
+    public class Vec4AccessorAdapter : IAccessorAdapter
     {
-        private IAccessorArray<Vector3> _values;
+        private IAccessorArray<Vector4> _values;
 
-        public Vec3AccessorAdapter(IAccessorArray<Vector3> values)
+        public Vec4AccessorAdapter(IAccessorArray<Vector4> values)
         {
             _values = values;
         }
 
         public void AddValueByIndex(uint primIndex, IMeshVertexAttribute values, List<int> indices)
         {
-            var vals = (IMeshVertexAttribute<Vector3>)values;
+            var vals = (IMeshVertexAttribute<Vector4>)values;
             var v = _values[(int)primIndex];
             indices.Add(vals.Add(v));
         }
 
         public void AddDefaultValue(IMeshVertexAttribute values, List<int> indices)
         {
-            var vals = (IMeshVertexAttribute<Vector3>)values;
-            var v = Vector3.Zero;
+            var vals = (IMeshVertexAttribute<Vector4>)values;
+            var v = Vector4.Zero;
             indices.Add(vals.Add(v));
         }
 
         public IMeshVertexAttribute CreateMeshAttribute()
         {
-            return new DictionaryMeshVertexAttribute<Vector3>();
+            return new DictionaryMeshVertexAttribute<Vector4>();
         }
 
         public IAccessorAdapter MakeDefaultValueAdapter()
         {
-            return new ConstAdapter<Vector3>(Vector3.Zero);
+            return new ConstAdapter<Vector4>(Vector4.Zero);
         }
     }
 }

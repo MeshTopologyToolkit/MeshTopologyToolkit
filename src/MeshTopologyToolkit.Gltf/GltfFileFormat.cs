@@ -16,7 +16,7 @@ namespace MeshTopologyToolkit.Gltf
                 if (stream == null)
                     return false;
                 var fileName = entry.Name;
-                var readContext = ReadContext.Create(_=> ReadBytes((_ == fileName) ? entry.OpenRead():entry.GetNeigbourEntry(_).OpenRead()));
+                var readContext = ReadContext.Create(_=> ReadBytes((_ == fileName) ? entry.OpenRead():entry.GetNeigbourEntry(Uri.UnescapeDataString(_)).OpenRead()));
                 var model = readContext.ReadSchema2(fileName);
 
                 content = new FileContainer();

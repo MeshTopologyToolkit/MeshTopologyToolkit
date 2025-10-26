@@ -11,6 +11,8 @@ namespace MeshTopologyToolkit.Gltf
         void AddDefaultValue(IMeshVertexAttribute values, List<int> indices);
 
         IMeshVertexAttribute CreateMeshAttribute();
+
+        IAccessorAdapter MakeDefaultValueAdapter();
     }
 }
 

@@ -33,13 +33,21 @@ namespace MeshTopologyToolkit.Gltf
                 AttributeKey = new MeshAttributeKey(key, 0);
             }
 
-            if (accessor.Format == new AttributeFormat(DimensionType.VEC3, EncodingType.FLOAT))
+            if (accessor.Format.Dimensions == DimensionType.VEC3)
             {
-                _accessorAdapter = new Vec3AccessorAdapter(accessor);
+                _accessorAdapter = new Vec3AccessorAdapter(accessor.AsVector3Array());
+            }
+            else if (accessor.Format.Dimensions == DimensionType.VEC2)
+            {
+                _accessorAdapter = new Vec2AccessorAdapter(accessor.AsVector2Array());
+            }
+            else if (accessor.Format.Dimensions == DimensionType.VEC4)
+            {
+                _accessorAdapter = new Vec4AccessorAdapter(accessor.AsVector4Array());
             }
             else
             {
-                throw new NotImplementedException($"Accessor format '{accessor.Format}' is not implemented.");
+                throw new NotImplementedException($"Accessor {key} format '{accessor.Format.Dimensions} {accessor.Format.Encoding} {accessor.Format.Normalized}' is not implemented.");
             }
         }
 
@@ -52,6 +60,11 @@ namespace MeshTopologyToolkit.Gltf
         {
             MeshVertexAttribute = _accessorAdapter.CreateMeshAttribute();
             MeshVertexAttributeIndices = new List<int>();
+        }
+
+        internal void SwitchToDefaultAdapter()
+        {
+            _accessorAdapter = _accessorAdapter.MakeDefaultValueAdapter();
         }
     }
 }
