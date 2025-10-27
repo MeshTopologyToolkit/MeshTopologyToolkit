@@ -1,10 +1,18 @@
 ﻿using MeshTopologyToolkit.Gltf;
 using System.Numerics;
+using Xunit.Abstractions;
 
 namespace MeshTopologyToolkit.Tests;
 
 public class GltfFileFormatTests
 {
+    private readonly ITestOutputHelper _testOutput;
+
+    public GltfFileFormatTests(ITestOutputHelper testOutput)
+    {
+        this._testOutput = testOutput;
+    }
+
     [Fact]
     public void TwoCorners()
     {
@@ -48,21 +56,120 @@ public class GltfFileFormatTests
     }
 
     [Theory]
-    [InlineData("MeshTopologyToolkit.Tests.samples.kronos.SimpleInstancing.glb")]
-    [InlineData("MeshTopologyToolkit.Tests.samples.kronos.SimpleMeshes.gltf")]
-    [InlineData("MeshTopologyToolkit.Tests.samples.kronos.SimpleMorph.gltf")]
-    [InlineData("MeshTopologyToolkit.Tests.samples.kronos.SimpleSkin.gltf")]
-    [InlineData("MeshTopologyToolkit.Tests.samples.kronos.VC.glb")]
+    [InlineData("samples.corner.TwoCorners.glb")]
+    [InlineData("samples.kronos.SimpleInstancing.glb")]
+    [InlineData("samples.kronos.SimpleMeshes.gltf")]
+    [InlineData("samples.kronos.SimpleMorph.gltf")]
+    [InlineData("samples.kronos.SimpleSkin.gltf")]
+    [InlineData("samples.kronos.VC.glb")]
+    [InlineData("samples.primitives.Primitives.glb")]
     public void ReadAndWriteSamples(string fileName)
     {
+        var resourceName = this.GetType().Namespace + "." + fileName;
+
         var fileFormat = new GltfFileFormat();
 
-        Assert.True(fileFormat.TryRead(StreamFileSystemEntry.FromEmbeddedResource(fileName), out var content));
+        Assert.True(fileFormat.TryRead(StreamFileSystemEntry.FromEmbeddedResource(resourceName), out var content));
         Assert.NotNull(content);
 
         fileFormat.TryWrite(new FileSystemEntry(Path.GetFileNameWithoutExtension(fileName) + ".glb"), content);
     }
 
+    [Fact]
+    public void GenerateShapeCode()
+    {
+        var resourceName = this.GetType().Namespace + ".samples.primitives.Primitives.glb";
+
+        var fileFormat = new GltfFileFormat();
+
+        Assert.True(fileFormat.TryRead(StreamFileSystemEntry.FromEmbeddedResource(resourceName), out var content));
+        Assert.NotNull(content);
+
+        foreach (var mesh in content.Meshes)
+        {
+            _testOutput.WriteLine($"public static IMesh Build{mesh.Name}(float size)");
+            _testOutput.WriteLine("{");
+            _testOutput.WriteLine($"    var mesh = new {nameof(SeparatedIndexedMesh)}();");
+            _testOutput.WriteLine($"    var radius = size * 0.5f;");
+
+            void printElement(MeshAttributeKey key, float scale = 1, bool scaled = false)
+            {
+                var positions = mesh.GetAttribute(key);
+                _testOutput.WriteLine("    {");
+
+                if (positions is IMeshVertexAttribute<Vector3> vec3Attr)
+                {
+                    _testOutput.WriteLine($"        var values = new ListMeshVertexAttribute<Vector3>();");
+                    foreach (var pos in vec3Attr)
+                    {
+                        var adjPos = pos * scale;
+                        _testOutput.WriteLine($"        values.Add(new Vector3({adjPos.X}f, {adjPos.Y}f, {adjPos.Z}f){(scaled ? " * radius":"")});");
+                    }
+                }
+                else if (positions is IMeshVertexAttribute<Vector4> vec4Attr)
+                {
+                    _testOutput.WriteLine($"        var values = new ListMeshVertexAttribute<Vector4>();");
+                    foreach (var pos in vec4Attr)
+                    {
+                        var adjPos = pos * scale;
+                        _testOutput.WriteLine($"        values.Add(new Vector4({adjPos.X}f, {adjPos.Y}f, {adjPos.Z}f, {adjPos.W}f){(scaled ? " * radius" : "")});");
+                    }
+                }
+                else if (positions is IMeshVertexAttribute<Vector2> vec2Attr)
+                {
+                    _testOutput.WriteLine($"        var values = new ListMeshVertexAttribute<Vector2>();");
+                    foreach (var pos in vec2Attr)
+                    {
+                        var adjPos = pos * scale;
+                        _testOutput.WriteLine($"        values.Add(new Vector2({adjPos.X}f, {adjPos.Y}f){(scaled ? " * radius" : "")});");
+                    }
+                }
+                else
+                {
+                    throw new NotImplementedException();
+                }
+
+                var indices = string.Join(", ", mesh.GetAttributeIndices(key));
+                _testOutput.WriteLine($"        var indices = new int[] {{{indices}}};");
+
+                var camelKey = key.ToString();
+                camelKey = camelKey.Substring(0, 1) + camelKey.Substring(1).ToLowerInvariant();
+                _testOutput.WriteLine($"        mesh.AddAttribute(MeshAttributeKey.{camelKey}, values, indices);");
+
+                _testOutput.WriteLine("    }");
+            }
+
+            printElement(MeshAttributeKey.Position, 10f, true);
+            _testOutput.WriteLine("    if ((mask & MeshAttributeMask.Normal) == MeshAttributeMask.Normal)");
+            printElement(MeshAttributeKey.Normal);
+
+            if (mesh.HasAttribute(MeshAttributeKey.Tangent))
+            {
+                _testOutput.WriteLine($"    if ((mask & MeshAttributeMask.{MeshAttributeMask.Tangent}) == MeshAttributeMask.{MeshAttributeMask.Tangent})");
+                printElement(MeshAttributeKey.Tangent);
+            }
+
+            _testOutput.WriteLine($"    if ((mask & MeshAttributeMask.{MeshAttributeMask.TexCoord}) == MeshAttributeMask.{MeshAttributeMask.TexCoord})");
+            printElement(MeshAttributeKey.TexCoord);
+
+            {
+                _testOutput.WriteLine($"    if ((mask & MeshAttributeMask.{MeshAttributeMask.Color}) == MeshAttributeMask.{MeshAttributeMask.Color})");
+                _testOutput.WriteLine("    {");
+
+                _testOutput.WriteLine($"        var values = new ConstMeshVertexAttribute<Vector4>(Vector4.One, 1);");
+                var indices = string.Join(", ", mesh.GetAttributeIndices(MeshAttributeKey.Position).Select(_ => 0));
+
+                _testOutput.WriteLine($"        var indices = new int[] {{{indices}}};");
+                _testOutput.WriteLine($"        mesh.AddAttribute(MeshAttributeKey.Color, values, indices);");
+                _testOutput.WriteLine("    }");
+            }
+
+            _testOutput.WriteLine($"    mesh.DrawCalls.Add(new MeshDrawCall(MeshTopology.TriangleList, 0, mesh.GetAttributeIndices(MeshAttributeKey.Position).Count));");
+
+            _testOutput.WriteLine($"    return mesh;");
+            _testOutput.WriteLine("}");
+        }
+    }
 
     //[Theory]
     //[MemberData(nameof(EnumerateGltfFiles))]
