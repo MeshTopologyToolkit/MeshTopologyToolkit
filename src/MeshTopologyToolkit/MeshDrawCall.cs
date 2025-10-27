@@ -63,6 +63,11 @@ namespace MeshTopologyToolkit
             return new MeshDrawCall(Type, StartIndex, NumIndices);
         }
 
+        public override string ToString()
+        {
+            return $"{Type} ({StartIndex} ... {StartIndex+NumIndices-1})";
+        }
+
         public struct Face
         {
             public int A;

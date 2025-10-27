@@ -45,5 +45,12 @@ namespace MeshTopologyToolkit
 
             return _parent.Transform.Combine(Transform);
         }
+
+        public override string ToString()
+        {
+            if (Name != null)
+                return $"Node \"{Name}\"";
+            return "Node";
+        }
     }
 }

@@ -61,7 +61,7 @@ namespace MeshTopologyToolkit.Gltf
                     AttributeFormat.Float4);
 
             foreach (var texCoor in _texCoords)
-                yield return new KeyValuePair<string, AttributeFormat>(MeshAttributeNames.Color + "_" + texCoor.Key,
+                yield return new KeyValuePair<string, AttributeFormat>(MeshAttributeNames.TexCoord + "_" + texCoor.Key,
                     AttributeFormat.Float2);
         }
 

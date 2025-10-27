@@ -58,7 +58,7 @@ namespace MeshTopologyToolkit.Gltf
             }
             if (_tangents != null)
             {
-                yield return new KeyValuePair<string, AttributeFormat>("TANGENT", AttributeFormat.Float3);
+                yield return new KeyValuePair<string, AttributeFormat>("TANGENT", AttributeFormat.Float4);
             }
         }
 

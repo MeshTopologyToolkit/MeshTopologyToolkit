@@ -1,5 +1,4 @@
 ﻿using MeshTopologyToolkit.Gltf;
-using MeshTopologyToolkit.Obj;
 using System.Numerics;
 
 namespace MeshTopologyToolkit.Tests;
@@ -48,6 +47,23 @@ public class GltfFileFormatTests
 
     }
 
+    [Theory]
+    [InlineData("MeshTopologyToolkit.Tests.Samples.kronos.SimpleInstancing.glb")]
+    [InlineData("MeshTopologyToolkit.Tests.Samples.kronos.SimpleMeshes.gltf")]
+    [InlineData("MeshTopologyToolkit.Tests.Samples.kronos.SimpleMorph.gltf")]
+    [InlineData("MeshTopologyToolkit.Tests.Samples.kronos.SimpleSkin.gltf")]
+    [InlineData("MeshTopologyToolkit.Tests.Samples.kronos.VC.glb")]
+    public void ReadAndWriteSamples(string fileName)
+    {
+        var fileFormat = new GltfFileFormat();
+
+        Assert.True(fileFormat.TryRead(StreamFileSystemEntry.FromEmbeddedResource(fileName), out var content));
+        Assert.NotNull(content);
+
+        fileFormat.TryWrite(new FileSystemEntry(Path.GetFileNameWithoutExtension(fileName) + ".glb"), content);
+    }
+
+
     //[Theory]
     //[MemberData(nameof(EnumerateGltfFiles))]
     //public void TestOnSampleModels(string fileName)
@@ -56,7 +72,7 @@ public class GltfFileFormatTests
 
     //    Assert.True(fileFormat.TryRead(new FileSystemEntry(fileName), out var content));
 
-    //    fileFormat.TryWrite(new FileSystemEntry(Path.GetFileNameWithoutExtension(Path.GetFileName(fileName))+".glb"), content);
+    //    //fileFormat.TryWrite(new FileSystemEntry(Path.GetFileNameWithoutExtension(Path.GetFileName(fileName)) + ".glb"), content);
     //}
 
     [Fact]

@@ -29,19 +29,10 @@
 	<ItemGroup>
 		<Folder Include="Samples\Corner\" />
 	</ItemGroup>
-
 	<ItemGroup>
-		<EmbeddedResource Include="..\..\samples\corner\TwoCorners.stl" Link="Samples\Corner\TwoCorners.stl" />
-		<EmbeddedResource Include="..\..\samples\corner\TwoCorners_AllAttributes_ZUp.obj" Link="Samples\Corner\TwoCorners_AllAttributes_ZUp.obj" />
-		<EmbeddedResource Include="..\..\samples\corner\TwoCorners_NoAttributes_YUp.obj" Link="Samples\Corner\TwoCorners_NoAttributes_YUp.obj" />
-		<EmbeddedResource Include="..\..\samples\corner\TwoCorners_Normals.obj" Link="Samples\Corner\TwoCorners_Normals.obj" />
-		<EmbeddedResource Include="..\..\samples\corner\TwoCorners_SmoothingGroops.obj" Link="Samples\Corner\TwoCorners_SmoothingGroops.obj" />
-		<EmbeddedResource Include="..\..\samples\corner\TwoCorners_Text.stl" Link="Samples\Corner\TwoCorners_Text.stl" />
-		<EmbeddedResource Include="..\..\samples\corner\TwoCorners_UV.obj" Link="Samples\Corner\TwoCorners_UV.obj" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <EmbeddedResource Include="..\..\samples\corner\TwoCorners.glb" Link="Samples\Corner\TwoCorners.glb" />
+		<EmbeddedResource Include="..\..\samples\**\*">
+			<Link>Samples\%(RecursiveDir)%(Filename)%(Extension)</Link>
+		</EmbeddedResource>
 	</ItemGroup>
 
 </Project>

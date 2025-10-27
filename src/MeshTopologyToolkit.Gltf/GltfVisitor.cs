@@ -31,9 +31,12 @@ namespace MeshTopologyToolkit.Gltf
                 if (meshRef?.Mesh != null)
                     _content.Meshes.Add(meshRef.Mesh);
             }
-            foreach (var material in modelRoot.LogicalMaterials)
+
+            foreach (var gltfMaterial in modelRoot.LogicalMaterials)
             {
-                _content.Materials.Add(VisitMaterial(material));
+                var material = VisitMaterial(gltfMaterial);
+                if (material != null)
+                    _content.Materials.Add(material);
             }
 
             foreach (var sourceScene in modelRoot.LogicalScenes)
@@ -59,7 +62,7 @@ namespace MeshTopologyToolkit.Gltf
 
             if (gltfNode.Mesh != null)
             {
-                VisitMesh(gltfNode.Mesh);
+                node.Mesh = VisitMesh(gltfNode.Mesh);
             }
 
             return node;
@@ -74,7 +77,7 @@ namespace MeshTopologyToolkit.Gltf
             throw new NotImplementedException();
         }
 
-        private Material VisitMaterial(GltfMaterial sourceMaterial)
+        private Material? VisitMaterial(GltfMaterial sourceMaterial)
         {
             if (sourceMaterial == null)
                 return null;
@@ -159,66 +162,11 @@ namespace MeshTopologyToolkit.Gltf
                 }
                 mesh.DrawCalls.Add(new MeshDrawCall(topology, pimStartIndex, numIndices- pimStartIndex));
 
-
-                //if (mesh.HasAttribute(MeshAttributeKey.Position))
-                //{
-                //    foreach (var accessor in prim.VertexAccessors)
-                //    {
-                //        if (!mesh.HasAttribute(VisitAccessorKey(accessor.Key)))
-                //            throw new FormatException("Inconsistent set of attributes");
-                //    }
-                //}
-                //else
-                //{
-                //    foreach (var accessor in prim.VertexAccessors)
-                //    {
-                //        mesh.AddAttribute(VisitAccessorKey(accessor.Key), VisitAccessor(accessor));
-                //    }
-                //}
-
-
-                //var startIndex = mesh.Indices.Count;
-                //meshRef.Materials.Add(VisitMaterial(prim.Material));
-                //var indexAccessor = prim.GetIndexAccessor();
-                //if (indexAccessor != null)
-                //{
-                //    var indices = indexAccessor.AsIndicesArray();
-                //    foreach (var index in indices)
-                //    {
-                //        mesh.Indices.Add((int)index);
-                //    }
-                //}
-                //else
-                //{
-                //    throw new NotImplementedException();
-                //}
-                //mesh.DrawCalls.Add(new MeshDrawCall(VisitTopology(prim.DrawPrimitiveType), startIndex, mesh.Indices.Count));
-                //primIndex++;
             }
 
             _visitedMeshes.Add(sourceMesh, meshRef);
             return meshRef;
         }
-
-        //private (IMeshVertexAttribute) VisitAccessor(Accessor accessor)
-        //{
-        //    switch (accessor.Dimensions)
-        //    {
-        //        case DimensionType.SCALAR:
-        //            {
-        //                switch (accessor.EncodingType)
-        //                {
-        //                    default:
-        //                        {
-        //                            var array = accessor.AsScalarArray();
-        //                            var buf = new DictionaryMeshVertexAttribute<float>();
-        //                            return (buf, (int index)=> );
-        //                        }
-        //                }
-        //            }
-        //            return new Dictionary<float>
-        //    }
-        //}
 
         private MeshTopology VisitTopology(PrimitiveType drawPrimitiveType)
         {

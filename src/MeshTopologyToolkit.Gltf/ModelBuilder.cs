@@ -19,12 +19,6 @@ namespace MeshTopologyToolkit.Gltf
             SceneBuilderSchema2Settings settings = new SceneBuilderSchema2Settings();
             var sceneBuilders = content.Scenes.Select(_ => VisitScene(_)).ToList();
 
-            //var model = sceneBuilders[0].ToGltf2();
-            //foreach (var n in model.LogicalNodes)
-            //{
-            //    System.Diagnostics.Debug.WriteLine($"Node '{n.Name}' Mesh: {(n.Mesh != null ? n.Mesh.Name : "<null>")}");
-            //}
-
             return SceneBuilder.ToGltf2(sceneBuilders, settings);
         }
 
@@ -44,7 +38,7 @@ namespace MeshTopologyToolkit.Gltf
         private NodeBuilder VisitNode(SceneBuilder sceneBuilder, Node node)
         {
             var nodeBuilder = new NodeBuilder() { Name = node.Name ?? "Node" };
-            nodeBuilder.SetLocalTransform(VisitTransform(node.Transform), false);
+            nodeBuilder.LocalTransform = VisitTransform(node.Transform);
             
             if (node.Mesh?.Mesh != null)
             {
@@ -54,7 +48,7 @@ namespace MeshTopologyToolkit.Gltf
 
             foreach (var child in node.Children)
             {
-                var childNodeBuilder = VisitNode(sceneBuilder, node);
+                var childNodeBuilder = VisitNode(sceneBuilder, child);
                 nodeBuilder.AddNode(childNodeBuilder);
             }
             return nodeBuilder;
