@@ -27,11 +27,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Folder Include="Samples\Corner\" />
-	</ItemGroup>
-	<ItemGroup>
-		<EmbeddedResource Include="..\..\samples\**\*">
-			<Link>Samples\%(RecursiveDir)%(Filename)%(Extension)</Link>
+		<EmbeddedResource Include="../../samples/**/*">
+			<Link>samples\%(RecursiveDir)%(Filename)%(Extension)</Link>
 		</EmbeddedResource>
 	</ItemGroup>
 

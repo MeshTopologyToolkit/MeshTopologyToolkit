@@ -50,6 +50,7 @@ jobs:
           dotnet pack "src/MeshTopologyToolkit/" --configuration Release /p:PackageVersion=$BUILD_VERSION --no-build --output ./output
           dotnet pack "src/MeshTopologyToolkit.Obj/" --configuration Release /p:PackageVersion=$BUILD_VERSION --no-build --output ./output
           dotnet pack "src/MeshTopologyToolkit.Stl/" --configuration Release /p:PackageVersion=$BUILD_VERSION --no-build --output ./output
+          dotnet pack "src/MeshTopologyToolkit.Gltf/" --configuration Release /p:PackageVersion=$BUILD_VERSION --no-build --output ./output
 
       # 6 Upload packages as artifacts for debugging or inspection
       - name: Upload .nupkg artifacts

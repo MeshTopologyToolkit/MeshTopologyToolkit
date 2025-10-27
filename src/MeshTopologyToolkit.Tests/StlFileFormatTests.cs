@@ -8,7 +8,7 @@ public class StlFileFormatTests
     public void TwoCorners()
     {
         var fileFormat = new StlFileFormat();
-        Assert.True(fileFormat.TryRead(StreamFileSystemEntry.FromEmbeddedResource(this.GetType().Assembly, "MeshTopologyToolkit.Tests.Samples.Corner.TwoCorners.stl"), out var content));
+        Assert.True(fileFormat.TryRead(StreamFileSystemEntry.FromEmbeddedResource(this.GetType().Assembly, "MeshTopologyToolkit.Tests.samples.corner.TwoCorners.stl"), out var content));
 
         Assert.NotNull(content);
         Assert.Single(content.Meshes);
@@ -18,7 +18,7 @@ public class StlFileFormatTests
     public void TwoCorners_Text()
     {
         var fileFormat = new StlFileFormat();
-        Assert.True(fileFormat.TryRead(StreamFileSystemEntry.FromEmbeddedResource(this.GetType().Assembly, "MeshTopologyToolkit.Tests.Samples.Corner.TwoCorners_Text.stl"), out var content));
+        Assert.True(fileFormat.TryRead(StreamFileSystemEntry.FromEmbeddedResource(this.GetType().Assembly, "MeshTopologyToolkit.Tests.samples.corner.TwoCorners_Text.stl"), out var content));
 
         Assert.NotNull(content);
         Assert.Single(content.Meshes);
@@ -28,7 +28,7 @@ public class StlFileFormatTests
     public void ReadWriteTwoCorners()
     {
         var fileFormat = new StlFileFormat();
-        Assert.True(fileFormat.TryRead(StreamFileSystemEntry.FromEmbeddedResource(this.GetType().Assembly, "MeshTopologyToolkit.Tests.Samples.Corner.TwoCorners.stl"), out var content));
+        Assert.True(fileFormat.TryRead(StreamFileSystemEntry.FromEmbeddedResource(this.GetType().Assembly, "MeshTopologyToolkit.Tests.samples.corner.TwoCorners.stl"), out var content));
         Assert.NotNull(content);
 
         var memoryStream = new MemoryStream();

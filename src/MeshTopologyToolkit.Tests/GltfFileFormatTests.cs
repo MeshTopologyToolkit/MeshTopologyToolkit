@@ -9,7 +9,7 @@ public class GltfFileFormatTests
     public void TwoCorners()
     {
         var fileFormat = new GltfFileFormat();
-        Assert.True(fileFormat.TryRead(StreamFileSystemEntry.FromEmbeddedResource(this.GetType().Assembly, "MeshTopologyToolkit.Tests.Samples.Corner.TwoCorners.glb"), out var content));
+        Assert.True(fileFormat.TryRead(StreamFileSystemEntry.FromEmbeddedResource(this.GetType().Assembly, "MeshTopologyToolkit.Tests.samples.corner.TwoCorners.glb"), out var content));
 
         Assert.NotNull(content);
         Assert.Equal(2, content.Meshes.Count);
@@ -48,11 +48,11 @@ public class GltfFileFormatTests
     }
 
     [Theory]
-    [InlineData("MeshTopologyToolkit.Tests.Samples.kronos.SimpleInstancing.glb")]
-    [InlineData("MeshTopologyToolkit.Tests.Samples.kronos.SimpleMeshes.gltf")]
-    [InlineData("MeshTopologyToolkit.Tests.Samples.kronos.SimpleMorph.gltf")]
-    [InlineData("MeshTopologyToolkit.Tests.Samples.kronos.SimpleSkin.gltf")]
-    [InlineData("MeshTopologyToolkit.Tests.Samples.kronos.VC.glb")]
+    [InlineData("MeshTopologyToolkit.Tests.samples.kronos.SimpleInstancing.glb")]
+    [InlineData("MeshTopologyToolkit.Tests.samples.kronos.SimpleMeshes.gltf")]
+    [InlineData("MeshTopologyToolkit.Tests.samples.kronos.SimpleMorph.gltf")]
+    [InlineData("MeshTopologyToolkit.Tests.samples.kronos.SimpleSkin.gltf")]
+    [InlineData("MeshTopologyToolkit.Tests.samples.kronos.VC.glb")]
     public void ReadAndWriteSamples(string fileName)
     {
         var fileFormat = new GltfFileFormat();
