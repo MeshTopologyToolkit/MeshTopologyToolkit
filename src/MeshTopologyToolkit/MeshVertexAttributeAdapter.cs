@@ -59,6 +59,18 @@ namespace MeshTopologyToolkit
         }
 
         /// <inheritdoc/>
+        public IMeshVertexAttribute Remap(IReadOnlyList<int> indexMap)
+        {
+            var result = new ListMeshVertexAttribute<TTo>();
+            foreach (var index in indexMap)
+            {
+                result.Add(this[index]);
+            }
+            return result;
+        }
+
+
+        /// <inheritdoc/>
         public int Lerp(int from, int to, float amount)
         {
             return _source.Lerp(from, to, amount);

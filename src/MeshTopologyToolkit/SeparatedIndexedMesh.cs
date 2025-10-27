@@ -1,22 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace MeshTopologyToolkit
 {
     public class SeparatedIndexedMesh : MeshBase, IMesh
     {
-        struct AttributeAndIndices
-        {
-            public IMeshVertexAttribute Attribute;
-            public IReadOnlyList<int> Indices;
-
-            public AttributeAndIndices(IMeshVertexAttribute attr, IReadOnlyList<int> indices)
-            {
-                Attribute = attr;
-                Indices = indices;
-            }
-        }
         private Dictionary<MeshAttributeKey, AttributeAndIndices> _attributes = new Dictionary<MeshAttributeKey, AttributeAndIndices>();
 
         public SeparatedIndexedMesh()
@@ -88,7 +76,7 @@ namespace MeshTopologyToolkit
         /// <inheritdoc/>
         public UnifiedIndexedMesh AsUnified()
         {
-            throw new NotImplementedException();
+            return new UnifiedIndexedMesh(this);
         }
 
         /// <inheritdoc/>

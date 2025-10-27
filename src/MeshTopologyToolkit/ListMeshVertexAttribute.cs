@@ -5,6 +5,14 @@ namespace MeshTopologyToolkit
 {
     public class ListMeshVertexAttribute<T> : List<T>, IMeshVertexAttribute<T> where T: notnull
     {
+        public ListMeshVertexAttribute()
+        {
+        }
+
+        public ListMeshVertexAttribute(int capacity): base(capacity)
+        {
+        }
+
         public bool TryCast<TTo>(IMeshVertexAttributeConverterProvider converterProvider, out IMeshVertexAttribute<TTo>? attribute) where TTo: notnull
         {
             if (typeof(T) == typeof(TTo))
@@ -62,6 +70,18 @@ namespace MeshTopologyToolkit
             }
             return res;
         }
+
+        /// <inheritdoc/>
+        public IMeshVertexAttribute Remap(IReadOnlyList<int> indexMap)
+        {
+            var result = new ListMeshVertexAttribute<T>();
+            foreach (var index in indexMap)
+            {
+                result.Add(this[index]);
+            }
+            return result;
+        }
+
 
         int IMeshVertexAttribute<T>.Add(T value)
         {

@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace MeshTopologyToolkit
 {
@@ -7,6 +7,56 @@ namespace MeshTopologyToolkit
     {
         private Dictionary<MeshAttributeKey, IMeshVertexAttribute> _attributes = new Dictionary<MeshAttributeKey, IMeshVertexAttribute>();
         private List<int> _indices = new List<int>();
+
+        public UnifiedIndexedMesh()
+        {
+        }
+
+        public UnifiedIndexedMesh(IMesh mesh)
+        {
+            var attrKeys = mesh.GetAttributeKeys().ToList();
+            var numAttrs = attrKeys.Count;
+            var vertexAttrIndices = new List<int>();
+            var tmpIndices = new int[numAttrs];
+
+            var attributes = new List<AttributeAndIndices>();
+            var indexMap = new Dictionary<IndexRange, int>();
+            
+
+            foreach (var attrKey in attrKeys)
+            {
+                var attr = mesh.GetAttribute(attrKey);
+                var indices = mesh.GetAttributeIndices(attrKey);
+                attributes.Add(new AttributeAndIndices(attr, indices));
+            }
+
+            for (int i=0; i < attributes[0].Indices.Count; ++i)
+            {
+                for (int attrIndex=0; attrIndex < numAttrs; ++attrIndex)
+                {
+                    tmpIndices[attrIndex] = attributes[attrIndex].Indices[i];
+                }
+                var indexRange = new IndexRange(tmpIndices,0,numAttrs);
+                if (!indexMap.TryGetValue(indexRange, out var newIndex))
+                {
+                    newIndex = vertexAttrIndices.Count / numAttrs;
+                    vertexAttrIndices.AddRange(tmpIndices);
+                    indexMap.Add(new IndexRange(vertexAttrIndices, newIndex* numAttrs, numAttrs), newIndex);
+                }
+                _indices.Add(newIndex);
+            }
+
+            for (int attrIndex = 0; attrIndex < numAttrs; ++attrIndex)
+            {
+                StridedListView<int> newIndexMap = new(vertexAttrIndices, attrIndex, numAttrs, indexMap.Count);
+                _attributes.Add(attrKeys[attrIndex], attributes[attrIndex].Attribute.Remap(newIndexMap));
+            }
+
+            foreach (var drawCall in mesh.DrawCalls)
+            {
+                DrawCalls.Add(drawCall.Clone());
+            }
+        }
 
         /// <summary>
         /// Index buffer for the mesh.
@@ -21,7 +71,7 @@ namespace MeshTopologyToolkit
         /// <inheritdoc/>
         public SeparatedIndexedMesh AsSeparated()
         {
-            throw new NotImplementedException();
+            return new SeparatedIndexedMesh(this);
         }
 
         /// <inheritdoc/>

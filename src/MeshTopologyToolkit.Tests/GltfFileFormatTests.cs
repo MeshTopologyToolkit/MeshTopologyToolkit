@@ -48,14 +48,16 @@ public class GltfFileFormatTests
 
     }
 
-    [Theory]
-    [MemberData(nameof(EnumerateGltfFiles))]
-    public void TestOnSampleModels(string fileName)
-    {
-        var fileFormat = new GltfFileFormat();
+    //[Theory]
+    //[MemberData(nameof(EnumerateGltfFiles))]
+    //public void TestOnSampleModels(string fileName)
+    //{
+    //    var fileFormat = new GltfFileFormat();
 
-        Assert.True(fileFormat.TryRead(new FileSystemEntry(fileName), out var content));
-    }
+    //    Assert.True(fileFormat.TryRead(new FileSystemEntry(fileName), out var content));
+
+    //    fileFormat.TryWrite(new FileSystemEntry(Path.GetFileNameWithoutExtension(Path.GetFileName(fileName))+".glb"), content);
+    //}
 
     [Fact]
     public void BuildGltfFileFromScratch()

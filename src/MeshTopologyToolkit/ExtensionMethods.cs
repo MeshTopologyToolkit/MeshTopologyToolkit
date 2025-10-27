@@ -15,6 +15,23 @@ namespace MeshTopologyToolkit
             return result;
         }
 
+        public static IMeshVertexAttribute GetAttribute(this IMesh mesh, MeshAttributeKey key)
+        {
+            if (!mesh.TryGetAttribute(key, out var result) || result == null)
+            {
+                throw new KeyNotFoundException($"Attribute {key} not found");
+            }
+            return result;
+        }
+
+        public static IReadOnlyList<int> GetAttributeIndices(this IMesh mesh, MeshAttributeKey key)
+        {
+            if (!mesh.TryGetAttributeIndices(key, out var result) || result == null)
+            {
+                throw new KeyNotFoundException($"Attribute indices for {key} not found");
+            }
+            return result;
+        }
         public static Vector3 ReadVector3(this BinaryReader reader)
         {
             var x = reader.ReadSingle();

@@ -90,5 +90,16 @@ namespace MeshTopologyToolkit
         {
             return GetEnumerator();
         }
+
+        /// <inheritdoc/>
+        public IMeshVertexAttribute Remap(IReadOnlyList<int> indexMap)
+        {
+            var result = new ListMeshVertexAttribute<T>();
+            foreach (var index in indexMap)
+            {
+                result.Add(this[index]);
+            }
+            return result;
+        }
     }
 }

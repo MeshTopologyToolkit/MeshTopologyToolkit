@@ -21,6 +21,14 @@ namespace MeshTopologyToolkit
         /// <returns>New instance of <see cref="RTree*MeshVertexAttribute<T>"/> or <see cref="DictionaryMeshVertexAttribute<T>"/></returns>
         IMeshVertexAttribute Compact(float weldRadius, out IReadOnlyList<int> indexMap);
 
+
+        /// <summary>
+        /// Create new vertex attribute container by remapping values according to the given index map.
+        /// </summary>
+        /// <param name="indexMap">Index map.</param>
+        /// <returns>Remapped attribute container.</returns>
+        IMeshVertexAttribute Remap(IReadOnlyList<int> indexMap);
+
         /// <summary>
         /// Performs a linear interpolation between two values based on the given weighting.
         /// </summary>
