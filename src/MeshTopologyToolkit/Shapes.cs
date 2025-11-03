@@ -50,6 +50,11 @@ namespace MeshTopologyToolkit
                 mesh.AddAttribute(MeshAttributeKey.Color, values, indices);
             }
             mesh.DrawCalls.Add(new MeshDrawCall(MeshTopology.TriangleList, 0, mesh.GetAttributeIndices(MeshAttributeKey.Position).Count));
+
+            if ((mask & MeshAttributeMask.Tangent) == MeshAttributeMask.Tangent)
+            {
+                mesh.EnsureTangents();
+            }
             return mesh;
         }
     }

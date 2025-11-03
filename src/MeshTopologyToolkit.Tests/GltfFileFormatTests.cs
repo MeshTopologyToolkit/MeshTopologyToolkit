@@ -1,4 +1,5 @@
 ﻿using MeshTopologyToolkit.Gltf;
+using System.Linq;
 using System.Numerics;
 using Xunit.Abstractions;
 
@@ -55,6 +56,17 @@ public class GltfFileFormatTests
 
     }
 
+    public static IEnumerable<object[]> EnumeratePrimitives
+    {
+        get
+        {
+            var resourceName = typeof(GltfFileFormatTests).Namespace + ".samples.primitives.Primitives.glb";
+            var fileFormat = new GltfFileFormat();
+            fileFormat.TryRead(StreamFileSystemEntry.FromEmbeddedResource(resourceName), out var content);
+            return content!.Meshes.Select(m => new object[] { m.Name });
+        }
+    }
+
     [Theory]
     [InlineData("samples.corner.TwoCorners.glb")]
     [InlineData("samples.kronos.SimpleInstancing.glb")]
@@ -75,8 +87,9 @@ public class GltfFileFormatTests
         fileFormat.TryWrite(new FileSystemEntry(Path.GetFileNameWithoutExtension(fileName) + ".glb"), content);
     }
 
-    [Fact]
-    public void GenerateShapeCode()
+    [Theory]
+    [MemberData(nameof(EnumeratePrimitives))]
+    public void GenerateShapeCode(string meshName)
     {
         var resourceName = this.GetType().Namespace + ".samples.primitives.Primitives.glb";
 
@@ -85,7 +98,7 @@ public class GltfFileFormatTests
         Assert.True(fileFormat.TryRead(StreamFileSystemEntry.FromEmbeddedResource(resourceName), out var content));
         Assert.NotNull(content);
 
-        foreach (var mesh in content.Meshes)
+        foreach (var mesh in content.Meshes.Where(_=>_.Name == meshName))
         {
             _testOutput.WriteLine($"public static IMesh Build{mesh.Name}(float size)");
             _testOutput.WriteLine("{");
@@ -238,5 +251,39 @@ public class GltfFileFormatTests
         // The STL format stores only the mesh geometry, not scene hierarchy or transforms.
         // Because of that all meshes in scene going to be merged into a single triangle soup.
         fileFormat.TryWrite(new FileSystemEntry("triangle.glb"), content);
+    }
+
+    [Fact]
+    public void BuildBoxGltf()
+    {
+        // Create a new file container to hold scene assets (e.g. meshes, textures, materials).
+        var content = new FileContainer();
+
+        // Store the box mesh in the container.
+        var mesh = Shapes.BuildBox(1.0f, MeshAttributeMask.All);
+        content.Meshes.Add(mesh);
+
+        // Create a simple scene object named "My Scene".
+        var scene = new Scene() { Name = "My Scene" };
+
+        // Create a node in the scene. The node holds a transform and references the mesh.
+        // Here, TRSTransform applies a translation of +10 units along the X axis.
+        var node = new Node()
+        {
+            Transform = new TRSTransform(new Vector3(10, 0, 0)),
+            Mesh = new MeshReference(mesh)
+        };
+        // Add node the scene.
+        scene.AddChild(node);
+        // Add scene to the file content.
+        content.Scenes.Add(scene);
+
+        // Create an STL file format writer.
+        var fileFormat = new GltfFileFormat();
+
+        // Attempt to export the content (which includes the mesh and scene) as an STL file.
+        // The STL format stores only the mesh geometry, not scene hierarchy or transforms.
+        // Because of that all meshes in scene going to be merged into a single triangle soup.
+        fileFormat.TryWrite(new FileSystemEntry("box.glb"), content);
     }
 }

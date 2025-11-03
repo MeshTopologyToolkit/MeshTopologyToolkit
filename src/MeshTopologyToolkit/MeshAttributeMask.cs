@@ -29,5 +29,10 @@ namespace MeshTopologyToolkit
         /// Color attribute.
         /// </summary>
         Color = 1 << 3,
+
+        /// <summary>
+        /// All attributes.
+        /// </summary>
+        All = Normal | Tangent | TexCoord | Color,
     }
 }
