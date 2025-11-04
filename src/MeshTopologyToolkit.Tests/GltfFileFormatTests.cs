@@ -253,37 +253,38 @@ public class GltfFileFormatTests
         fileFormat.TryWrite(new FileSystemEntry("triangle.glb"), content);
     }
 
-    [Fact]
-    public void BuildBoxGltf()
+    [Theory]
+    [InlineData("box")]
+    [InlineData("sphere")]
+    [InlineData("torus")]
+    public void BuildAndSaveShape(string type)
     {
-        // Create a new file container to hold scene assets (e.g. meshes, textures, materials).
         var content = new FileContainer();
-
-        // Store the box mesh in the container.
-        var mesh = Shapes.BuildBox(1.0f, MeshAttributeMask.All);
+        IMesh mesh;
+        switch (type)
+        {
+            case "box":
+                mesh = Shapes.BuildBox();
+                break;
+            case "sphere":
+                mesh = Shapes.BuildSphere(3);
+                break;
+            case "torus":
+                mesh = Shapes.BuildTorus(32,12,0.5f);
+                break;
+            default:
+                throw new NotImplementedException();
+        }
         content.Meshes.Add(mesh);
-
-        // Create a simple scene object named "My Scene".
         var scene = new Scene() { Name = "My Scene" };
-
-        // Create a node in the scene. The node holds a transform and references the mesh.
-        // Here, TRSTransform applies a translation of +10 units along the X axis.
         var node = new Node()
         {
             Transform = new TRSTransform(new Vector3(10, 0, 0)),
             Mesh = new MeshReference(mesh)
         };
-        // Add node the scene.
         scene.AddChild(node);
-        // Add scene to the file content.
         content.Scenes.Add(scene);
-
-        // Create an STL file format writer.
         var fileFormat = new GltfFileFormat();
-
-        // Attempt to export the content (which includes the mesh and scene) as an STL file.
-        // The STL format stores only the mesh geometry, not scene hierarchy or transforms.
-        // Because of that all meshes in scene going to be merged into a single triangle soup.
-        fileFormat.TryWrite(new FileSystemEntry("box.glb"), content);
+        fileFormat.TryWrite(new FileSystemEntry(type +".glb"), content);
     }
 }

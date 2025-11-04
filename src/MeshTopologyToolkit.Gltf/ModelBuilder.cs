@@ -3,7 +3,6 @@ using SharpGLTF.Materials;
 using SharpGLTF.Scenes;
 using SharpGLTF.Schema2;
 using SharpGLTF.Transforms;
-using System;
 using System.Linq;
 
 namespace MeshTopologyToolkit.Gltf

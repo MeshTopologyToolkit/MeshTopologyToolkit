@@ -48,6 +48,11 @@ namespace MeshTopologyToolkit
             writer.Write(vector.Z);
         }
 
+        /// <summary>
+        /// Ensure the mesh has tangent attribute. If not, generate it.
+        /// The tangent is generated assuming the input data is in GLTf style (right-handed UVs, bitangent pointing down).
+        /// </summary>
+        /// <param name="mesh">Mesh to modify.</param>
         public static void EnsureTangents(this IMesh mesh)
         {
             if (mesh.HasAttribute(MeshAttributeKey.Tangent))
@@ -57,87 +62,165 @@ namespace MeshTopologyToolkit
 
             if (mesh is SeparatedIndexedMesh separatedIndexedMesh)
             {
-                var positions = separatedIndexedMesh.GetAttribute<Vector3>(MeshAttributeKey.Position);
-                var positionIndices = separatedIndexedMesh.GetAttributeIndices(MeshAttributeKey.Position);
-                if (!separatedIndexedMesh.TryGetAttribute<Vector2>(MeshAttributeKey.TexCoord, out var texCoords) ||
-                    !separatedIndexedMesh.TryGetAttributeIndices(MeshAttributeKey.TexCoord, out var texCoordIndices))
-                {
-                    texCoords = new ConstMeshVertexAttribute<Vector2>(Vector2.Zero, 1);
-                    texCoordIndices = new ConstMeshVertexAttribute<int>(0, positionIndices.Count);
-                }
-                IReadOnlyList<int>? normalIndices = null;
-                if (!separatedIndexedMesh.TryGetAttribute<Vector3>(MeshAttributeKey.Normal, out var normals) ||
-                    !separatedIndexedMesh.TryGetAttributeIndices(MeshAttributeKey.Normal, out normalIndices))
-                {
-                }
-
-                var accTangent = new Vector3[positionIndices.Count];
-                var accBitangent = new Vector3[positionIndices.Count];
-
-                var accumulateTangent = (int a, int b, int c) =>
-                {
-                    var v0 = positions[positionIndices[a]];
-                    var v1 = positions[positionIndices[b]];
-                    var v2 = positions[positionIndices[c]];
-                    var uv0 = texCoords![texCoordIndices![a]];
-                    var uv1 = texCoords[texCoordIndices[b]];
-                    var uv2 = texCoords[texCoordIndices[c]];
-                    var deltaPos1 = v1 - v0;
-                    var deltaPos2 = v2 - v0;
-                    var deltaUV1 = uv1 - uv0;
-                    var deltaUV2 = uv2 - uv0;
-                    var r = 1.0f / (deltaUV1.X * deltaUV2.Y - deltaUV1.Y * deltaUV2.X);
-                    var tangent = (deltaPos1 * deltaUV2.Y - deltaPos2 * deltaUV1.Y) * r;
-                    var bitangent = (deltaPos2 * deltaUV1.X - deltaPos1 * deltaUV2.X) * r;
-                    accTangent[a] += tangent;
-                    accTangent[b] += tangent;
-                    accTangent[c] += tangent;
-                    accBitangent[a] += bitangent;
-                    accBitangent[b] += bitangent;
-                    accBitangent[c] += bitangent;
-                };
-
-                foreach (var drawCall in mesh.DrawCalls)
-                {
-                    foreach (var face in drawCall.GetFaces())
-                    {
-                        accumulateTangent(face.A, face.B, face.C);
-                    }
-                }
-
-                var tangentIndices = new int[positionIndices.Count];
-                var tangents = new DictionaryMeshVertexAttribute<Vector4>();
-
-                for (int i=0; i< accTangent.Length; i++)
-                {
-                    var n = (normals != null) ? Vector3.Normalize(normals[normalIndices![i]]) : Vector3.UnitZ;
-                    Vector3 t = Vector3.Normalize(accTangent[i]);
-                    Vector3 b = Vector3.Normalize(accBitangent[i]);
-                    if (t == Vector3.Zero)
-                    {
-                        tangentIndices[i] = tangents.Add(new Vector4(0, 0, 1, 1));
-                    }
-                    else
-                    {
-                        // Gram-Schmidt orthogonalize
-                        t = Vector3.Normalize(t - n * Vector3.Dot(n, t));
-                        // Calculate handedness
-                        var handedness = (Vector3.Dot(Vector3.Cross(n, t), b) < 0.0f) ? -1.0f : 1.0f;
-                        var tangent = new Vector4(t, handedness);
-                        tangentIndices[i] = tangents.Add(tangent);
-                    }
-                }
-
-                separatedIndexedMesh.AddAttribute(MeshAttributeKey.Tangent, tangents, tangentIndices);
+                EnsureSeparatedIndexedMeshTangents(separatedIndexedMesh);
             }
             else if (mesh is UnifiedIndexedMesh unifiedIndexedMesh)
             {
-                throw new Exception("Tangent generation for UnifiedIndexedMesh not implemented yet.");
+                EnsureUnifiedIndexedMeshTangents(unifiedIndexedMesh);
             }
             else
             {
                 throw new NotImplementedException($"Unknown mesh type. Only {nameof(SeparatedIndexedMesh)} and {nameof(UnifiedIndexedMesh)} supported.");
             }
+        }
+
+        private static void EnsureSeparatedIndexedMeshTangents(SeparatedIndexedMesh mesh)
+        {
+            var positions = mesh.GetAttribute<Vector3>(MeshAttributeKey.Position);
+            var positionIndices = mesh.GetAttributeIndices(MeshAttributeKey.Position);
+            if (!mesh.TryGetAttribute<Vector2>(MeshAttributeKey.TexCoord, out var texCoords) ||
+                !mesh.TryGetAttributeIndices(MeshAttributeKey.TexCoord, out var texCoordIndices))
+            {
+                texCoords = new ConstMeshVertexAttribute<Vector2>(Vector2.Zero, 1);
+                texCoordIndices = new ConstMeshVertexAttribute<int>(0, positionIndices.Count);
+            }
+            IReadOnlyList<int>? normalIndices = null;
+            if (!mesh.TryGetAttribute<Vector3>(MeshAttributeKey.Normal, out var normals) ||
+                !mesh.TryGetAttributeIndices(MeshAttributeKey.Normal, out normalIndices))
+            {
+            }
+
+            var accTangent = new Vector3[positionIndices.Count];
+            var accBitangent = new Vector3[positionIndices.Count];
+
+            var accumulateTangent = (int a, int b, int c) =>
+            {
+                var v0 = positions[positionIndices[a]];
+                var v1 = positions[positionIndices[b]];
+                var v2 = positions[positionIndices[c]];
+                var uv0 = texCoords![texCoordIndices![a]];
+                var uv1 = texCoords[texCoordIndices[b]];
+                var uv2 = texCoords[texCoordIndices[c]];
+                var deltaPos1 = v1 - v0;
+                var deltaPos2 = v2 - v0;
+                var deltaUV1 = uv1 - uv0;
+                var deltaUV2 = uv2 - uv0;
+                var r = 1.0f / (deltaUV1.X * deltaUV2.Y - deltaUV1.Y * deltaUV2.X);
+                var tangent = (deltaPos1 * deltaUV2.Y - deltaPos2 * deltaUV1.Y) * r;
+                var bitangent = (deltaPos2 * deltaUV1.X - deltaPos1 * deltaUV2.X) * r;
+                accTangent[a] += tangent;
+                accTangent[b] += tangent;
+                accTangent[c] += tangent;
+                accBitangent[a] += bitangent;
+                accBitangent[b] += bitangent;
+                accBitangent[c] += bitangent;
+            };
+
+            foreach (var drawCall in mesh.DrawCalls)
+            {
+                foreach (var face in drawCall.GetFaces())
+                {
+                    accumulateTangent(face.A, face.B, face.C);
+                }
+            }
+
+            var tangentIndices = new int[positionIndices.Count];
+            var tangents = new DictionaryMeshVertexAttribute<Vector4>();
+
+            for (int i = 0; i < accTangent.Length; i++)
+            {
+                var n = (normals != null) ? Vector3.Normalize(normals[normalIndices![i]]) : Vector3.UnitZ;
+                Vector3 t = Vector3.Normalize(accTangent[i]);
+                Vector3 b = Vector3.Normalize(accBitangent[i]);
+                if (t == Vector3.Zero)
+                {
+                    tangentIndices[i] = tangents.Add(new Vector4(0, 0, 1, 1));
+                }
+                else
+                {
+                    // Gram-Schmidt orthogonalize
+                    t = -Vector3.Normalize(t - n * Vector3.Dot(n, t));
+                    // Calculate handedness
+                    var handedness = (Vector3.Dot(Vector3.Cross(n, t), b) < 0.0f) ? 1.0f : -1.0f;
+                    var tangent = new Vector4(t, handedness);
+                    tangentIndices[i] = tangents.Add(tangent);
+                }
+            }
+
+            mesh.AddAttribute(MeshAttributeKey.Tangent, tangents, tangentIndices);
+        }
+
+
+        private static void EnsureUnifiedIndexedMeshTangents(UnifiedIndexedMesh mesh)
+        {
+            var positions = mesh.GetAttribute<Vector3>(MeshAttributeKey.Position);
+            var indices = mesh.Indices;
+
+            if (!mesh.TryGetAttribute<Vector2>(MeshAttributeKey.TexCoord, out var texCoords))
+            {
+                texCoords = new ConstMeshVertexAttribute<Vector2>(Vector2.Zero, 1);
+            }
+            if (!mesh.TryGetAttribute<Vector3>(MeshAttributeKey.Normal, out var normals))
+            {
+            }
+
+            var accTangent = new Vector3[positions.Count];
+            var accBitangent = new Vector3[positions.Count];
+
+            var accumulateTangent = (int a, int b, int c) =>
+            {
+                var v0 = positions[a];
+                var v1 = positions[b];
+                var v2 = positions[c];
+                var uv0 = texCoords![a];
+                var uv1 = texCoords[b];
+                var uv2 = texCoords[c];
+                var deltaPos1 = v1 - v0;
+                var deltaPos2 = v2 - v0;
+                var deltaUV1 = uv1 - uv0;
+                var deltaUV2 = uv2 - uv0;
+                var r = 1.0f / (deltaUV1.X * deltaUV2.Y - deltaUV1.Y * deltaUV2.X);
+                var tangent = (deltaPos1 * deltaUV2.Y - deltaPos2 * deltaUV1.Y) * r;
+                var bitangent = (deltaPos2 * deltaUV1.X - deltaPos1 * deltaUV2.X) * r;
+                accTangent[a] += tangent;
+                accTangent[b] += tangent;
+                accTangent[c] += tangent;
+                accBitangent[a] += bitangent;
+                accBitangent[b] += bitangent;
+                accBitangent[c] += bitangent;
+            };
+
+            foreach (var drawCall in mesh.DrawCalls)
+            {
+                foreach (var face in drawCall.GetFaces())
+                {
+                    accumulateTangent(indices[face.A], indices[face.B], indices[face.C]);
+                }
+            }
+
+            var tangents = new ListMeshVertexAttribute<Vector4>();
+
+            for (int i = 0; i < accTangent.Length; i++)
+            {
+                var n = (normals != null) ? Vector3.Normalize(normals![i]) : Vector3.UnitZ;
+                Vector3 t = Vector3.Normalize(accTangent[i]);
+                Vector3 b = Vector3.Normalize(accBitangent[i]);
+                if (t == Vector3.Zero)
+                {
+                    tangents.Add(new Vector4(0, 0, 1, 1));
+                }
+                else
+                {
+                    // Gram-Schmidt orthogonalize
+                    t = -Vector3.Normalize(t - n * Vector3.Dot(n, t));
+                    // Calculate handedness
+                    var handedness = (Vector3.Dot(Vector3.Cross(n, t), b) < 0.0f) ? 1.0f : -1.0f;
+                    var tangent = new Vector4(t, handedness);
+                    tangents.Add(tangent);
+                }
+            }
+
+            mesh.AddAttribute(MeshAttributeKey.Tangent, tangents);
         }
     }
 }

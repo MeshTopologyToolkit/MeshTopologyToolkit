@@ -50,7 +50,7 @@ namespace MeshTopologyToolkit.Gltf
         public Vector4 GetColor(int index)
         {
             if (_colors.TryGetValue(index, out var attr))
-                return attr[index];
+                return attr[_index];
             return Vector4.One;
         }
 
@@ -65,10 +65,10 @@ namespace MeshTopologyToolkit.Gltf
                     AttributeFormat.Float2);
         }
 
-        public Vector2 GetTexCoord(int index)
+        public Vector2 GetTexCoord(int channelIndex)
         {
-            if (_texCoords.TryGetValue(index, out var attr))
-                return attr[index];
+            if (_texCoords.TryGetValue(channelIndex, out var attr))
+                return attr[_index];
             return Vector2.Zero;
         }
 

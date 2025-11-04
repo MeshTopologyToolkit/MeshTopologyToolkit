@@ -63,9 +63,15 @@ namespace MeshTopologyToolkit
         /// </summary>
         public IList<int> Indices => _indices;
 
-        public void AddAttribute(MeshAttributeKey key, IMeshVertexAttribute attribute)
+        /// <summary>
+        /// Add attribute to the mesh. If attribute is null, it is ignored.
+        /// </summary>
+        /// <param name="key">Attribute key.</param>
+        /// <param name="attribute">Attribute data.</param>
+        public void AddAttribute(MeshAttributeKey key, IMeshVertexAttribute? attribute)
         {
-            _attributes.Add(key, attribute);
+            if (attribute != null)
+                _attributes.Add(key, attribute);
         }
 
         /// <inheritdoc/>
