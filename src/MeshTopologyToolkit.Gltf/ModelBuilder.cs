@@ -18,7 +18,9 @@ namespace MeshTopologyToolkit.Gltf
             SceneBuilderSchema2Settings settings = new SceneBuilderSchema2Settings();
             var sceneBuilders = content.Scenes.Select(_ => VisitScene(_)).ToList();
 
-            return SceneBuilder.ToGltf2(sceneBuilders, settings);
+            if (sceneBuilders.Count > 0)
+                return SceneBuilder.ToGltf2(sceneBuilders, settings);
+            return ModelRoot.CreateModel();
         }
 
         private SceneBuilder VisitScene(Scene scene)

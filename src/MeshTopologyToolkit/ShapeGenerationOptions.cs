@@ -29,6 +29,11 @@ namespace MeshTopologyToolkit
             return new ShapeGenerationOptions(Matrix4x4.CreateScale(scale) * Transform, Mask, FlipIndices);
         }
 
+        public ShapeGenerationOptions WithScale(Vector3 scale)
+        {
+            return new ShapeGenerationOptions(Matrix4x4.CreateScale(scale) * Transform, Mask, FlipIndices);
+        }
+
         public ShapeGenerationOptions WithFlipIndices()
         {
             return new ShapeGenerationOptions(Transform, Mask, true);
