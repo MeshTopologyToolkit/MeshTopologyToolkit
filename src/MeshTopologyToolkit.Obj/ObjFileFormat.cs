@@ -6,6 +6,12 @@ namespace MeshTopologyToolkit.Obj
 {
     public class ObjFileFormat : IFileFormat
     {
+        static readonly SupportedExtension[] _extensions = new[] {
+            new SupportedExtension("Wavefront .obj", ".obj"),
+        };
+
+        public IReadOnlyList<SupportedExtension> SupportedExtensions => _extensions;
+
         public bool TryRead(IFileSystemEntry entry, out FileContainer? content)
         {
             content = null;

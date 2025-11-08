@@ -1,6 +1,7 @@
 ﻿using SharpGLTF.Scenes;
 using SharpGLTF.Schema2;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Xml.Linq;
 
@@ -9,6 +10,13 @@ namespace MeshTopologyToolkit.Gltf
 {
     public class GltfFileFormat : IFileFormat
     {
+        static readonly SupportedExtension[] _extensions = new[] {  
+            new SupportedExtension("glTF (Text)", ".gltf"),
+            new SupportedExtension("glTF (Binary)", ".glb"),
+        };
+
+        public IReadOnlyList<SupportedExtension> SupportedExtensions => _extensions;
+
         public bool TryRead(IFileSystemEntry entry, out FileContainer? content)
         {
             content = null;

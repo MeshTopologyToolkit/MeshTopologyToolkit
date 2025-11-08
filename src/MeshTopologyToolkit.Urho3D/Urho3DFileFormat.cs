@@ -2,6 +2,12 @@
 {
     public class Urho3DFileFormat : IFileFormat
     {
+        static readonly SupportedExtension[] _extensions = new[] {
+            new SupportedExtension("Urho3D model", ".mdl"),
+        };
+
+        public IReadOnlyList<SupportedExtension> SupportedExtensions => _extensions;
+
         public bool TryRead(IFileSystemEntry entry, out FileContainer? content)
         {
             content = null;

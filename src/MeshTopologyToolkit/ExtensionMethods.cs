@@ -103,8 +103,8 @@ namespace MeshTopologyToolkit
                 var uv2 = texCoords[texCoordIndices[c]];
                 var deltaPos1 = v1 - v0;
                 var deltaPos2 = v2 - v0;
-                var deltaUV1 = uv1 - uv0;
-                var deltaUV2 = uv2 - uv0;
+                var deltaUV1 = (uv1 - uv0);// * new Vector2(1, -1);
+                var deltaUV2 = (uv2 - uv0);// * new Vector2(1, -1);
                 var r = 1.0f / (deltaUV1.X * deltaUV2.Y - deltaUV1.Y * deltaUV2.X);
                 var tangent = (deltaPos1 * deltaUV2.Y - deltaPos2 * deltaUV1.Y) * r;
                 var bitangent = (deltaPos2 * deltaUV1.X - deltaPos1 * deltaUV2.X) * r;
@@ -125,7 +125,7 @@ namespace MeshTopologyToolkit
             }
 
             var tangentIndices = new int[positionIndices.Count];
-            var tangents = new DictionaryMeshVertexAttribute<Vector4>();
+            var tangents = new TangentRTree3MeshVertexAttribute();
 
             for (int i = 0; i < accTangent.Length; i++)
             {
@@ -138,12 +138,7 @@ namespace MeshTopologyToolkit
                 }
                 else
                 {
-                    // Gram-Schmidt orthogonalize
-                    t = -Vector3.Normalize(t - n * Vector3.Dot(n, t));
-                    // Calculate handedness
-                    var handedness = (Vector3.Dot(Vector3.Cross(n, t), b) < 0.0f) ? 1.0f : -1.0f;
-                    var tangent = new Vector4(t, handedness);
-                    tangentIndices[i] = tangents.Add(tangent);
+                    tangentIndices[i] = AddTangent(tangents, n, t, b);
                 }
             }
 
@@ -211,16 +206,21 @@ namespace MeshTopologyToolkit
                 }
                 else
                 {
-                    // Gram-Schmidt orthogonalize
-                    t = -Vector3.Normalize(t - n * Vector3.Dot(n, t));
-                    // Calculate handedness
-                    var handedness = (Vector3.Dot(Vector3.Cross(n, t), b) < 0.0f) ? 1.0f : -1.0f;
-                    var tangent = new Vector4(t, handedness);
-                    tangents.Add(tangent);
+                    AddTangent(tangents, n, t, b);
                 }
             }
 
             mesh.AddAttribute(MeshAttributeKey.Tangent, tangents);
+        }
+
+        private static int AddTangent(IMeshVertexAttribute<Vector4> tangents, Vector3 n, Vector3 t, Vector3 b)
+        {
+            // Gram-Schmidt orthogonalize
+            t = Vector3.Normalize(t - n * Vector3.Dot(n, t));
+            // Calculate handedness
+            var handedness = (Vector3.Dot(Vector3.Cross(n, t), b) < 0.0f) ? -1.0f : 1.0f;
+            var tangent = new Vector4(new Vector3(-t.X, t.Y, -t.Z), handedness);
+            return tangents.Add(tangent);
         }
     }
 }

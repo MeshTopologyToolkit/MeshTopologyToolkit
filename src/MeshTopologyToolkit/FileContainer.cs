@@ -9,5 +9,7 @@ namespace MeshTopologyToolkit
         public IList<Material> Materials { get; } = new List<Material>();
 
         public IList<Scene> Scenes { get; } = new List<Scene>();
+
+        public IList<Texture> Textures { get; } = new List<Texture>();
     }
 }

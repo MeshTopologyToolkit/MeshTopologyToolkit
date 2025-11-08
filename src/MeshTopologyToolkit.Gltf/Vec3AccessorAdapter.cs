@@ -1,5 +1,4 @@
 ﻿using SharpGLTF.Memory;
-using SharpGLTF.Schema2;
 using System.Collections.Generic;
 using System.Numerics;
 

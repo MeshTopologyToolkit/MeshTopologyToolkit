@@ -1,11 +1,17 @@
 ﻿using System.Numerics;
 using System.Text;
-using static MeshTopologyToolkit.MeshDrawCall;
 
 namespace MeshTopologyToolkit.Stl
 {
     public class StlFileFormat : IFileFormat
     {
+        static readonly SupportedExtension[] _extensions = new[] {
+            new SupportedExtension("Stereolithography .STL", ".stl"),
+        };
+
+        public IReadOnlyList<SupportedExtension> SupportedExtensions => _extensions;
+
+
         public bool TryRead(IFileSystemEntry entry, out FileContainer? content)
         {
             content = null;

@@ -1,5 +1,4 @@
 ﻿using SharpGLTF.Memory;
-using SharpGLTF.Schema2;
 using System.Collections.Generic;
 using System.Numerics;
 
@@ -38,6 +37,7 @@ namespace MeshTopologyToolkit.Gltf
             return new ConstAdapter<Vector4>(Vector4.Zero);
         }
     }
+
 }
 
 
