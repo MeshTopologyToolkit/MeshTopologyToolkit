@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 
 namespace MeshTopologyToolkit
 {
@@ -16,9 +18,9 @@ namespace MeshTopologyToolkit
             var attributes = mesh.GetAttributeKeys();
             foreach (var attributeKey in attributes)
             {
-                if (!mesh.TryGetAttribute(attributeKey, out var attribute) || attribute == null)
+                if (!mesh.TryGetAttribute(attributeKey, out var attribute))
                     throw new KeyNotFoundException($"Can't get attribute {attributeKey}");
-                if (!mesh.TryGetAttributeIndices(attributeKey, out var indices) || indices == null)
+                if (!mesh.TryGetAttributeIndices(attributeKey, out var indices))
                     throw new KeyNotFoundException($"Can't get attribute indices for {attributeKey}");
 
                 var compactAttr = attribute.Compact(out var mapping);
@@ -32,44 +34,72 @@ namespace MeshTopologyToolkit
             }
         }
 
-        public void AddAttribute(MeshAttributeKey key, IMeshVertexAttribute attribute, IReadOnlyList<int> indices)
+        public void AddAttribute(MeshAttributeKey key, IMeshVertexAttribute? attribute, IReadOnlyList<int> indices)
         {
-            _attributes.Add(key, new AttributeAndIndices(attribute, indices));
+            if (attribute != null)
+            {
+                if (indices == null)
+                    throw new ArgumentException("Indices for the not null attribute are missing");
+                _attributes.Add(key, new AttributeAndIndices(attribute, indices));
+            }
+        }
+
+        /// <summary>
+        /// Set attribute to the mesh. If attribute is null, existing attribute gets deleted.
+        /// </summary>
+        /// <param name="key">Attribute key.</param>
+        /// <param name="attribute">Attribute data.</param>
+        public void SetAttribute(MeshAttributeKey key, IMeshVertexAttribute? attribute, IReadOnlyList<int> indices)
+        {
+            if (attribute != null)
+            {
+                if (indices == null)
+                    throw new ArgumentException("Indices for the not null attribute are missing");
+                _attributes[key] = new AttributeAndIndices(attribute, indices);
+            }
+            else
+            {
+                _attributes.Remove(key);
+            }
         }
 
         /// <inheritdoc/>
-        public bool TryGetAttribute(MeshAttributeKey key, out IMeshVertexAttribute? attribute)
+        public bool TryGetAttribute(MeshAttributeKey key, out IMeshVertexAttribute attribute)
         {
             if (_attributes.TryGetValue(key, out var value))
             {
                 attribute = value.Attribute;
                 return true;
             }
-            attribute = null;
+            attribute = new EmptyMeshAttribute();
             return false;
         }
 
         /// <inheritdoc/>
-        public bool TryGetAttribute<T>(MeshAttributeKey key, out IMeshVertexAttribute<T>? attribute) where T : notnull
+        public bool TryGetAttribute<T>(MeshAttributeKey key, out IMeshVertexAttribute<T> attribute) where T : notnull
         {
             if (_attributes.TryGetValue(key, out var value))
             {
-                attribute = value.Attribute as IMeshVertexAttribute<T>;
-                return attribute != null;
+                var res = value.Attribute as IMeshVertexAttribute<T>;
+                if (res != null)
+                {
+                    attribute = res;
+                    return true;
+                }
             }
-            attribute = null;
+            attribute = EmptyMeshAttribute<T>.Instance;
             return false;
         }
 
         /// <inheritdoc/>
-        public bool TryGetAttributeIndices(MeshAttributeKey key, out IReadOnlyList<int>? indices)
+        public bool TryGetAttributeIndices(MeshAttributeKey key, out IReadOnlyList<int> indices)
         {
             if (_attributes.TryGetValue(key, out var value))
             {
                 indices = value.Indices;
                 return true;
             }
-            indices = null;
+            indices = Array.Empty<int>();
             return false;
         }
 

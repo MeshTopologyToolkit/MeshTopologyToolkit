@@ -251,8 +251,8 @@ namespace MeshTopologyToolkit.Stl
 
         private void Merge(IMeshVertexAttribute<Vector3> positions, IMesh mesh, ITransform transform)
         {
-            if (!mesh.TryGetAttribute<Vector3>(MeshAttributeKey.Position, out var pos) || pos == null) return;
-            if (!mesh.TryGetAttributeIndices(MeshAttributeKey.Position, out var indices) || indices == null) return;
+            if (!mesh.TryGetAttribute<Vector3>(MeshAttributeKey.Position, out var pos)) return;
+            if (!mesh.TryGetAttributeIndices(MeshAttributeKey.Position, out var indices)) return;
 
             foreach (var drawCall in mesh.DrawCalls)
             {

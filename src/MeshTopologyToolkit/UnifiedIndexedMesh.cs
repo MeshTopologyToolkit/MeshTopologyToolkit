@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace MeshTopologyToolkit
@@ -74,6 +76,19 @@ namespace MeshTopologyToolkit
                 _attributes.Add(key, attribute);
         }
 
+        /// <summary>
+        /// Set attribute to the mesh. If attribute is null, existing attribute gets deleted.
+        /// </summary>
+        /// <param name="key">Attribute key.</param>
+        /// <param name="attribute">Attribute data.</param>
+        public void SetAttribute(MeshAttributeKey key, IMeshVertexAttribute? attribute)
+        {
+            if (attribute != null)
+                _attributes[key] = attribute;
+            else
+                _attributes.Remove(key);
+        }
+
         /// <inheritdoc/>
         public SeparatedIndexedMesh AsSeparated()
         {
@@ -97,34 +112,43 @@ namespace MeshTopologyToolkit
         }
 
         /// <inheritdoc/>
-        public bool TryGetAttribute(MeshAttributeKey key, out IMeshVertexAttribute? attribute)
+        public bool TryGetAttribute(MeshAttributeKey key, out IMeshVertexAttribute attribute)
         {
             if (_attributes.TryGetValue(key, out var value))
             {
                 attribute = value;
                 return attribute != null;
             }
-            attribute = null;
+            attribute = EmptyMeshAttribute.Instance;
             return false;
         }
 
         /// <inheritdoc/>
-        public bool TryGetAttribute<T>(MeshAttributeKey key, out IMeshVertexAttribute<T>? attribute) where T : notnull
+        public bool TryGetAttribute<T>(MeshAttributeKey key, out IMeshVertexAttribute<T> attribute) where T : notnull
         {
             if (_attributes.TryGetValue(key, out var value))
             {
-                attribute = value as IMeshVertexAttribute<T>;
-                return attribute != null;
+                var res = value as IMeshVertexAttribute<T>;
+                if (res != null)
+                {
+                    attribute = res;
+                    return true;
+                }
             }
-            attribute = null;
+            attribute = EmptyMeshAttribute<T>.Instance;
             return false;
         }
 
         /// <inheritdoc/>
-        public bool TryGetAttributeIndices(MeshAttributeKey key, out IReadOnlyList<int>? indices)
+        public bool TryGetAttributeIndices(MeshAttributeKey key, out IReadOnlyList<int> indices)
         {
             indices = _indices;
             return true;
+        }
+
+        public void AddIndices(IEnumerable<int> indices)
+        {
+            _indices.AddRange(indices);
         }
     }
 }

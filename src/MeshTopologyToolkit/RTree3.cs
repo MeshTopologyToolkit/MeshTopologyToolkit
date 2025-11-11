@@ -215,6 +215,9 @@ namespace MeshTopologyToolkit
                 }
             }
 
+            if (best == null)
+                throw new Exception("There is a bug in the code.");
+
             return ChooseLeaf(best, box);
         }
 

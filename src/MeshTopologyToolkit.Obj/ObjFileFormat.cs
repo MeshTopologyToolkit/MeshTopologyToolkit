@@ -261,12 +261,11 @@ namespace MeshTopologyToolkit.Obj
 
         private void Merge(WriteData data, IMesh mesh, ITransform transform)
         {
-            if (!mesh.TryGetAttribute<Vector3>(MeshAttributeKey.Position, out var pos) || pos == null) return;
-            if (!mesh.TryGetAttributeIndices(MeshAttributeKey.Position, out var indices) || indices == null) return;
+            if (!mesh.TryGetAttribute<Vector3>(MeshAttributeKey.Position, out var pos)) return;
+            if (!mesh.TryGetAttributeIndices(MeshAttributeKey.Position, out var indices)) return;
 
-            mesh.TryGetAttributeIndices(MeshAttributeKey.Normal, out var normalIndices);
-            mesh.TryGetAttribute<Vector3>(MeshAttributeKey.Normal, out var normals);
-            bool hasNormals = mesh.HasAttribute(MeshAttributeKey.Normal);
+            bool hasNormals = mesh.TryGetAttributeIndices(MeshAttributeKey.Normal, out var normalIndices);
+            hasNormals = mesh.TryGetAttribute<Vector3>(MeshAttributeKey.Normal, out var normals) && hasNormals;
             bool needNormals = hasNormals || data.Normals.Count > 0;
 
             if (needNormals && (data.NormalIndices.Count < data.PositionIndices.Count))
@@ -278,9 +277,8 @@ namespace MeshTopologyToolkit.Obj
                 }
             }
 
-            mesh.TryGetAttributeIndices(MeshAttributeKey.TexCoord, out var texCoordIndices);
-            mesh.TryGetAttribute<Vector3>(MeshAttributeKey.TexCoord, out var texCoords);
-            bool hasTexCoords = texCoordIndices != null && texCoords != null;
+            bool hasTexCoords = mesh.TryGetAttribute<Vector3>(MeshAttributeKey.TexCoord, out var texCoords);
+            hasTexCoords = mesh.TryGetAttributeIndices(MeshAttributeKey.TexCoord, out var texCoordIndices) && hasTexCoords;
             bool needTexCoords = hasTexCoords || data.TexCoords.Count > 0;
 
             if (needNormals && (data.TexCoordIndices.Count < data.PositionIndices.Count))
@@ -302,7 +300,7 @@ namespace MeshTopologyToolkit.Obj
                 }
                 if (needNormals)
                 {
-                    if (normals != null && normalIndices != null)
+                    if (hasNormals)
                     {
                         foreach (var face in drawCall.GetFaces(normalIndices))
                         {
@@ -314,7 +312,7 @@ namespace MeshTopologyToolkit.Obj
                 }
                 if (needTexCoords)
                 {
-                    if (texCoords != null && texCoordIndices != null)
+                    if (hasTexCoords)
                     {
                         foreach (var face in drawCall.GetFaces(texCoordIndices))
                         {

@@ -35,7 +35,7 @@ namespace MeshTopologyToolkit
         /// When this method returns, contains the attribute instance if found; otherwise <c>null</c>.
         /// </param>
         /// <returns><c>true</c> if the attribute was found; otherwise <c>false</c>.</returns>
-        bool TryGetAttribute(MeshAttributeKey key, out IMeshVertexAttribute? attribute);
+        bool TryGetAttribute(MeshAttributeKey key, out IMeshVertexAttribute attribute);
 
         /// <summary>
         /// Tries to get an attribute by <paramref name="key"/> cast to the typed
@@ -47,7 +47,7 @@ namespace MeshTopologyToolkit
         /// When this method returns, contains the typed attribute instance if found and cast succeeded; otherwise <c>null</c>.
         /// </param>
         /// <returns><c>true</c> if the typed attribute was found and cast; otherwise <c>false</c>.</returns>
-        bool TryGetAttribute<T>(MeshAttributeKey key, out IMeshVertexAttribute<T>? attribute) where T : notnull;
+        bool TryGetAttribute<T>(MeshAttributeKey key, out IMeshVertexAttribute<T> attribute) where T : notnull;
 
         /// <summary>
         /// Tries to get the index mapping associated with an attribute.
@@ -58,7 +58,7 @@ namespace MeshTopologyToolkit
         /// When this method returns, contains the index list for the attribute if available; otherwise <c>null</c>.
         /// </param>
         /// <returns><c>true</c> if an index list exists for the attribute; otherwise <c>false</c>.</returns>
-        bool TryGetAttributeIndices(MeshAttributeKey key, out IReadOnlyList<int>? indices);
+        bool TryGetAttributeIndices(MeshAttributeKey key, out IReadOnlyList<int> indices);
 
         /// <summary>
         /// Produces a unified indexed view of the mesh where a single index buffer indexes all attributes.

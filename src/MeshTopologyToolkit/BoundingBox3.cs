@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 
 namespace MeshTopologyToolkit
 {
@@ -29,6 +30,10 @@ namespace MeshTopologyToolkit
         /// <param name="max">The maximum corner (largest X, Y, Z).</param>
         public BoundingBox3(Vector3 min, Vector3 max)
         {
+            if (min.IsNanOrInf())
+                throw new ArgumentException($"Min {min} is not a valid vector");
+            if (max.IsNanOrInf())
+                throw new ArgumentException($"Max {max} is not a valid vector");
             _min = min;
             _max = max;
         }
@@ -40,6 +45,10 @@ namespace MeshTopologyToolkit
         /// <param name="halfExtent">Half the size of the box along each axis.</param>
         public BoundingBox3(Vector3 center, float halfExtent)
         {
+            if (center.IsNanOrInf())
+                throw new ArgumentException($"Center {center} is not a valid vector");
+            if (halfExtent.IsNanOrInf())
+                throw new ArgumentException($"Half extent value {halfExtent} is not a valid scalar");
             _min = center - new Vector3(halfExtent);
             _max = center + new Vector3(halfExtent);
         }

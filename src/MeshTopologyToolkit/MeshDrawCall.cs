@@ -1,4 +1,5 @@
 ﻿
+using System.Collections;
 using System.Collections.Generic;
 
 namespace MeshTopologyToolkit
@@ -50,6 +51,7 @@ namespace MeshTopologyToolkit
                             {
                                 yield return new Face(i, i + 1, i + 2);
                             }
+                            swapDirection = !swapDirection;
                         }
                     }
                     break;
@@ -76,7 +78,7 @@ namespace MeshTopologyToolkit
             return $"{Type} ({StartIndex} ... {StartIndex+NumIndices-1})";
         }
 
-        public struct Face
+        public struct Face: IEnumerable<int>
         {
             public int A;
             public int B;
@@ -87,6 +89,18 @@ namespace MeshTopologyToolkit
                 A = v1;
                 B = v2;
                 C = v3;
+            }
+
+            public IEnumerator<int> GetEnumerator()
+            {
+                yield return A;
+                yield return B;
+                yield return C;
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return GetEnumerator();
             }
         }
     }

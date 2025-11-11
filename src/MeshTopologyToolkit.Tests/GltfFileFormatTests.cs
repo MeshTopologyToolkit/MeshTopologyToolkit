@@ -1,10 +1,8 @@
 ﻿using MeshTopologyToolkit.Gltf;
-using System.Linq;
 using System.Numerics;
 using Xunit.Abstractions;
 
 namespace MeshTopologyToolkit.Tests;
-
 public class GltfFileFormatTests
 {
     private readonly ITestOutputHelper _testOutput;
@@ -69,6 +67,9 @@ public class GltfFileFormatTests
 
     [Theory]
     [InlineData("samples.corner.TwoCorners.glb")]
+    [InlineData("samples.kronos.AnimatedMorphCube.glb")]
+    [InlineData("samples.kronos.MultiUVTest.glb")]
+    [InlineData("samples.kronos.NormalTangentMirrorTest.glb")]
     [InlineData("samples.kronos.SimpleInstancing.glb")]
     [InlineData("samples.kronos.SimpleMeshes.gltf")]
     [InlineData("samples.kronos.SimpleMorph.gltf")]
@@ -85,6 +86,186 @@ public class GltfFileFormatTests
         Assert.NotNull(content);
 
         fileFormat.TryWrite(new FileSystemEntry(Path.GetFileNameWithoutExtension(fileName) + ".glb"), content);
+    }
+
+    [Theory]
+    //[InlineData("samples.kronos.MultiUVTest.glb")]
+    [InlineData("samples.kronos.NormalTangentMirrorTest.glb")]
+    //[InlineData("samples.primitives.Primitives.glb")]
+    [InlineData("samples.primitives.TangentFaces.glb")]
+    [InlineData("samples.primitives.CilinderWithBoxUVProjection.glb")]
+    [InlineData("samples.primitives.UncappedCilinderWithRotatedUVProjection.glb")]
+    public void ValidateEnsureTangents(string fileName)
+    {
+        var fileFormat = new GltfFileFormat();
+        IFileSystemEntry entry = Path.IsPathFullyQualified(fileName) ? new FileSystemEntry(fileName) : StreamFileSystemEntry.FromEmbeddedResource(this.GetType().Namespace + "." + fileName);
+        Assert.True(fileFormat.TryRead(entry, out var content));
+        Assert.NotNull(content);
+
+        if (content.Meshes.All(mesh => !mesh.HasAttribute(MeshAttributeKey.Tangent) || !mesh.HasAttribute(MeshAttributeKey.TexCoord)))
+            Assert.Fail($"{fileName} doesn't have any meshes with tangents");
+
+        foreach (var mesh in content.Meshes)
+        {
+            if (!mesh.HasAttribute(MeshAttributeKey.Tangent) || !mesh.HasAttribute(MeshAttributeKey.TexCoord))
+            {
+                continue;
+            }
+            var srcMesh = mesh.AsSeparated();
+            var testMesh = new SeparatedIndexedMesh();
+            void copyAttr(MeshAttributeKey key)
+            {
+                testMesh.AddAttribute(key, srcMesh.GetAttribute(key), srcMesh.GetAttributeIndices(key));
+            }
+            copyAttr(MeshAttributeKey.Position);
+            copyAttr(MeshAttributeKey.Normal);
+            copyAttr(MeshAttributeKey.TexCoord);
+            foreach (var drawCall in srcMesh.DrawCalls)
+            {
+                testMesh.DrawCalls.Add(drawCall);
+            }
+
+            testMesh.EnsureTangents();
+
+            var srcTangents = srcMesh.GetAttribute<Vector4>(MeshAttributeKey.Tangent);
+            var srcTangentIndices = srcMesh.GetAttributeIndices(MeshAttributeKey.Tangent);
+            var testTangents = testMesh.GetAttribute<Vector4>(MeshAttributeKey.Tangent);
+            var testTangentIndices = testMesh.GetAttributeIndices(MeshAttributeKey.Tangent);
+
+            foreach (var drawCall in srcMesh.DrawCalls)
+            {
+                foreach (var face in drawCall.GetFaces())
+                {
+                    foreach (var index in face)
+                    {
+                        var srcTangent = srcTangents[srcTangentIndices[index]];
+                        var testTangent = testTangents[testTangentIndices[index]];
+
+                        Assert.True(Math.Abs(srcTangent.W - testTangent.W) < 1e-6f, $"\"{srcMesh.Name}\"[{index}] bitangent direction mismatch, expected {srcTangent.W}, evaulated {testTangent.W}");
+                        Vector3 srcTangentXYZ = new(srcTangent.X, srcTangent.Y, srcTangent.Z);
+                        Vector3 testTangentXYZ = new(testTangent.X, testTangent.Y, testTangent.Z);
+                        var dot = Vector3.Dot(srcTangentXYZ, testTangentXYZ);
+                        Assert.True(dot > 0.5f, $"\"{srcMesh.Name}\"[{index}] tangent direction mismatch, expected {srcTangentXYZ}, evaulated {testTangentXYZ}");
+                    }
+
+                }
+            }
+        }
+    }
+
+    [Theory]
+    //[InlineData("samples.kronos.MultiUVTest.glb")]
+    [InlineData("samples.kronos.NormalTangentMirrorTest.glb")]
+    //[InlineData("samples.primitives.Primitives.glb")]
+    [InlineData("samples.primitives.TangentFaces.glb")]
+    [InlineData("samples.primitives.CilinderWithBoxUVProjection.glb")]
+    [InlineData("samples.primitives.UncappedCilinderWithRotatedUVProjection.glb")]
+    public void ValidateUnifiedMeshEnsureTangents(string fileName)
+    {
+        var fileFormat = new GltfFileFormat();
+        IFileSystemEntry entry = Path.IsPathFullyQualified(fileName) ? new FileSystemEntry(fileName) : StreamFileSystemEntry.FromEmbeddedResource(this.GetType().Namespace + "." + fileName);
+        Assert.True(fileFormat.TryRead(entry, out var content));
+        Assert.NotNull(content);
+
+        if (content.Meshes.All(mesh => !mesh.HasAttribute(MeshAttributeKey.Tangent) || !mesh.HasAttribute(MeshAttributeKey.TexCoord)))
+            Assert.Fail($"{fileName} doesn't have any meshes with tangents");
+
+        foreach (var mesh in content.Meshes)
+        {
+            if (!mesh.HasAttribute(MeshAttributeKey.Tangent) || !mesh.HasAttribute(MeshAttributeKey.TexCoord))
+            {
+                continue;
+            }
+            var srcMesh = mesh.AsUnified();
+            var testMesh = new UnifiedIndexedMesh();
+            testMesh.AddIndices(srcMesh.Indices);
+            void copyAttr(MeshAttributeKey key)
+            {
+                testMesh.AddAttribute(key, srcMesh.GetAttribute(key));
+            }
+            copyAttr(MeshAttributeKey.Position);
+            copyAttr(MeshAttributeKey.Normal);
+            copyAttr(MeshAttributeKey.TexCoord);
+            foreach (var drawCall in srcMesh.DrawCalls)
+            {
+                testMesh.DrawCalls.Add(drawCall);
+            }
+
+            testMesh.EnsureTangents();
+
+            var srcTangents = srcMesh.GetAttribute<Vector4>(MeshAttributeKey.Tangent);
+            var testTangents = testMesh.GetAttribute<Vector4>(MeshAttributeKey.Tangent);
+
+            for (int index=0; index<srcTangents.Count; ++index)
+            {
+                var srcTangent = srcTangents[index];
+                var testTangent = testTangents[index];
+
+                Assert.True(Math.Abs(srcTangent.W - testTangent.W) < 1e-6f, $"\"{srcMesh.Name}\"[{index}] bitangent direction mismatch, expected {srcTangent.W}, evaulated {testTangent.W}");
+                Vector3 srcTangentXYZ = new(srcTangent.X, srcTangent.Y, srcTangent.Z);
+                Vector3 testTangentXYZ = new(testTangent.X, testTangent.Y, testTangent.Z);
+                var dot = Vector3.Dot(srcTangentXYZ, testTangentXYZ);
+                Assert.True(dot > 0.5f, $"\"{srcMesh.Name}\"[{index}] tangent direction mismatch, expected {srcTangentXYZ}, evaulated {testTangentXYZ}");
+            }
+        }
+    }
+
+    [Theory]
+    [InlineData("samples.corner.TwoCorners.glb")]
+    [InlineData("samples.kronos.AnimatedMorphCube.glb")]
+    [InlineData("samples.kronos.MultiUVTest.glb")]
+    [InlineData("samples.kronos.NormalTangentMirrorTest.glb")]
+    [InlineData("samples.kronos.SimpleInstancing.glb")]
+    [InlineData("samples.kronos.SimpleMeshes.gltf")]
+    [InlineData("samples.primitives.Primitives.glb")]
+    //[MemberData(nameof(EnumerateGltfFiles))]
+    public void ValidateEnsureNormals(string fileName)
+    {
+        var fileFormat = new GltfFileFormat();
+        IFileSystemEntry entry = Path.IsPathFullyQualified(fileName) ? new FileSystemEntry(fileName) : StreamFileSystemEntry.FromEmbeddedResource(this.GetType().Namespace + "." + fileName);
+        Assert.True(fileFormat.TryRead(entry, out var content));
+        Assert.NotNull(content);
+
+        if (content.Meshes.All(mesh => !mesh.HasAttribute(MeshAttributeKey.Normal)))
+            Assert.Fail($"{fileName} doesn't have any meshes with normals");
+
+        foreach (var mesh in content.Meshes)
+        {
+            if (!mesh.HasAttribute(MeshAttributeKey.Normal))
+            {
+                continue;
+            }
+            var srcMesh = (SeparatedIndexedMesh)mesh;
+            var testMesh = new SeparatedIndexedMesh();
+            void copyAttr(MeshAttributeKey key)
+            {
+                testMesh.AddAttribute(key, srcMesh.GetAttribute(key), srcMesh.GetAttributeIndices(key));
+            }
+            copyAttr(MeshAttributeKey.Position);
+            foreach (var drawCall in srcMesh.DrawCalls)
+            {
+                testMesh.DrawCalls.Add(drawCall);
+            }
+
+            testMesh.EnsureNormals();
+
+            var srcNormals = srcMesh.GetAttribute<Vector3>(MeshAttributeKey.Normal);
+            var srcNormalIndices = srcMesh.GetAttributeIndices(MeshAttributeKey.Normal);
+            var testNormals = testMesh.GetAttribute<Vector3>(MeshAttributeKey.Normal);
+            var testNormalIndices = testMesh.GetAttributeIndices(MeshAttributeKey.Normal);
+
+            foreach (var face in srcMesh.GetFaces())
+            {
+                foreach (var index in face)
+                {
+                    var srcNormal = srcNormals[srcNormalIndices[index]];
+                    var testNormal = testNormals[testNormalIndices[index]];
+
+                    var dot = Vector3.Dot(new Vector3(srcNormal.X, srcNormal.Y, srcNormal.Z), new Vector3(testNormal.X, testNormal.Y, testNormal.Z));
+                    Assert.True(dot > 0.0f, $"\"{srcMesh.Name}\"[{index}] normal direction mismatch, expected {srcNormal}, evaulated {testNormal}, dot projection {dot}");
+                }
+            }
+        }
     }
 
     [Theory]
