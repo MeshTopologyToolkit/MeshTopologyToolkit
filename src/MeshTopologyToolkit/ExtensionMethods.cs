@@ -101,6 +101,23 @@ namespace MeshTopologyToolkit
             writer.Write(vector.Z);
         }
 
+        public static byte[] ReadAllBytes(this IFileSystemEntry? entry)
+        {
+            if (entry == null)
+            {
+                return Array.Empty<byte>();
+            }
+            using (var stream = entry.OpenRead())
+            {
+                if (stream == null)
+                    return Array.Empty<byte>();
+
+                var ms = new MemoryStream();
+                stream.CopyTo(ms);
+                return ms.ToArray();
+            }
+        }
+
         public static void ApplyUVProjection(this IMesh mesh, Matrix4x4 prjectionMatrix)
         {
             var positions = mesh.GetAttribute<Vector3>(MeshAttributeKey.Position);

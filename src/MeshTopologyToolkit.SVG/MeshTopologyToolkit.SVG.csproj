@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+	  <TargetFramework>netstandard2.1</TargetFramework>
+	  <ImplicitUsings>enable</ImplicitUsings>
+	  <Nullable>enable</Nullable>
+	  <LangVersion>10</LangVersion>
+
+	  <!-- NuGet Package Settings -->
+	  <Authors>MeshTopologyToolkit contributors</Authors>
+	  <Company>MeshTopologyToolkit</Company>
+	  <Description>MeshTopologyToolkit is a lightweight, extensible C# library designed for developers working with 3D mesh data.</Description>
+	  <PackageLicenseExpression>MIT</PackageLicenseExpression>
+	  <PackageProjectUrl>https://github.com/MeshTopologyToolkit/MeshTopologyToolkit</PackageProjectUrl>
+	  <RepositoryUrl>https://github.com/MeshTopologyToolkit/MeshTopologyToolkit.git</RepositoryUrl>
+	  <RepositoryType>git</RepositoryType>
+	  <PackageTags>utilities;dotnet;library</PackageTags>
+
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Svg" Version="3.4.7" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MeshTopologyToolkit\MeshTopologyToolkit.csproj" />
+  </ItemGroup>
+
+</Project>

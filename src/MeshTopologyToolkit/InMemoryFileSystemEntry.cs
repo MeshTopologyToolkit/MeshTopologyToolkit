@@ -8,6 +8,13 @@ namespace MeshTopologyToolkit
         Dictionary<string, byte[]> _files;
         string _name;
 
+        public InMemoryFileSystemEntry(string name, byte[] data)
+        {
+            _name = name;
+            _files = new Dictionary<string, byte[]>();
+            _files.Add(name, data);
+        }
+
         public InMemoryFileSystemEntry(string name, Dictionary<string, byte[]> files)
         {
             _name = name;

@@ -36,9 +36,25 @@ namespace MeshTopologyToolkit.Gltf
                         Triangles = VisitTrianlgeList();
                         break;
                     }
+                case MeshTopology.LineList:
+                    {
+                        VerticesPerPrimitive = 2;
+                        Lines = VisitLineList();
+                        break;
+                    }
                 default:
                     throw new NotImplementedException();
             }
+        }
+
+        private IReadOnlyList<(int A, int B)> VisitLineList()
+        {
+            var result = new List<(int A, int B)>();
+            for (int i = 0; i < _indices.Count - 1; i += 2)
+            {
+                result.Add((_indices[i], _indices[i + 1]));
+            }
+            return result;
         }
 
         private IReadOnlyList<(int A, int B, int C)> VisitTrianlgeList()
@@ -50,7 +66,7 @@ namespace MeshTopologyToolkit.Gltf
             }
             return result;
         }
-
+        
         public Type VertexType => typeof(CutomVertexType);
 
         public MaterialBuilder Material { get; set; }

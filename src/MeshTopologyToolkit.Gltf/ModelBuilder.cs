@@ -3,12 +3,18 @@ using SharpGLTF.Materials;
 using SharpGLTF.Scenes;
 using SharpGLTF.Schema2;
 using SharpGLTF.Transforms;
+using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace MeshTopologyToolkit.Gltf
 {
     internal class ModelBuilder
     {
+        MaterialBuilder _defaultMaterial = new MaterialBuilder("Default");
+        Dictionary<Material, MaterialBuilder> _materials = new Dictionary<Material, MaterialBuilder>();
+
         public ModelBuilder()
         {
         }
@@ -70,9 +76,58 @@ namespace MeshTopologyToolkit.Gltf
         {
             if (material == null)
             {
-                return new MaterialBuilder("DefaultMaterial");
+                return _defaultMaterial;
             }
-            return new MaterialBuilder(material.Name ?? "Material");
+            if (_materials.TryGetValue(material, out var materialBuilder))
+            {
+                return materialBuilder;
+            }
+            materialBuilder = new MaterialBuilder(material.Name ?? "Material");
+            materialBuilder = materialBuilder.WithMetallicRoughnessShader();
+            foreach (var scalarParam in material.ScalarParams)
+            {
+                switch (scalarParam.Key) {
+                    case MaterialParam.MetallicFactor:
+                        materialBuilder.WithChannelParam(KnownChannel.MetallicRoughness, KnownProperty.MetallicFactor, scalarParam.Value);
+                        break;
+                    case MaterialParam.RoughnessFactor:
+                        materialBuilder.WithChannelParam(KnownChannel.MetallicRoughness, KnownProperty.RoughnessFactor, scalarParam.Value);
+                        break;
+                    case MaterialParam.NormalScale:
+                        materialBuilder.WithChannelParam(KnownChannel.Normal, KnownProperty.NormalScale, scalarParam.Value);
+                        break;
+                }
+            }
+            foreach (var vec4Param in material.Vector4Params)
+            {
+                switch (vec4Param.Key)
+                {
+                    case MaterialParam.BaseColor:
+                        materialBuilder.WithChannelParam(KnownChannel.BaseColor, KnownProperty.RGBA, vec4Param.Value);
+                        break;
+                }
+            }
+            foreach (var texParam in material.TextureParams)
+            {
+                switch (texParam.Key)
+                {
+                    case MaterialParam.Normal:
+                        materialBuilder.WithChannelImage(KnownChannel.Normal, VisitTexture(texParam.Value));
+                        break;
+                }
+            }
+            return materialBuilder;
+        }
+
+        private ImageBuilder? VisitTexture(Texture? texture)
+        {
+            if (texture?.FileSystemEntry == null)
+            {
+                return null;
+            }
+
+            var imageBuilder = ImageBuilder.From(texture.FileSystemEntry.ReadAllBytes(), Path.GetFileName(texture.FileSystemEntry.Name));
+            return imageBuilder;
         }
 
         private AffineTransform VisitTransform(ITransform transform)

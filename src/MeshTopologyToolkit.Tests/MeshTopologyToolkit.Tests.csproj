@@ -15,9 +15,11 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\MeshTopologyToolkit.BSP\MeshTopologyToolkit.BSP.csproj" />
 		<ProjectReference Include="..\MeshTopologyToolkit.Gltf\MeshTopologyToolkit.Gltf.csproj" />
 		<ProjectReference Include="..\MeshTopologyToolkit.Obj\MeshTopologyToolkit.Obj.csproj" />
 		<ProjectReference Include="..\MeshTopologyToolkit.Stl\MeshTopologyToolkit.Stl.csproj" />
+		<ProjectReference Include="..\MeshTopologyToolkit.SVG\MeshTopologyToolkit.SVG.csproj" />
 		<ProjectReference Include="..\MeshTopologyToolkit.Urho3D\MeshTopologyToolkit.Urho3D.csproj" />
 		<ProjectReference Include="..\MeshTopologyToolkit\MeshTopologyToolkit.csproj" />
 	</ItemGroup>
