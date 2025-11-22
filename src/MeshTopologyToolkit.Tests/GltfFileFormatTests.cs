@@ -3,6 +3,7 @@ using System.Numerics;
 using Xunit.Abstractions;
 
 namespace MeshTopologyToolkit.Tests;
+
 public class GltfFileFormatTests
 {
     private readonly ITestOutputHelper _testOutput;
