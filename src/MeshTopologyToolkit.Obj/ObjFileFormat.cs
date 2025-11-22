@@ -12,9 +12,10 @@ namespace MeshTopologyToolkit.Obj
 
         public IReadOnlyList<SupportedExtension> SupportedExtensions => _extensions;
 
-        public bool TryRead(IFileSystemEntry entry, out FileContainer? content)
+        public bool TryRead(IFileSystemEntry entry, out FileContainer content)
         {
-            content = null;
+            content = new FileContainer();
+
             if (!entry.Exists)
                 return false;
 
@@ -22,8 +23,6 @@ namespace MeshTopologyToolkit.Obj
             {
                 if (stream == null)
                     return false;
-
-                content = new FileContainer();
 
                 var positions = new ListMeshVertexAttribute<Vector3>();
                 var normals = new ListMeshVertexAttribute<Vector3>();

@@ -62,7 +62,7 @@ public class GltfFileFormatTests
             var resourceName = typeof(GltfFileFormatTests).Namespace + ".samples.primitives.Primitives.glb";
             var fileFormat = new GltfFileFormat();
             fileFormat.TryRead(StreamFileSystemEntry.FromEmbeddedResource(resourceName), out var content);
-            return content!.Meshes.Select(m => new object[] { m.Name });
+            return content!.Meshes.Select(m => new object[] { m.Name ?? "<mesh>" });
         }
     }
 

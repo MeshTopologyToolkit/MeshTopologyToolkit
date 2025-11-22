@@ -18,7 +18,7 @@ namespace MeshTopologyToolkit.Gltf
             this._index = index;
         }
 
-        public IMeshBuilder<TMaterial> CreateCompatibleMesh<TMaterial>(string name = null)
+        public IMeshBuilder<TMaterial> CreateCompatibleMesh<TMaterial>(string? name = null)
         {
             throw new NotImplementedException();
         }

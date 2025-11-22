@@ -8,7 +8,7 @@
 
         public IReadOnlyList<SupportedExtension> SupportedExtensions => _extensions;
 
-        public bool TryRead(IFileSystemEntry entry, out FileContainer? content)
+        public bool TryRead(IFileSystemEntry entry, out FileContainer content)
         {
             content = new FileContainer();
             return false;

@@ -127,11 +127,11 @@ namespace MeshTopologyToolkit.SVG
             if (rx == 0f || ry == 0f)
             {
                 // simple rectangle
-                segments.Add(new SvgMoveToSegment(new PointF(x, y)));
+                segments.Add(new SvgMoveToSegment(false, new PointF(x, y)));
                 segments.Add(new SvgLineSegment(false, new PointF(x + w, y)));
                 segments.Add(new SvgLineSegment(false, new PointF(x + w, y + h)));
                 segments.Add(new SvgLineSegment(false, new PointF(x, y + h)));
-                segments.Add(new SvgClosePathSegment());
+                segments.Add(new SvgClosePathSegment(false));
             }
             else
             {
@@ -172,7 +172,7 @@ namespace MeshTopologyToolkit.SVG
 
                 // Start point: top edge, after left corner: (x + rx, y)
                 var start = new PointF(x + rx, y);
-                segments.Add(new SvgMoveToSegment(start));
+                segments.Add(new SvgMoveToSegment(false, start));
 
                 // Top edge: line to before top-right corner
                 segments.Add(new SvgLineSegment(false, new PointF(x + w - rx, y)));
@@ -198,7 +198,7 @@ namespace MeshTopologyToolkit.SVG
                 // Top-left corner: pi -> 3pi/2
                 AddQuarterBezier(segments, tlCenter, rx, ry, Math.PI, 3.0 * Math.PI / 2.0);
 
-                segments.Add(new SvgClosePathSegment());
+                segments.Add(new SvgClosePathSegment(false));
             }
 
             return ReadPath(new SvgPath { PathData = segments });
@@ -242,7 +242,7 @@ namespace MeshTopologyToolkit.SVG
             // Build path data: MoveTo p0, then four cubic curve segments, then close
             var segs = new SvgPathSegmentList
             {
-                new SvgMoveToSegment(p0),
+                new SvgMoveToSegment(false, p0),
 
                 // SvgCubicCurveSegment constructors:
                 // public SvgCubicCurveSegment(bool isRelative, PointF firstControlPoint, PointF secondControlPoint, PointF end)
@@ -252,7 +252,7 @@ namespace MeshTopologyToolkit.SVG
                 new SvgCubicCurveSegment(false, c2a, c2b, p3), // p2 -> p3
                 new SvgCubicCurveSegment(false, c3a, c3b, p0), // p3 -> p0
 
-                new SvgClosePathSegment() // z
+                new SvgClosePathSegment(false) // z
             };
 
             return ReadPath(new SvgPath { PathData = segs });

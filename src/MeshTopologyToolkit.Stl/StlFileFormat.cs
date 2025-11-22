@@ -12,9 +12,9 @@ namespace MeshTopologyToolkit.Stl
         public IReadOnlyList<SupportedExtension> SupportedExtensions => _extensions;
 
 
-        public bool TryRead(IFileSystemEntry entry, out FileContainer? content)
+        public bool TryRead(IFileSystemEntry entry, out FileContainer content)
         {
-            content = null;
+            content = new FileContainer();
 
             using (var stream = entry.OpenRead())
             {
@@ -28,18 +28,17 @@ namespace MeshTopologyToolkit.Stl
 
                 if (new SpanTokenizer(buf).Expect("solid"))
                 {
-                    return TryReadText(stream, out content);
+                    return TryReadText(stream, content);
                 }
                 using (var reader = new BinaryReader(stream))
                 {
-                    return TryReadBinary(reader, out content);
+                    return TryReadBinary(reader, content);
                 }
             }
         }
 
-        private bool TryReadText(Stream stream, out FileContainer? content)
+        private bool TryReadText(Stream stream, FileContainer content)
         {
-            content = null;
             var tokenizer = new SpanTokenizer(stream);
             if (!tokenizer.Expect("solid"))
                 return false;
@@ -119,7 +118,6 @@ namespace MeshTopologyToolkit.Stl
                     return false;
             }
 
-            content = new FileContainer();
             var mesh = new SeparatedIndexedMesh();
             mesh.AddAttribute(MeshAttributeKey.Position, positions, positionIndices);
             mesh.AddAttribute(MeshAttributeKey.Normal, normals, normalIndices);
@@ -133,12 +131,11 @@ namespace MeshTopologyToolkit.Stl
             return true;
         }
 
-        private bool TryReadBinary(BinaryReader reader, out FileContainer? content)
+        private bool TryReadBinary(BinaryReader reader, FileContainer content)
         {
             reader.ReadBytes(80);
             var numTriangles = reader.ReadUInt32();
 
-            content = new FileContainer();
             IMeshVertexAttribute<Vector3> positions = new ListMeshVertexAttribute<Vector3>();
             IMeshVertexAttribute<Vector3> normals = new ListMeshVertexAttribute<Vector3>();
 

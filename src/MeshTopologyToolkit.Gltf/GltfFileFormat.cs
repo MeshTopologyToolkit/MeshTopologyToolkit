@@ -17,9 +17,9 @@ namespace MeshTopologyToolkit.Gltf
 
         public IReadOnlyList<SupportedExtension> SupportedExtensions => _extensions;
 
-        public bool TryRead(IFileSystemEntry entry, out FileContainer? content)
+        public bool TryRead(IFileSystemEntry entry, out FileContainer content)
         {
-            content = null;
+            content = new FileContainer();
 
             using (var stream = entry.OpenRead())
             {
@@ -30,8 +30,6 @@ namespace MeshTopologyToolkit.Gltf
                     .Create(_=> ReadBytes((_ == fileName) ? entry.OpenRead():entry.GetNeigbourEntry(Uri.UnescapeDataString(_)).OpenRead()))
                     .WithSettingsFrom(new ReadSettings() { Validation = SharpGLTF.Validation.ValidationMode.TryFix });
                 var model = readContext.ReadSchema2(fileName);
-
-                content = new FileContainer();
 
                 var visitor  = new GltfVisitor(content);
                 visitor.Visit(model);

@@ -24,7 +24,7 @@ namespace MeshTopologyToolkit.Gltf
 
         public string Name { get; set; }
 
-        public JsonNode Extras { get; set; }
+        public JsonNode Extras { get; set; } = new JsonObject();
 
         public bool IsEmpty => _primitives.Count == 0;
 
@@ -32,7 +32,7 @@ namespace MeshTopologyToolkit.Gltf
 
         public IReadOnlyCollection<IPrimitiveReader<MaterialBuilder>> Primitives => _primitives;
 
-        public IMeshBuilder<MaterialBuilder> Clone(Func<MaterialBuilder, MaterialBuilder> materialCloneCallback = null)
+        public IMeshBuilder<MaterialBuilder> Clone(Func<MaterialBuilder, MaterialBuilder>? materialCloneCallback = null)
         {
             throw new NotImplementedException();
         }

@@ -8,9 +8,9 @@
 
         public IReadOnlyList<SupportedExtension> SupportedExtensions => _extensions;
 
-        public bool TryRead(IFileSystemEntry entry, out FileContainer? content)
+        public bool TryRead(IFileSystemEntry entry, out FileContainer content)
         {
-            content = null;
+            content = new FileContainer();
             if (!entry.Exists)
                 return false;
 
@@ -18,8 +18,7 @@
             {
                 if (stream == null)
                     return false;
-
-                content = new FileContainer();
+                
                 return true;
             }
         }

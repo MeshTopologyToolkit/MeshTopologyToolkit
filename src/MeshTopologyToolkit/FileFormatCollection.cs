@@ -21,7 +21,7 @@ namespace MeshTopologyToolkit
 
         public IReadOnlyList<SupportedExtension> SupportedExtensions { get; private set; }
 
-        public bool TryRead(IFileSystemEntry entry, out FileContainer? content)
+        public bool TryRead(IFileSystemEntry entry, out FileContainer content)
         {
             var ext = Path.GetExtension(entry.Name);
             foreach (var format in _formats)
@@ -32,7 +32,7 @@ namespace MeshTopologyToolkit
                         return true;
                 }
             }
-            content = null;
+            content = new FileContainer();
             return false;
         }
 

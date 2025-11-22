@@ -53,7 +53,7 @@ namespace MeshTopologyToolkit.Gltf
 
         internal void AddValueByIndex(uint primIndex)
         {
-            _accessorAdapter.AddValueByIndex(primIndex, MeshVertexAttribute, MeshVertexAttributeIndices);
+            _accessorAdapter.AddValueByIndex(primIndex, MeshVertexAttribute!, MeshVertexAttributeIndices!);
         }
 
         internal void CreateMeshVertexAttribute()
