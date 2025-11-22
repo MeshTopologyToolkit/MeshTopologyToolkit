@@ -7,7 +7,7 @@ on:
 
 jobs:
   build-and-publish:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     permissions:
       contents: write   # to create releases and upload assets
@@ -30,6 +30,7 @@ jobs:
       # 3 Restore dependencies
       - name: Restore tools and dependencies
         run: |
+          sudo apt-get install -y libgdiplus
           dotnet tool restore
           dotnet restore src/
 
@@ -38,7 +39,7 @@ jobs:
 
       # 4 Build the solution in Release mode
       - name: Build solution
-        run: dotnet build "src/" --configuration Release /p:Version=$BUILD_VERSION /p:NuGetVersion=$BUILD_VERSION /p:PackageVersion=$BUILD_VERSION --no-restore
+        run: dotnet build "src/" --configuration Release /p:Version=$BUILD_VERSION --no-restore
 
       - name: Test solution
         run: dotnet test "src/" --configuration Release --no-restore

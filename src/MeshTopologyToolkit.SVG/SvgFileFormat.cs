@@ -15,6 +15,11 @@ namespace MeshTopologyToolkit.SVG
             new SupportedExtension("Scalable Vector Graphics (SVG)", ".svg"),
         };
 
+        public SvgFileFormat()
+        {
+            AppContext.SetSwitch("System.Drawing.EnableUnixSupport", true);
+        }
+
         public IReadOnlyList<SupportedExtension> SupportedExtensions => _extensions;
 
         public bool TryRead(IFileSystemEntry entry, out FileContainer content)
