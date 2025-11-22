@@ -103,6 +103,9 @@ namespace MeshTopologyToolkit.Gltf
                     case MaterialParam.EmissiveStrength:
                         materialBuilder.WithChannelParam(KnownChannel.Emissive, KnownProperty.EmissiveStrength, scalarParam.Value);
                         break;
+                    case MaterialParam.SpecularFactor:
+                        materialBuilder.WithChannelParam(KnownChannel.SpecularFactor, KnownProperty.SpecularFactor, scalarParam.Value);
+                        break;
                     default:
                         throw new NotImplementedException($"Unhandled scalar material parameter: {scalarParam.Key}");
                 }
@@ -117,6 +120,9 @@ namespace MeshTopologyToolkit.Gltf
                     case MaterialParam.Emissive:
                         materialBuilder.WithChannelParam(KnownChannel.Emissive, KnownProperty.RGB, new Vector3(vec4Param.Value.X, vec4Param.Value.Y, vec4Param.Value.Z));
                         break;
+                    case MaterialParam.SpecularColor:
+                        materialBuilder.WithChannelParam(KnownChannel.SpecularColor, KnownProperty.RGB, new Vector3(vec4Param.Value.X, vec4Param.Value.Y, vec4Param.Value.Z));
+                        break;
                     default:
                         throw new NotImplementedException($"Unhandled vec4 material parameter: {vec4Param.Key}");
                 }
@@ -128,8 +134,20 @@ namespace MeshTopologyToolkit.Gltf
                     case MaterialParam.BaseColor:
                         materialBuilder.WithChannelImage(KnownChannel.BaseColor, VisitTexture(texParam.Value));
                         break;
+                    case MaterialParam.SpecularColor:
+                        materialBuilder.WithChannelImage(KnownChannel.SpecularColor, VisitTexture(texParam.Value));
+                        break;
+                    case MaterialParam.Emissive:
+                        materialBuilder.WithChannelImage(KnownChannel.Emissive, VisitTexture(texParam.Value));
+                        break;
+                    case MaterialParam.Occlusion:
+                        materialBuilder.WithChannelImage(KnownChannel.Occlusion, VisitTexture(texParam.Value));
+                        break;
                     case MaterialParam.Normal:
                         materialBuilder.WithChannelImage(KnownChannel.Normal, VisitTexture(texParam.Value));
+                        break;
+                    case MaterialParam.MetallicRoughness:
+                        materialBuilder.WithChannelImage(KnownChannel.MetallicRoughness, VisitTexture(texParam.Value));
                         break;
                     default:
                         throw new NotImplementedException($"Unhandled texture material parameter: {texParam.Key}");

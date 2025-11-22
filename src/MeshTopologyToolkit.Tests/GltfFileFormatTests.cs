@@ -67,6 +67,20 @@ public class GltfFileFormatTests
     }
 
     [Theory]
+    [InlineData("samples.kronos.NormalTangentMirrorTest.glb")]
+    public void ReadAndWriteSamplesGltf(string fileName)
+    {
+        var resourceName = this.GetType().Namespace + "." + fileName;
+
+        var fileFormat = new GltfFileFormat();
+
+        Assert.True(fileFormat.TryRead(StreamFileSystemEntry.FromEmbeddedResource(resourceName), out var content));
+        Assert.NotNull(content);
+
+        fileFormat.TryWrite(new FileSystemEntry(Path.GetFileNameWithoutExtension(fileName) + ".gltf"), content);
+    }
+
+    [Theory]
     //[InlineData("samples.corner.TwoCorners.glb")]
     //[InlineData("samples.kronos.AnimatedMorphCube.glb")]
     [InlineData("samples.kronos.MultiUVTest.glb")]

@@ -138,7 +138,7 @@ namespace MeshTopologyToolkit.Gltf
                                 }
                                 else
                                 {
-                                    throw new NotImplementedException($"{channel.Key}:{parameter.Name}");
+                                    throw new NotImplementedException($"{channel.Key}:{parameter.Name} of {parameter.Value?.GetType()?.Name}");
                                 }
                             }
                         }
@@ -157,7 +157,7 @@ namespace MeshTopologyToolkit.Gltf
                                 }
                                 else
                                 {
-                                    throw new NotImplementedException($"{channel.Key}:{parameter.Name}");
+                                    throw new NotImplementedException($"{channel.Key}:{parameter.Name} of {parameter.Value?.GetType()?.Name}");
                                 }
                             }
                         }
@@ -172,7 +172,7 @@ namespace MeshTopologyToolkit.Gltf
                                 }
                                 else
                                 {
-                                    throw new NotImplementedException($"{channel.Key}:{parameter.Name}");
+                                    throw new NotImplementedException($"{channel.Key}:{parameter.Name} of {parameter.Value?.GetType()?.Name}");
                                 }
                             }
                         }
@@ -191,7 +191,7 @@ namespace MeshTopologyToolkit.Gltf
                                 }
                                 else
                                 {
-                                    throw new NotImplementedException($"{channel.Key}:{parameter.Name}");
+                                    throw new NotImplementedException($"{channel.Key}:{parameter.Name} of {parameter.Value?.GetType()?.Name}");
                                 }
                             }
                         }
@@ -206,7 +206,7 @@ namespace MeshTopologyToolkit.Gltf
                                 }
                                 else
                                 {
-                                    throw new NotImplementedException($"{channel.Key}:{parameter.Name}");
+                                    throw new NotImplementedException($"{channel.Key}:{parameter.Name} of {parameter.Value?.GetType()?.Name}");
                                 }
                             }
                         }
@@ -221,7 +221,7 @@ namespace MeshTopologyToolkit.Gltf
                                 }
                                 else
                                 {
-                                    throw new NotImplementedException($"{channel.Key}:{parameter.Name}");
+                                    throw new NotImplementedException($"{channel.Key}:{parameter.Name} of {parameter.Value?.GetType()?.Name}");
                                 }
                             }
                         }
