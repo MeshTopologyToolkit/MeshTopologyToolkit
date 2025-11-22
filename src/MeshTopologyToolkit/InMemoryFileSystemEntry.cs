@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace MeshTopologyToolkit
@@ -13,6 +14,13 @@ namespace MeshTopologyToolkit
             _name = name;
             _files = new Dictionary<string, byte[]>();
             _files.Add(name, data);
+        }
+
+        public InMemoryFileSystemEntry(string name, ReadOnlyMemory<byte> data)
+        {
+            _name = name;
+            _files = new Dictionary<string, byte[]>();
+            _files.Add(name, data.ToArray());
         }
 
         public InMemoryFileSystemEntry(string name, Dictionary<string, byte[]> files)

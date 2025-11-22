@@ -1,19 +1,26 @@
-﻿using SharpGLTF.Schema2;
+﻿using SharpGLTF.Materials;
+using SharpGLTF.Schema2;
 using SharpGLTF.Transforms;
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
+using System.Numerics;
 using GltfMaterial = SharpGLTF.Schema2.Material;
 using GltfMesh = SharpGLTF.Schema2.Mesh;
+using GltfTexture = SharpGLTF.Schema2.Texture;
 
 namespace MeshTopologyToolkit.Gltf
 {
     public class GltfVisitor
     {
+        public Material? _defaultMaterial;
+
         private FileContainer _content;
 
         private Dictionary<GltfMesh, MeshReference> _visitedMeshes = new Dictionary<GltfMesh, MeshReference>();
         private Dictionary<GltfMaterial, Material> _visitedMaterials = new Dictionary<GltfMaterial, Material>();
+        private Dictionary<GltfTexture, Texture> _visitedTextures = new Dictionary<GltfTexture, Texture>();
 
         public GltfVisitor(FileContainer content)
         {
@@ -37,6 +44,13 @@ namespace MeshTopologyToolkit.Gltf
                 var material = VisitMaterial(gltfMaterial);
                 if (material != null)
                     _content.Materials.Add(material);
+            }
+
+            foreach (var gltfTextures in modelRoot.LogicalTextures)
+            {
+                var texture = VisitTexture(gltfTextures);
+                if (texture != null)
+                    _content.Textures.Add(texture);
             }
 
             foreach (var sourceScene in modelRoot.LogicalScenes)
@@ -86,11 +100,156 @@ namespace MeshTopologyToolkit.Gltf
                 return material;
 
             material = new Material() { Name = sourceMaterial.Name };
+            foreach (MaterialChannel channel in sourceMaterial.Channels)
+            {
+                switch (channel.Key)
+                {
+                    case "BaseColor":
+                        {
+                            material.SetVector4(MaterialParam.BaseColor, channel.Color);
+                            if (channel.Texture != null)
+                            {
+                                material.SetTexture(MaterialParam.BaseColor, VisitTexture(channel.Texture));
+                            }
+                            foreach (var parameter in channel.Parameters)
+                            {
+                                if (parameter.Name == "RGBA" && parameter.Value is Vector4 color)
+                                {
+                                    material.SetVector4(MaterialParam.BaseColor, color);
+                                }
+                                else
+                                {
+                                    throw new NotImplementedException($"{channel.Key}:{parameter.Name} of {parameter.Value?.GetType()?.Name}");
+                                }
+                            }
+                        }
+                        break;
+                    case "Normal":
+                        {
+                            if (channel.Texture != null)
+                            {
+                                material.SetTexture(MaterialParam.Normal, VisitTexture(channel.Texture));
+                            }
+                            foreach (var parameter in channel.Parameters)
+                            {
+                                if (parameter.Name == "NormalScale" && parameter.Value is float normalScale)
+                                {
+                                    material.SetScalar(MaterialParam.NormalScale, normalScale);
+                                }
+                                else
+                                {
+                                    throw new NotImplementedException($"{channel.Key}:{parameter.Name}");
+                                }
+                            }
+                        }
+                        break;
+                    case "MetallicRoughness":
+                        {
+                            foreach (var parameter in channel.Parameters)
+                            {
+                                if (parameter.Name == "MetallicFactor" && parameter.Value is float metallicFactor)
+                                {
+                                    material.SetScalar(MaterialParam.MetallicFactor, metallicFactor);
+                                }
+                                else if (parameter.Name == "RoughnessFactor" && parameter.Value is float roughnessFactor)
+                                {
+                                    material.SetScalar(MaterialParam.RoughnessFactor, roughnessFactor);
+                                }
+                                else
+                                {
+                                    throw new NotImplementedException($"{channel.Key}:{parameter.Name}");
+                                }
+                            }
+                        }
+                        break;
+                    case "Occlusion":
+                        {
+                            foreach (var parameter in channel.Parameters)
+                            {
+                                if (parameter.Name == "OcclusionStrength" && parameter.Value is float occlusionStrength)
+                                {
+                                    material.SetScalar(MaterialParam.OcclusionStrength, occlusionStrength);
+                                }
+                                else
+                                {
+                                    throw new NotImplementedException($"{channel.Key}:{parameter.Name}");
+                                }
+                            }
+                        }
+                        break;
+                    case "Emissive":
+                        {
+                            foreach (var parameter in channel.Parameters)
+                            {
+                                if (parameter.Name == "RGB" && parameter.Value is Vector3 color)
+                                {
+                                    material.SetVector4(MaterialParam.Emissive, new Vector4(color, 1.0f));
+                                }
+                                else if (parameter.Name == "EmissiveStrength" && parameter.Value is float emissiveStrength)
+                                {
+                                    material.SetScalar(MaterialParam.EmissiveStrength, emissiveStrength);
+                                }
+                                else
+                                {
+                                    throw new NotImplementedException($"{channel.Key}:{parameter.Name}");
+                                }
+                            }
+                        }
+                        break;
+                    case "SpecularColor":
+                        {
+                            foreach (var parameter in channel.Parameters)
+                            {
+                                if (parameter.Name == "RGB" && parameter.Value is Vector3 color)
+                                {
+                                    material.SetVector4(MaterialParam.SpecularColor, new Vector4(color, 1.0f));
+                                }
+                                else
+                                {
+                                    throw new NotImplementedException($"{channel.Key}:{parameter.Name}");
+                                }
+                            }
+                        }
+                        break;
+                    case "SpecularFactor":
+                        {
+                            foreach (var parameter in channel.Parameters)
+                            {
+                                if (parameter.Name == "SpecularFactor" && parameter.Value is float specularFactor)
+                                {
+                                    material.SetScalar(MaterialParam.SpecularFactor, specularFactor);
+                                }
+                                else
+                                {
+                                    throw new NotImplementedException($"{channel.Key}:{parameter.Name}");
+                                }
+                            }
+                        }
+                        break;
+                    default:
+                        throw new NotImplementedException($"{channel.Key}");
+                        break;
+                }
+            }
+
 
             _visitedMaterials.Add(sourceMaterial, material);
             return material;
         }
 
+        private Texture? VisitTexture(GltfTexture gltfTexture)
+        {
+            if (gltfTexture == null)
+                return null;
+
+            if (_visitedTextures.TryGetValue(gltfTexture, out var texture))
+                return texture;
+
+            texture = new Texture(new InMemoryFileSystemEntry(gltfTexture.Name ?? $"{gltfTexture.LogicalIndex}.png", gltfTexture.PrimaryImage.Content.Content));
+
+            _visitedTextures.Add(gltfTexture, texture);
+            return texture;
+        }
 
         private MeshReference? VisitMesh(GltfMesh? sourceMesh)
         {
@@ -110,6 +269,14 @@ namespace MeshTopologyToolkit.Gltf
 
             foreach (var prim in sourceMesh.Primitives)
             {
+                if (prim.Material != null)
+                {
+                    meshRef.Materials.Add(VisitMaterial(prim.Material)!);
+                }
+                else
+                {
+                    meshRef.Materials.Add(VisitDefaultMaterial());
+                }
                 var topology = VisitTopology(prim.DrawPrimitiveType);
 
                 var primAdapters = new Dictionary<string, AccessorAdapter>();
@@ -166,6 +333,17 @@ namespace MeshTopologyToolkit.Gltf
 
             _visitedMeshes.Add(sourceMesh, meshRef);
             return meshRef;
+        }
+
+        private Material VisitDefaultMaterial()
+        {
+            if (_defaultMaterial == null)
+            {
+                _defaultMaterial = new Material("Default");
+                _content.Materials.Add(_defaultMaterial);
+            }
+
+            return _defaultMaterial;
         }
 
         private MeshTopology VisitTopology(PrimitiveType drawPrimitiveType)

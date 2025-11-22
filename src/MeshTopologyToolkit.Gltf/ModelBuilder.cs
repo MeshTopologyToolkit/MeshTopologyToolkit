@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 
 namespace MeshTopologyToolkit.Gltf
 {
@@ -96,6 +97,14 @@ namespace MeshTopologyToolkit.Gltf
                     case MaterialParam.NormalScale:
                         materialBuilder.WithChannelParam(KnownChannel.Normal, KnownProperty.NormalScale, scalarParam.Value);
                         break;
+                    case MaterialParam.OcclusionStrength:
+                        materialBuilder.WithChannelParam(KnownChannel.Occlusion, KnownProperty.OcclusionStrength, scalarParam.Value);
+                        break;
+                    case MaterialParam.EmissiveStrength:
+                        materialBuilder.WithChannelParam(KnownChannel.Emissive, KnownProperty.EmissiveStrength, scalarParam.Value);
+                        break;
+                    default:
+                        throw new NotImplementedException($"Unhandled scalar material parameter: {scalarParam.Key}");
                 }
             }
             foreach (var vec4Param in material.Vector4Params)
@@ -105,15 +114,25 @@ namespace MeshTopologyToolkit.Gltf
                     case MaterialParam.BaseColor:
                         materialBuilder.WithChannelParam(KnownChannel.BaseColor, KnownProperty.RGBA, vec4Param.Value);
                         break;
+                    case MaterialParam.Emissive:
+                        materialBuilder.WithChannelParam(KnownChannel.Emissive, KnownProperty.RGB, new Vector3(vec4Param.Value.X, vec4Param.Value.Y, vec4Param.Value.Z));
+                        break;
+                    default:
+                        throw new NotImplementedException($"Unhandled vec4 material parameter: {vec4Param.Key}");
                 }
             }
             foreach (var texParam in material.TextureParams)
             {
                 switch (texParam.Key)
                 {
+                    case MaterialParam.BaseColor:
+                        materialBuilder.WithChannelImage(KnownChannel.BaseColor, VisitTexture(texParam.Value));
+                        break;
                     case MaterialParam.Normal:
                         materialBuilder.WithChannelImage(KnownChannel.Normal, VisitTexture(texParam.Value));
                         break;
+                    default:
+                        throw new NotImplementedException($"Unhandled texture material parameter: {texParam.Key}");
                 }
             }
             return materialBuilder;

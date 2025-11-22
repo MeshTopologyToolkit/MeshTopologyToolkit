@@ -1,10 +1,7 @@
-﻿using SharpGLTF.Scenes;
-using SharpGLTF.Schema2;
+﻿using SharpGLTF.Schema2;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Xml.Linq;
-
 
 namespace MeshTopologyToolkit.Gltf
 {
@@ -59,8 +56,16 @@ namespace MeshTopologyToolkit.Gltf
                 if (stream == null)
                     return false;
                 var writeContext = WriteContext.Create((assetName, assetData) => WriteFile(entry, Uri.UnescapeDataString(assetName), assetData));
-                writeContext.WithBinarySettings();
-                writeContext.WriteBinarySchema2(entry.Name, model);
+                if (isBinary)
+                {
+                    writeContext.WithBinarySettings();
+                    writeContext.WriteBinarySchema2(entry.Name, model);
+                }
+                else
+                {
+                    writeContext.WithTextSettings();
+                    writeContext.WriteTextSchema2(entry.Name, model);
+                }
             }
             return true;
         }

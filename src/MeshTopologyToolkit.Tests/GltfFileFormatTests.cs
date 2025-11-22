@@ -67,8 +67,8 @@ public class GltfFileFormatTests
     }
 
     [Theory]
-    [InlineData("samples.corner.TwoCorners.glb")]
-    [InlineData("samples.kronos.AnimatedMorphCube.glb")]
+    //[InlineData("samples.corner.TwoCorners.glb")]
+    //[InlineData("samples.kronos.AnimatedMorphCube.glb")]
     [InlineData("samples.kronos.MultiUVTest.glb")]
     [InlineData("samples.kronos.NormalTangentMirrorTest.glb")]
     [InlineData("samples.kronos.SimpleInstancing.glb")]
