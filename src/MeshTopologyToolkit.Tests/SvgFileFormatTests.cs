@@ -7,6 +7,7 @@ public class SvgFileFormatTests
 {
     [Theory]
     [InlineData("samples.primitives.sample.svg")]
+    [InlineData("samples.primitives.RectangleWithRoundedCorners.svg")]
     public void ReadAndWriteSamples(string fileName)
     {
         var resourceName = this.GetType().Namespace + "." + fileName;
