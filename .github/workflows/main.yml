@@ -38,7 +38,7 @@ jobs:
 
       # 4 Build the solution in Release mode
       - name: Build solution
-        run: dotnet build "src/" --configuration Release /p:Version=$BUILD_VERSION --no-restore
+        run: dotnet build "src/" --configuration Release /p:Version=$BUILD_VERSION /p:NuGetVersion=$BUILD_VERSION --no-restore
 
       - name: Test solution
         run: dotnet test "src/" --configuration Release --no-restore
