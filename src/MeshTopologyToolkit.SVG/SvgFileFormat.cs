@@ -1,11 +1,7 @@
 ﻿using Svg;
 using Svg.Pathing;
-using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.IO;
 using System.Numerics;
-using System.Xml.Linq;
 
 namespace MeshTopologyToolkit.SVG
 {

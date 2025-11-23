@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net9.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+
+		<!-- Required for .NET tool -->
+		<PackAsTool>true</PackAsTool>
+		<ToolCommandName>trimgen</ToolCommandName>
+		
+		<!-- NuGet Package Settings -->
+		<Authors>MeshTopologyToolkit contributors</Authors>
+		<Company>MeshTopologyToolkit</Company>
+		<Description>MeshTopologyToolkit.TrimGenerator is a command line utlity to generate textures and meshes inspired by Insomniac's Ultimate Trim.</Description>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageProjectUrl>https://github.com/MeshTopologyToolkit/MeshTopologyToolkit</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/MeshTopologyToolkit/MeshTopologyToolkit.git</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<PackageTags>utilities;dotnet;library</PackageTags>
+	</PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="Cocona.Lite" Version="2.2.0" />
+		<PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\MeshTopologyToolkit.Gltf\MeshTopologyToolkit.Gltf.csproj" />
+		<ProjectReference Include="..\MeshTopologyToolkit.TextureFormats\MeshTopologyToolkit.TextureFormats.csproj" />
+	</ItemGroup>
+
+</Project>

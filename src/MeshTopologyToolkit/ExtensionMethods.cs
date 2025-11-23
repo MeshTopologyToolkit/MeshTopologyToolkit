@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Numerics;
-using System.Runtime.CompilerServices;
 
 namespace MeshTopologyToolkit
 {
@@ -64,6 +62,36 @@ namespace MeshTopologyToolkit
             if (res.IsNanOrInf())
                 return defaultValue;
             return res;
+        }
+
+        public static int NumberOfBits(this int n)
+        {
+            if (n == 0) return 0;
+
+            int count = 0;
+            while (n != 0)
+            {
+                count++;
+                n >>= 1;
+            }
+
+            return count;
+        }
+
+        public static int NextPowerOfTwo(this int n)
+        {
+            if (n < 1)
+                return 1; // handle non-positive numbers
+
+            n--;
+            n |= n >> 1;
+            n |= n >> 2;
+            n |= n >> 4;
+            n |= n >> 8;
+            n |= n >> 16;
+            n++;
+
+            return n;
         }
 
         public static bool IsNanOrInf(this Vector2 val)

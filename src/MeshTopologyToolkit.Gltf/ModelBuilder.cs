@@ -98,10 +98,12 @@ namespace MeshTopologyToolkit.Gltf
                         materialBuilder.WithChannelParam(KnownChannel.Normal, KnownProperty.NormalScale, scalarParam.Value);
                         break;
                     case MaterialParam.OcclusionStrength:
-                        materialBuilder.WithChannelParam(KnownChannel.Occlusion, KnownProperty.OcclusionStrength, scalarParam.Value);
+                        if (material.TextureParams.ContainsKey(MaterialParam.Occlusion))
+                            materialBuilder.WithChannelParam(KnownChannel.Occlusion, KnownProperty.OcclusionStrength, scalarParam.Value);
                         break;
                     case MaterialParam.EmissiveStrength:
-                        materialBuilder.WithChannelParam(KnownChannel.Emissive, KnownProperty.EmissiveStrength, scalarParam.Value);
+                        if (material.TextureParams.ContainsKey(MaterialParam.Emissive))
+                            materialBuilder.WithChannelParam(KnownChannel.Emissive, KnownProperty.EmissiveStrength, scalarParam.Value);
                         break;
                     case MaterialParam.SpecularFactor:
                         materialBuilder.WithChannelParam(KnownChannel.SpecularFactor, KnownProperty.SpecularFactor, scalarParam.Value);
