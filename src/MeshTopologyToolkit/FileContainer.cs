@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace MeshTopologyToolkit
 {
@@ -11,5 +12,16 @@ namespace MeshTopologyToolkit
         public IList<Scene> Scenes { get; } = new List<Scene>();
 
         public IList<Texture> Textures { get; } = new List<Texture>();
+
+        public MeshReference AddSingleMeshScene(IMesh mesh)
+        {
+            Meshes.Add(mesh);
+            var scene = new Scene(mesh.Name);
+            var node = new Node(mesh.Name);
+            node.Mesh = new MeshReference(mesh);
+            scene.AddChild(node);
+            Scenes.Add(scene);
+            return node.Mesh;
+        }
     }
 }

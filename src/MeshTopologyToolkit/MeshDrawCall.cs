@@ -8,15 +8,40 @@ namespace MeshTopologyToolkit
     {
         public MeshDrawCall(MeshTopology type, int startIndex, int numIndices)
         {
+            LodLevel = 0;
+            MaterialIndex = 0;
             Type = type;
             StartIndex = startIndex;
             NumIndices = numIndices;
         }
 
-        public MeshTopology Type { get; }
-        public int StartIndex { get; }
-        public int NumIndices { get; }
+        public MeshDrawCall(int materialIndex, MeshTopology type, int startIndex, int numIndices)
+        {
+            LodLevel = materialIndex;
+            MaterialIndex = 0;
+            Type = type;
+            StartIndex = startIndex;
+            NumIndices = numIndices;
+        }
 
+        public MeshDrawCall(int lodLevel, int materialIndex, MeshTopology type, int startIndex, int numIndices)
+        {
+            LodLevel = lodLevel;
+            MaterialIndex = materialIndex;
+            Type = type;
+            StartIndex = startIndex;
+            NumIndices = numIndices;
+        }
+
+        public int LodLevel { get; }
+
+        public int MaterialIndex { get; }
+
+        public MeshTopology Type { get; }
+
+        public int StartIndex { get; }
+
+        public int NumIndices { get; }
 
         public IEnumerable<Face> GetFaces(IReadOnlyList<int> indices)
         {
@@ -70,7 +95,7 @@ namespace MeshTopologyToolkit
 
         public MeshDrawCall Clone()
         {
-            return new MeshDrawCall(Type, StartIndex, NumIndices);
+            return new MeshDrawCall(LodLevel, MaterialIndex, Type, StartIndex, NumIndices);
         }
 
         public override string ToString()

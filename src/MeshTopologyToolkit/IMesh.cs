@@ -2,6 +2,7 @@
 
 namespace MeshTopologyToolkit
 {
+
     /// <summary>
     /// Represents a mesh with vertex attributes and draw calls (submeshes, geometries).
     /// Provides a uniform API to query attributes (typed and untyped), retrieve attribute index mappings,
@@ -14,6 +15,11 @@ namespace MeshTopologyToolkit
         /// Modifying this collection affects how the mesh will be interpreted by renderers and exporters.
         /// </summary>
         IList<MeshDrawCall> DrawCalls { get; }
+
+        /// <summary>
+        /// The list of Level Of Detail definitions.
+        /// </summary>
+        IList<MeshLod> Lods { get; }
 
         /// <summary>
         /// Optional name for the mesh (for diagnostics, exporters, or scene organization).

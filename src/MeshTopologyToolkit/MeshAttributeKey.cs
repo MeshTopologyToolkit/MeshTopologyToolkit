@@ -1,6 +1,8 @@
-﻿namespace MeshTopologyToolkit
+﻿using System;
+
+namespace MeshTopologyToolkit
 {
-    public struct MeshAttributeKey
+    public struct MeshAttributeKey : IEquatable<MeshAttributeKey>
     {
         public static readonly MeshAttributeKey Position = new MeshAttributeKey(MeshAttributeNames.Position, 0);
         public static readonly MeshAttributeKey Normal = new MeshAttributeKey(MeshAttributeNames.Normal, 0);
@@ -29,6 +31,22 @@
             } 
         }
 
+        public override bool Equals(object? obj)
+        {
+            return obj is MeshAttributeKey key && Equals(key);
+        }
+
+        public bool Equals(MeshAttributeKey other)
+        {
+            return _name == other._name &&
+                   _channel == other._channel;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(_name, _channel);
+        }
+
         public override string ToString()
         {
             if (_channel == 0)
@@ -36,6 +54,16 @@
                 return _name;
             }
             return $"{_name}[{_channel}]";
+        }
+
+        public static bool operator ==(MeshAttributeKey left, MeshAttributeKey right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(MeshAttributeKey left, MeshAttributeKey right)
+        {
+            return !(left == right);
         }
     }
 }

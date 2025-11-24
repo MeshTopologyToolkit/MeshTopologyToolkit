@@ -42,3 +42,4 @@ Options:
   -o, --output <String>        Output file name
   --help                       Show help message
 ```
+

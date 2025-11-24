@@ -81,7 +81,7 @@ namespace MeshTopologyToolkit
             return new MeshVertexAttributeEnumerator<TTo>(this);
         }
 
-        public bool TryCast<T>(IMeshVertexAttributeConverterProvider converterProvider, out IMeshVertexAttribute<T>? attribute) where T : notnull
+        public bool TryCast<T>(IMeshVertexAttributeConverterProvider converterProvider, out IMeshVertexAttribute<T> attribute) where T : notnull
         {
             return _source.TryCast<T>(converterProvider, out attribute);
         }
@@ -94,6 +94,11 @@ namespace MeshTopologyToolkit
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
+        }
+
+        public Type GetElementType()
+        {
+            return typeof(TTo);
         }
     }
 }

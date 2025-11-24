@@ -12,7 +12,8 @@ namespace MeshTopologyToolkit.TrimGenerator
             [Option('b', Description = "Bevel width in pixels")] int bevelWidth = 8,
             [Option('o', Description = "Output file name")] string? output = null)
         {
-            throw new NotImplementedException();
+            var args = new TrimGenerationArguments(trimHeight, width, bevelWidth);
+
             return 0;
         }
     }

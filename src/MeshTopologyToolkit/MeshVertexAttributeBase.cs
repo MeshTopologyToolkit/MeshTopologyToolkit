@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Numerics;
 
@@ -10,7 +11,12 @@ namespace MeshTopologyToolkit
 
         public abstract T this[int index] { get; }
 
-        public bool TryCast<TTo>(IMeshVertexAttributeConverterProvider converterProvider, out IMeshVertexAttribute<TTo>? attribute) where TTo:notnull
+        public Type GetElementType()
+        {
+            return typeof(T);
+        }
+
+        public bool TryCast<TTo>(IMeshVertexAttributeConverterProvider converterProvider, out IMeshVertexAttribute<TTo> attribute) where TTo:notnull
         {
             if (typeof(T) == typeof(TTo))
             {
@@ -24,7 +30,7 @@ namespace MeshTopologyToolkit
                 return true;
             }
 
-            attribute = null;
+            attribute = EmptyMeshAttribute<TTo>.Instance;
             return false;
         }
 

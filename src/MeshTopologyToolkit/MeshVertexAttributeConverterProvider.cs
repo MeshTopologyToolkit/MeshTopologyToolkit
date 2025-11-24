@@ -7,6 +7,8 @@ namespace MeshTopologyToolkit
 {
     public class MeshVertexAttributeConverterProvider: IMeshVertexAttributeConverterProvider
     {
+        public static readonly MeshVertexAttributeConverterProvider Default = new MeshVertexAttributeConverterProvider();
+
         struct Key
         {
             public Type From;

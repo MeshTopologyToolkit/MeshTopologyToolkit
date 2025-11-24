@@ -121,7 +121,7 @@ namespace MeshTopologyToolkit.Stl
             var mesh = new SeparatedIndexedMesh();
             mesh.AddAttribute(MeshAttributeKey.Position, positions, positionIndices);
             mesh.AddAttribute(MeshAttributeKey.Normal, normals, normalIndices);
-            mesh.DrawCalls.Add(new MeshDrawCall(MeshTopology.TriangleList, 0, positionIndices.Count));
+            mesh.DrawCalls.Add(new MeshDrawCall(0, 0, MeshTopology.TriangleList, 0, positionIndices.Count));
             content.Meshes.Add(mesh);
 
             var scene = new Scene();
@@ -163,7 +163,7 @@ namespace MeshTopologyToolkit.Stl
             var mesh = new SeparatedIndexedMesh();
             mesh.AddAttribute(MeshAttributeKey.Position, positions, positionIndices);
             mesh.AddAttribute(MeshAttributeKey.Normal, normals, normalIndices);
-            mesh.DrawCalls.Add(new MeshDrawCall(MeshTopology.TriangleList, 0, positionIndices.Count));
+            mesh.DrawCalls.Add(new MeshDrawCall(0, 0, MeshTopology.TriangleList, 0, positionIndices.Count));
             content.Meshes.Add(mesh);
 
             var scene = new Scene();

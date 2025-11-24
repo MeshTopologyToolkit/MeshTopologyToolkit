@@ -11,6 +11,16 @@ namespace MeshTopologyToolkit
     {
         public static readonly EmptyMeshAttribute Instance = new EmptyMeshAttribute();
 
+        public virtual Type GetElementType()
+        {
+            return typeof(void);
+        }
+
+        /// <summary>
+        /// Get number of vertices in attribute.
+        /// </summary>
+        public virtual int Count => 0;
+
         public IMeshVertexAttribute Compact(out IReadOnlyList<int> indexMap)
         {
             indexMap = Array.Empty<int>();
@@ -39,7 +49,7 @@ namespace MeshTopologyToolkit
             return this;
         }
 
-        public bool TryCast<T>(IMeshVertexAttributeConverterProvider converterProvider, out IMeshVertexAttribute<T>? attribute) where T : notnull
+        public bool TryCast<T>(IMeshVertexAttributeConverterProvider converterProvider, out IMeshVertexAttribute<T> attribute) where T : notnull
         {
             throw new InvalidOperationException("Mesh attribute doesn't exist. Check result of TryGetAttribute method and assume attribute is missing if it returns false.");
         }
@@ -54,7 +64,10 @@ namespace MeshTopologyToolkit
 
         public T this[int index] => throw new InvalidOperationException("Mesh attribute doesn't exist. Check result of TryGetAttribute method and assume attribute is missing if it returns false.");
 
-        public int Count => 0;
+        public override Type GetElementType()
+        {
+            return typeof(T);
+        }
 
         public int Add(T value)
         {

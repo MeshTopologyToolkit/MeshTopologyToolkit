@@ -93,6 +93,8 @@ namespace MeshTopologyToolkit.Gltf
 
         private Material? VisitMaterial(GltfMaterial sourceMaterial)
         {
+            bool throwOnUnknownProperties = true;
+
             if (sourceMaterial == null)
                 return null;
 
@@ -119,7 +121,8 @@ namespace MeshTopologyToolkit.Gltf
                                 }
                                 else
                                 {
-                                    throw new NotImplementedException($"{channel.Key}:{parameter.Name} of {parameter.Value?.GetType()?.Name}");
+                                    if (throwOnUnknownProperties)
+                                        throw new NotImplementedException($"{channel.Key}:{parameter.Name} of {parameter.Value?.GetType()?.Name}");
                                 }
                             }
                         }
@@ -138,7 +141,8 @@ namespace MeshTopologyToolkit.Gltf
                                 }
                                 else
                                 {
-                                    throw new NotImplementedException($"{channel.Key}:{parameter.Name} of {parameter.Value?.GetType()?.Name}");
+                                    if (throwOnUnknownProperties)
+                                        throw new NotImplementedException($"{channel.Key}:{parameter.Name} of {parameter.Value?.GetType()?.Name}");
                                 }
                             }
                         }
@@ -157,7 +161,8 @@ namespace MeshTopologyToolkit.Gltf
                                 }
                                 else
                                 {
-                                    throw new NotImplementedException($"{channel.Key}:{parameter.Name} of {parameter.Value?.GetType()?.Name}");
+                                    if (throwOnUnknownProperties)
+                                        throw new NotImplementedException($"{channel.Key}:{parameter.Name} of {parameter.Value?.GetType()?.Name}");
                                 }
                             }
                         }
@@ -172,7 +177,8 @@ namespace MeshTopologyToolkit.Gltf
                                 }
                                 else
                                 {
-                                    throw new NotImplementedException($"{channel.Key}:{parameter.Name} of {parameter.Value?.GetType()?.Name}");
+                                    if (throwOnUnknownProperties)
+                                        throw new NotImplementedException($"{channel.Key}:{parameter.Name} of {parameter.Value?.GetType()?.Name}");
                                 }
                             }
                         }
@@ -191,7 +197,8 @@ namespace MeshTopologyToolkit.Gltf
                                 }
                                 else
                                 {
-                                    throw new NotImplementedException($"{channel.Key}:{parameter.Name} of {parameter.Value?.GetType()?.Name}");
+                                    if (throwOnUnknownProperties)
+                                        throw new NotImplementedException($"{channel.Key}:{parameter.Name} of {parameter.Value?.GetType()?.Name}");
                                 }
                             }
                         }
@@ -206,7 +213,8 @@ namespace MeshTopologyToolkit.Gltf
                                 }
                                 else
                                 {
-                                    throw new NotImplementedException($"{channel.Key}:{parameter.Name} of {parameter.Value?.GetType()?.Name}");
+                                    if (throwOnUnknownProperties)
+                                        throw new NotImplementedException($"{channel.Key}:{parameter.Name} of {parameter.Value?.GetType()?.Name}");
                                 }
                             }
                         }
@@ -221,14 +229,17 @@ namespace MeshTopologyToolkit.Gltf
                                 }
                                 else
                                 {
-                                    throw new NotImplementedException($"{channel.Key}:{parameter.Name} of {parameter.Value?.GetType()?.Name}");
+                                    if (throwOnUnknownProperties)
+                                        throw new NotImplementedException($"{channel.Key}:{parameter.Name} of {parameter.Value?.GetType()?.Name}");
                                 }
                             }
                         }
                         break;
                     default:
-                        throw new NotImplementedException($"{channel.Key}");
-                        break;
+                        if (throwOnUnknownProperties)
+                            throw new NotImplementedException($"{channel.Key}");
+                        else
+                            break;
                 }
             }
 
@@ -267,8 +278,9 @@ namespace MeshTopologyToolkit.Gltf
             
             int numIndices = 0;
 
-            foreach (var prim in sourceMesh.Primitives)
+            for (int primitiveIndex = 0; primitiveIndex < sourceMesh.Primitives.Count; primitiveIndex++)
             {
+                MeshPrimitive? prim = sourceMesh.Primitives[primitiveIndex];
                 if (prim.Material != null)
                 {
                     meshRef.Materials.Add(VisitMaterial(prim.Material)!);
@@ -327,7 +339,7 @@ namespace MeshTopologyToolkit.Gltf
                     ++numIndices;
 
                 }
-                mesh.DrawCalls.Add(new MeshDrawCall(topology, pimStartIndex, numIndices- pimStartIndex));
+                mesh.DrawCalls.Add(new MeshDrawCall(0, primitiveIndex, topology, pimStartIndex, numIndices- pimStartIndex));
 
             }
 

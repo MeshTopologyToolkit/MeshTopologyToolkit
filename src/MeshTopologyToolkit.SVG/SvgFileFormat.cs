@@ -99,7 +99,7 @@ namespace MeshTopologyToolkit.SVG
             };
             mesh.AddAttribute(MeshAttributeKey.Position, positions);
             mesh.AddIndices(indices);
-            mesh.DrawCalls.Add(new MeshDrawCall(MeshTopology.LineStrip, 0, indices.Count));
+            mesh.DrawCalls.Add(new MeshDrawCall(0, 0, MeshTopology.LineStrip, 0, indices.Count));
 
             return mesh;
         }
@@ -348,7 +348,7 @@ namespace MeshTopologyToolkit.SVG
 
             mesh.AddAttribute(MeshAttributeKey.Position, positions);
             mesh.AddIndices(indices);
-            mesh.DrawCalls.Add(new MeshDrawCall(MeshTopology.LineList, 0, indices.Count));
+            mesh.DrawCalls.Add(new MeshDrawCall(0, 0, MeshTopology.LineList, 0, indices.Count));
 
             return mesh;
         }

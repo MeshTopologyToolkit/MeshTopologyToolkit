@@ -24,7 +24,9 @@
 		<PackageReference Include="Cocona.Lite" Version="2.2.0" />
 		<PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
 	</ItemGroup>
-
+	<ItemGroup>
+		<None Include="README.md" Pack="true" PackagePath="\" />
+	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\MeshTopologyToolkit.Gltf\MeshTopologyToolkit.Gltf.csproj" />
 		<ProjectReference Include="..\MeshTopologyToolkit.TextureFormats\MeshTopologyToolkit.TextureFormats.csproj" />

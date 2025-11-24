@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
+using System.Text;
 
 namespace MeshTopologyToolkit
 {
@@ -114,12 +115,42 @@ namespace MeshTopologyToolkit
             return float.IsNaN(val) || float.IsInfinity(val);
         }
 
+        public static string ReadStringZ(this BinaryReader reader, Encoding? encoding = null)
+        {
+            var buf = new List<byte>();
+            for (; ; )
+            {
+                var b = reader.ReadByte();
+                if (b == 0)
+                    break;
+                buf.Add((byte)b);
+            }
+
+            return (encoding ?? Encoding.ASCII).GetString(buf.ToArray());
+        }
+
         public static Vector3 ReadVector3(this BinaryReader reader)
         {
             var x = reader.ReadSingle();
             var y = reader.ReadSingle();
             var z = reader.ReadSingle();
             return new Vector3(x, y, z);
+        }
+
+        public static Vector4 ReadVector4(this BinaryReader reader)
+        {
+            var x = reader.ReadSingle();
+            var y = reader.ReadSingle();
+            var z = reader.ReadSingle();
+            var w = reader.ReadSingle();
+            return new Vector4(x, y, z, w);
+        }
+
+        public static BoundingBox3 ReadBoundingBox3(this BinaryReader reader)
+        {
+            var min = reader.ReadVector3();
+            var max = reader.ReadVector3();
+            return new BoundingBox3(min, max);
         }
 
         public static void Write(this BinaryWriter writer, Vector3 vector)

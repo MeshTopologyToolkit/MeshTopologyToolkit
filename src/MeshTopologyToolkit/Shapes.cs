@@ -83,7 +83,7 @@ namespace MeshTopologyToolkit
                 mesh.AddAttribute(MeshAttributeKey.Color, values, indices);
             }
 
-            mesh.DrawCalls.Add(new MeshDrawCall(MeshTopology.TriangleList, 0, mesh.GetAttributeIndices(MeshAttributeKey.Position).Count));
+            mesh.DrawCalls.Add(new MeshDrawCall(0, 0, MeshTopology.TriangleList, 0, mesh.GetAttributeIndices(MeshAttributeKey.Position).Count));
 
             if ((options.Mask & MeshAttributeMask.Tangent) == MeshAttributeMask.Tangent)
             {
@@ -195,7 +195,7 @@ namespace MeshTopologyToolkit
                     }
                 }
             }
-            mesh.DrawCalls.Add(new MeshDrawCall(MeshTopology.TriangleList, 0, mesh.Indices.Count));
+            mesh.DrawCalls.Add(new MeshDrawCall(0, 0, MeshTopology.TriangleList, 0, mesh.Indices.Count));
 
             if ((options.Mask & MeshAttributeMask.Tangent) == MeshAttributeMask.Tangent)
             {
@@ -299,7 +299,7 @@ namespace MeshTopologyToolkit
                     mesh.Indices.Add(baseIndex + 1);
                 }
             }
-            mesh.DrawCalls.Add(new MeshDrawCall(MeshTopology.TriangleList, 0, mesh.Indices.Count));
+            mesh.DrawCalls.Add(new MeshDrawCall(0, 0, MeshTopology.TriangleList, 0, mesh.Indices.Count));
 
             if ((options.Mask & MeshAttributeMask.Tangent) == MeshAttributeMask.Tangent)
             {

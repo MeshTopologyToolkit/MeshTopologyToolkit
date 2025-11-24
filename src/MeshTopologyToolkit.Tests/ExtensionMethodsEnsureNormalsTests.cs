@@ -33,7 +33,7 @@ public class ExtensionMethodsEnsureNormalsTests
                 };
                 mesh.AddAttribute(MeshAttributeKey.Normal, normals, new[] { 0, 0, 0 });
             }
-            mesh.DrawCalls.Add(new MeshDrawCall(MeshTopology.TriangleList, 0, 3));
+            mesh.DrawCalls.Add(new MeshDrawCall(0, 0, MeshTopology.TriangleList, 0, 3));
 
             Matrix4x4.Invert(Matrix4x4.CreateFromQuaternion(projectionRotation), out var inverseProjection);
             mesh.ApplyUVProjection(inverseProjection);

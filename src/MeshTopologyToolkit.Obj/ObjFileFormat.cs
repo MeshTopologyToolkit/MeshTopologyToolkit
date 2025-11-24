@@ -108,7 +108,7 @@ namespace MeshTopologyToolkit.Obj
                     mesh.AddAttribute(MeshAttributeKey.Normal, normals, normalIndices);
                 if (uvs.Count > 0)
                     mesh.AddAttribute(MeshAttributeKey.TexCoord, uvs, uvIndices);
-                mesh.DrawCalls.Add(new MeshDrawCall(MeshTopology.TriangleList, 0, positionIndices.Count));
+                mesh.DrawCalls.Add(new MeshDrawCall(0, 0, MeshTopology.TriangleList, 0, positionIndices.Count));
                 content.Meshes.Add(mesh);
 
                 var scene = new Scene();
