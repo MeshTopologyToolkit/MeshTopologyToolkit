@@ -19,6 +19,7 @@
 		<RepositoryUrl>https://github.com/MeshTopologyToolkit/MeshTopologyToolkit.git</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 		<PackageTags>utilities;dotnet;library</PackageTags>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="Cocona.Lite" Version="2.2.0" />
@@ -26,6 +27,9 @@
 	</ItemGroup>
 	<ItemGroup>
 		<None Include="README.md" Pack="true" PackagePath="\" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Include="docs\**\*" Pack="true" PackagePath="docs\" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\MeshTopologyToolkit.Gltf\MeshTopologyToolkit.Gltf.csproj" />

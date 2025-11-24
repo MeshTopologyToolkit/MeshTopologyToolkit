@@ -1,4 +1,6 @@
 ﻿using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Jpeg;
+using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.PixelFormats;
 using System.Numerics;
 
@@ -43,18 +45,26 @@ namespace MeshTopologyToolkit.TextureFormats
 
         public static void SaveAsPng(Stream stream, Vector4[] pixels, int width, int height)
         {
-            SaveAsPngImpl(stream, ConvertColorsToRgba32(pixels), width, height);
+            using var image = ToImage(ConvertColorsToRgba32(pixels), width, height);
+            image.SaveAsPng(stream);
         }
 
         public static void SaveAsPng(Stream stream, Color32[] pixels, int width, int height)
         {
-            SaveAsPngImpl(stream, ConvertColorsToRgba32(pixels), width, height);
+            using var image = ToImage(ConvertColorsToRgba32(pixels), width, height);
+            image.SaveAsPng(stream);
         }
 
-        private static void SaveAsPngImpl(Stream stream, Rgba32[] rgba32s, int width, int height)
+        public static void SaveAsJpeg(Stream stream, Color32[] pixels, int width, int height)
+        {
+            using var image = ToImage(ConvertColorsToRgba32(pixels), width, height);
+            image.SaveAsJpeg(stream);
+        }
+
+        private static Image<Rgba32> ToImage(Rgba32[] rgba32s, int width, int height)
         {
             // Create ImageSharp image
-            using var image = new Image<Rgba32>(width, height);
+            var image = new Image<Rgba32>(width, height);
 
             int index = 0;
             for (int y = 0; y < height; y++)
@@ -65,23 +75,39 @@ namespace MeshTopologyToolkit.TextureFormats
                 }
             }
 
-            // Save as PNG
-            image.SaveAsPng(stream);
+            return image;
         }
 
-        public static void SaveAs(string v, Vector4[] pixels, int width, int height)
+        public static void SaveAs(string fileName, Vector4[] pixels, int width, int height)
         {
-            switch (Path.GetExtension(v).ToLowerInvariant())
+            using var source = ToImage(ConvertColorsToRgba32(pixels), width, height);
+            SaveAsImpl(fileName, source);
+        }
+        public static void SaveAs(string fileName, Color32[] pixels, int width, int height)
+        {
+            using var source = ToImage(ConvertColorsToRgba32(pixels), width, height);
+            SaveAsImpl(fileName, source);
+        }
+
+        private static void SaveAsImpl(string fileName, Image<Rgba32> source)
+        {
+            SixLabors.ImageSharp.Formats.IImageEncoder encoder;
+            switch (Path.GetExtension(fileName).ToLowerInvariant())
             {
                 case ".png":
-                    using (var stream = File.Create(v))
-                    {
-                        SaveAsPng(stream, pixels, width, height);
-                    }
+                    encoder = source.Configuration.ImageFormatsManager.GetEncoder(PngFormat.Instance);
+                    break;
+                case ".jpg":
+                    encoder = source.Configuration.ImageFormatsManager.GetEncoder(JpegFormat.Instance);
                     break;
                 default:
-                    throw new NotSupportedException($"File extension not supported: {v}");
+                    throw new NotSupportedException($"File extension not supported: {fileName}");
             }
+            using (var stream = File.Create(fileName))
+            {
+                source.Save(stream, encoder);
+            }
+
         }
     }
 

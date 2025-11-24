@@ -26,6 +26,32 @@ Options:
 
 ## Checkerboard texture generation
 
+Normal map texture generator for given trim heights.
+
+```bash
+Usage: trimgen normalmap [--trim-height <Int32>...] [--width <Int32>] [--width-in-units <Single>] [--bevel-width <Int32>] [--output <String>] [--help]
+
+Generate trim normal map from trim height data.
+
+Options:
+  -t, --trim-height <Int32>...    Trim height in pixels (Required)
+  -w, --width <Int32>             Texture width in pixels (Default: 1024)
+  --width-in-units <Single>        (Default: 5)
+  -b, --bevel-width <Int32>       Bevel width in pixels (Default: 8)
+  -o, --output <String>           Output file name
+  -h, --help                      Show help message
+```
+
+For example running
+```bash
+trimgen normalmap -t 4 -t 8 -t 16 -t 32 -t 64 -w 128
+```
+
+generates the following normal map:
+![Normal Map Example](docs/images/normals.png)
+
+## Checkerboard texture generation
+
 Checkerboard is useful to test that your texture projection isn't distorted.
 
 ```bash
