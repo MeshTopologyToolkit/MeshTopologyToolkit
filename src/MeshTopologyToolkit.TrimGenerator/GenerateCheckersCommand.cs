@@ -6,13 +6,13 @@ namespace MeshTopologyToolkit.TrimGenerator
 {
     public class GenerateCheckersCommand
     {
-        [Command("checkers", Description = "Generate checkers map.")]
+        [Command("checkermap", Description = "Generate checker map.")]
         public int Build(
             [Option('w', Description = "Texture width in pixels")] int width = 1024, 
             [Option('h', Description = "Texture height in pixels")] int height = 1024,
-            [Option('s', Description = "Maximul number of shades of gray, rounded to next power of 2")] int levels = 8,
+            [Option('s', Description = "Maximum number of shades of gray, rounded to next power of 2")] int levels = 8,
             [Option('c', Description = "Cell size in pixels")] int cellSize = 0,
-            [Option('g', Description = "Maximul number of grid levels, rounded to next power of 2")] int gridLevels = 0,
+            [Option('g', Description = "Maximum number of grid levels, rounded to next power of 2")] int gridLevels = 0,
             [Option('o', Description = "Output file name")] string? output = null)
         {
             var pixels = new Vector4[width*height];
