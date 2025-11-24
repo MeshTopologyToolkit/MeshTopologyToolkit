@@ -1,0 +1,19 @@
+<Project>
+  <PropertyGroup>
+    <!-- Shared NuGet metadata -->
+    <Authors>MeshTopologyToolkit contributors</Authors>
+    <Company>MeshTopologyToolkit</Company>
+    <Description>MeshTopologyToolkit is a lightweight, extensible C# library designed for developers working with 3D mesh data.</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/MeshTopologyToolkit/MeshTopologyToolkit</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/MeshTopologyToolkit/MeshTopologyToolkit.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>utilities;dotnet;library</PackageTags>
+    
+    <!-- Shared package icon -->
+    <PackageIcon>icon.png</PackageIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)icon.png" Pack="true" PackagePath="" />
+  </ItemGroup>
+</Project>
