@@ -6,6 +6,16 @@ namespace MeshTopologyToolkit.TrimGenerator
 {
     public class GenerateNormalMapCommand
     {
+        internal static IFileSystemEntry BuildPng(TrimGenerationArguments args)
+        {
+            var normalMapGenerator = new GenerateNormalMapCommand();
+            var colors = normalMapGenerator.BuildNormalMap(args);
+
+            var ms = new MemoryStream();
+            Converter.SaveAsPng(ms, colors, args.WidthInPixels, args.HeightInPixels);
+            return new InMemoryFileSystemEntry("normals.png", ms.ToArray());
+        }
+
         [Command("normalmap", Description = "Generate trim normal map from trim height data.")]
         public int Build(
             [Option('t', Description = "Trim height in pixels")] int[] trimHeight,
@@ -16,18 +26,26 @@ namespace MeshTopologyToolkit.TrimGenerator
         {
             var args = new TrimGenerationArguments(trimHeight, width: width, bevelInPixels: bevelWidth);
 
-            var pixels = BuildNormalMap(args);
-            var colors = new Color32[pixels.Length];
-            for (int i=0; i<colors.Length; ++i)
-            {
-                colors[i] = Color32.FromNormal(pixels[i]);
-            }
+            var colors = BuildNormalMap(args);
+
             Converter.SaveAs(output ?? "normals.png", colors, args.WidthInPixels, args.HeightInPixels);
 
             return 0;
         }
 
-        private Vector3[] BuildNormalMap(TrimGenerationArguments arguments)
+        public Color32[] BuildNormalMap(TrimGenerationArguments arguments)
+        {
+            var pixels = BuildHdrNormalMap(arguments);
+            var colors = new Color32[pixels.Length];
+            for (int i = 0; i < colors.Length; ++i)
+            {
+                colors[i] = Color32.FromNormal(pixels[i]);
+            }
+            return colors;
+        }
+
+
+        private Vector3[] BuildHdrNormalMap(TrimGenerationArguments arguments)
         {
             Vector3[] pixels = new Vector3[arguments.WidthInPixels * arguments.HeightInPixels];
             var n = new Vector3(0, 0, 1);

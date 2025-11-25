@@ -133,5 +133,20 @@ namespace MeshTopologyToolkit
             var d = Vector2.Max(Vector2.Zero, Size());
             return d.X * d.Y;
         }
+
+        /// <summary>
+        /// Linearly interpolates between the box's <see cref="Min"/> and <see cref="Max"/> corners.
+        /// The interpolation is performed component-wise: result = Min * (1 - factor) + Max * factor.
+        /// </summary>
+        /// <param name="factor">
+        /// Per-axis interpolation factors. A factor of 0 returns <see cref="Min"/>, 1 returns <see cref="Max"/>.
+        /// Values outside the range [0,1] will produce extrapolated results.
+        /// </param>
+        /// <returns>The interpolated point as a <see cref="Vector2"/>.</returns>
+        public Vector2 Lerp(Vector2 factor)
+        {
+            var _factor = Vector2.One - factor;
+            return _min * _factor + _max * factor;
+        }
     }
 }
