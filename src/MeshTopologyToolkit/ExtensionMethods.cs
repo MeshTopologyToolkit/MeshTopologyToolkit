@@ -160,6 +160,11 @@ namespace MeshTopologyToolkit
             writer.Write(vector.Z);
         }
 
+        public static bool TryWrite(this IFileFormat fileFormat, string fileName, FileContainer content)
+        {
+            return fileFormat.TryWrite(new FileSystemEntry(fileName), content);
+        }
+
         public static byte[] ReadAllBytes(this IFileSystemEntry? entry)
         {
             if (entry == null)

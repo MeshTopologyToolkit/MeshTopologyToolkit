@@ -4,7 +4,7 @@ using System.Numerics;
 
 namespace MeshTopologyToolkit.TrimGenerator
 {
-    public class GenerateCheckersCommand
+        public class GenerateCheckersCommand
     {
         [Command("checkermap", Description = "Generate checker map.")]
         public int Build(

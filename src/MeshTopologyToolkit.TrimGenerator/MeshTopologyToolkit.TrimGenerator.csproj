@@ -33,6 +33,7 @@
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\MeshTopologyToolkit.Gltf\MeshTopologyToolkit.Gltf.csproj" />
+		<ProjectReference Include="..\MeshTopologyToolkit.Stl\MeshTopologyToolkit.Stl.csproj" />
 		<ProjectReference Include="..\MeshTopologyToolkit.TextureFormats\MeshTopologyToolkit.TextureFormats.csproj" />
 	</ItemGroup>
 

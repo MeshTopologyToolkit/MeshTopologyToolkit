@@ -24,7 +24,7 @@ Options:
   --version     Show version
 ```
 
-## Checkerboard texture generation
+## Normal map texture generation
 
 Normal map texture generator for given trim heights.
 
@@ -48,7 +48,30 @@ trimgen normalmap -t 4 -t 8 -t 16 -t 32 -t 64 -w 128
 ```
 
 generates the following normal map:
-![Normal Map Example](docs/images/normals.png)
+
+![Normal Map Example](https://raw.githubusercontent.com/MeshTopologyToolkit/MeshTopologyToolkit/a637155ec1eb1e864b9f33a8201683fbf516613c/src/MeshTopologyToolkit.TrimGenerator/docs/images/normals.png)
+
+## Box model generation
+
+Box model generator generates a box model with given dimensions and trim heights.
+
+```bash
+Usage: MeshTopologyToolkit.TrimGenerator box [--trim-height <Int32>...] [--width <Int32>] [--width-in-units <Single>] [--bevel-width <Int32>] [--size-x <Single>] [--size-y <Single>] [--size-z <Single>] [--max-deviation <Single>] [--output <String>] [--help]
+
+Generate trim normal map from trim height data.
+
+Options:
+  -t, --trim-height <Int32>...    Trim height in pixels (Required)
+  -w, --width <Int32>             Texture width in pixels (Default: 1024)
+  --width-in-units <Single>        (Default: 5)
+  -b, --bevel-width <Int32>       Bevel width in pixels (Default: 8)
+  --size-x <Single>               Box size along X dimention (Default: 1)
+  --size-y <Single>               Box size along Y dimention (Default: 1)
+  --size-z <Single>               Box size along Z dimention (Default: 1)
+  -m, --max-deviation <Single>    Max deviation from the scale in percents (Default: 10)
+  -o, --output <String>           Output file name
+  -h, --help                      Show help message
+```
 
 ## Checkerboard texture generation
 
