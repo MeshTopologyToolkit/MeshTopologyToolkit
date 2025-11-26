@@ -35,17 +35,17 @@ namespace MeshTopologyToolkit.Operators
 
             foreach (var asset in container.Scenes)
             {
-                result.Scenes.Add(Tramsform(asset));
+                result.Scenes.Add(Transform(asset));
             }
 
             return result;
         }
 
-        protected Texture Visit(Texture texture) => Visit(_visitedTextures, texture, Visit);
+        protected Texture Visit(Texture texture) => Visit(_visitedTextures, texture, Transform);
 
-        protected IMesh Visit(IMesh mesh) => Visit(_visitedMeshes, mesh, Visit);
+        protected IMesh Visit(IMesh mesh) => Visit(_visitedMeshes, mesh, Transform);
 
-        protected Material Visit(Material material) => Visit(_visitedMaterials, material, Visit);
+        protected Material Visit(Material material) => Visit(_visitedMaterials, material, Transform);
 
         private T Visit<T>(Dictionary<T, T> cache, T value, Func<T,T> transform)
         {
@@ -63,7 +63,7 @@ namespace MeshTopologyToolkit.Operators
 
         public virtual Texture Transform(Texture texture) => texture;
 
-        public virtual Material Material(Material material) => material;
+        public virtual Material Transform(Material material) => material;
 
         public virtual ITransform Transform(ITransform transform) => transform;
 
@@ -75,9 +75,9 @@ namespace MeshTopologyToolkit.Operators
             return result;
         }
 
-        public virtual IMesh? Tramsform(IMesh? mesh) => mesh;
+        public virtual IMesh Transform(IMesh mesh) => mesh;
 
-        public virtual Node Tramsform(Node node)
+        public virtual Node Transform(Node node)
         {
             var result = new Node();
             result.Name = node.Name;
@@ -85,18 +85,18 @@ namespace MeshTopologyToolkit.Operators
             result.Mesh = Transform(node.Mesh);
             foreach (var child in node.Children)
             {
-                result.AddChild(Tramsform(child));
+                result.AddChild(Transform(child));
             }
             return result;
         }
 
-        public virtual Scene Tramsform(Scene scene)
+        public virtual Scene Transform(Scene scene)
         {
             var result = new Scene();
             result.Name = scene.Name;
             foreach (var child in scene.Children)
             {
-                result.AddChild(Tramsform(child));
+                result.AddChild(Transform(child));
             }
             return result;
         }

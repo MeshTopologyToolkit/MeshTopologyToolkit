@@ -7,8 +7,9 @@ namespace MeshTopologyToolkit.TrimGenerator
         {
             CoconaLiteApp.Run(new[] {
                 typeof(GenerateBoxCommand),
+                typeof(GenerateBoxPaletteCommand),
                 typeof(GenerateNormalMapCommand), 
-                typeof(GenerateCheckersCommand) });
+                typeof(GenerateCheckerMapCommand) });
 
             return 0;
         }

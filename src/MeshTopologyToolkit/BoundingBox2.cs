@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 
 namespace MeshTopologyToolkit
 {
@@ -147,6 +148,15 @@ namespace MeshTopologyToolkit
         {
             var _factor = Vector2.One - factor;
             return _min * _factor + _max * factor;
+        }
+
+        public BoundingBox2 AlignWithin(BoundingBox2 shell, Vector2 alignment)
+        {
+            var size = _max - _min;
+            var from = shell._min;
+            var to = shell._max - size;
+            var pos = from * (Vector2.One - alignment) + to * alignment;
+            return new BoundingBox2(pos, pos + size);
         }
     }
 }

@@ -4,6 +4,10 @@
     {
         FileContainer Transform(FileContainer container);
 
-        IMesh? Tramsform(IMesh? mesh);
+        IMesh Transform(IMesh mesh);
+
+        Material Transform(Material mesh);
+
+        Texture Transform(Texture mesh);
     }
 }

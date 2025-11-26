@@ -18,6 +18,21 @@ namespace MeshTopologyToolkit.TrimGenerator
 
         public float UVOffsetInPixels { get; }
 
+        /// <summary>
+        /// Scale factor to convert from pixel coordinates to world units.
+        /// </summary>
+        public float PixelsToUnits { get; }
+
+        /// <summary>
+        /// Scale factor to convert from pixel coordinates to UV coordinates.
+        /// </summary>
+        public Vector2 PixelsToUV { get; }
+
+        /// <summary>
+        /// Scale factor to convert from world units to UV coordinates.
+        /// </summary>
+        public Vector2 UnitsToUV { get; }
+
         public TrimGenerationArguments(int[] trimHeights, int width = 1024, int bevelInPixels = 8, float widthInUnits = 5.0f, float uvOffsetInPixels = 0.5f)
         {
             TrimHeights = trimHeights;
@@ -29,17 +44,18 @@ namespace MeshTopologyToolkit.TrimGenerator
 
             var uvOffsetInPixels2 = uvOffsetInPixels * 2.0f;
             var widthInTexels = width - uvOffsetInPixels2;
-            var texelSize = (float)widthInUnits / widthInTexels;
-            var uvScale = new Vector2(1.0f / width, 1.0f / HeightInPixels);
+            PixelsToUnits = (float)widthInUnits / widthInTexels;
+            PixelsToUV = new Vector2(1.0f / width, 1.0f / HeightInPixels);
+            UnitsToUV = PixelsToUV / PixelsToUnits;
 
             var y = 0.0f;
             var trimRecepies = new List<TrimRecepie>();
             foreach (var trimHeight in trimHeights)
             {
-                var uvSize = new Vector2(width - uvOffsetInPixels2, trimHeight - uvOffsetInPixels2) * uvScale;
-                var uvPos = new Vector2(uvOffsetInPixels, y + uvOffsetInPixels) * uvScale;
-                var sizeInUnits = new Vector2(widthInTexels, trimHeight - uvOffsetInPixels2) * texelSize;
-                trimRecepies.Add(new TrimRecepie { TexCoord = uvPos, TexCoordSize = uvSize, SizeInUnits = sizeInUnits });
+                var uvSize = new Vector2(width - uvOffsetInPixels2, trimHeight - uvOffsetInPixels2) * PixelsToUV;
+                var uvPos = new Vector2(uvOffsetInPixels, y + uvOffsetInPixels) * PixelsToUV;
+                var sizeInUnits = new Vector2(widthInTexels, trimHeight - uvOffsetInPixels2) * PixelsToUnits;
+                trimRecepies.Add(new TrimRecepie { TexCoord = uvPos, TexCoordSize = uvSize, SizeInUnits = sizeInUnits, HeightInPixels = trimHeight });
                 y += trimHeight;
             }
             TrimRecepies = trimRecepies;
