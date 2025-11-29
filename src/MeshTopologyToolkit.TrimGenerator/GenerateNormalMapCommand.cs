@@ -6,21 +6,11 @@ namespace MeshTopologyToolkit.TrimGenerator
 {
     public class GenerateNormalMapCommand
     {
-        internal static IFileSystemEntry BuildPng(TrimGenerationArguments args)
-        {
-            var normalMapGenerator = new GenerateNormalMapCommand();
-            var colors = normalMapGenerator.BuildNormalMap(args);
-
-            var ms = new MemoryStream();
-            Converter.SaveAsPng(ms, colors, args.WidthInPixels, args.HeightInPixels);
-            return new InMemoryFileSystemEntry("normals.png", ms.ToArray());
-        }
-
         [Command("normalmap", Description = "Generate trim normal map from trim height data.")]
         public int Build(
             [Option('t', Description = "Trim height in pixels")] int[] trimHeight,
             [Option('w', Description = "Texture width in pixels")] int width = 1024,
-            float widthInUnits = 5.0f,
+            [Option(Description = "Full trim width in world units")] float widthInUnits = 5.0f,
             [Option('b', Description = "Bevel width in pixels")] int bevelWidth = 8,
             [Option('o', Description = "Output file name")] string? output = null)
         {
@@ -31,6 +21,16 @@ namespace MeshTopologyToolkit.TrimGenerator
             Converter.SaveAs(output ?? "normals.png", colors, args.WidthInPixels, args.HeightInPixels);
 
             return 0;
+        }
+
+        internal static IFileSystemEntry BuildPng(TrimGenerationArguments args)
+        {
+            var normalMapGenerator = new GenerateNormalMapCommand();
+            var colors = normalMapGenerator.BuildNormalMap(args);
+
+            var ms = new MemoryStream();
+            Converter.SaveAsPng(ms, colors, args.WidthInPixels, args.HeightInPixels);
+            return new InMemoryFileSystemEntry("normals.png", ms.ToArray());
         }
 
         public Color32[] BuildNormalMap(TrimGenerationArguments arguments)

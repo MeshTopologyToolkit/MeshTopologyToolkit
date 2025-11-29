@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 
 namespace MeshTopologyToolkit
@@ -32,6 +33,19 @@ namespace MeshTopologyToolkit
         {
             _min = min;
             _max = max;
+        }
+
+        public BoundingBox2(IEnumerable<Vector2> positions)
+        {
+            _min = Empty.Min;
+            _max = Empty.Max;
+            foreach (var pos in positions)
+            {
+                if (pos.IsNanOrInf())
+                    throw new ArgumentException($"Position {pos} is not a valid position");
+                _min = Vector2.Min(_min, pos);
+                _max = Vector2.Max(_max, pos);
+            }
         }
 
         /// <summary>

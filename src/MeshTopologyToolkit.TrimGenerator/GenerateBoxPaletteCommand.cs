@@ -39,7 +39,7 @@ namespace MeshTopologyToolkit.TrimGenerator
                     for (var sizeZ = sizeY; sizeZ < allSizes.Count; ++sizeZ)
                     {
                         var name = $"box_{sizeX}_{sizeY}_{sizeZ}";
-                        UnifiedIndexedMesh mesh = GenerateBoxCommand.BuildBoxMesh(bevelWidth, new Vector3(allSizes[sizeX], allSizes[sizeY], allSizes[sizeZ]), 1, args);
+                        UnifiedIndexedMesh mesh = GenerateBoxCommand.BuildBoxMesh(new Vector3(allSizes[sizeX], allSizes[sizeY], allSizes[sizeZ]), 1, args);
                         mesh.Name = name;
                         var node = new Node(name);
                         node.Transform = new TRSTransform(new Vector3(x, allSizes[sizeY] * 0.5f, 0.0f));
@@ -50,6 +50,27 @@ namespace MeshTopologyToolkit.TrimGenerator
                 }
             }
 
+            {
+                var tallestTrim = args.TrimRecepies.OrderByDescending(_ => _.SizeInUnits.Y).First();
+
+                var radius = args.WidthInUnits*0.5f/MathF.PI;
+                for (var tubeSize = 0; tubeSize < allSizes.Count; ++tubeSize)
+                {
+                    if (allSizes[tubeSize] > radius)
+                        continue;
+                    x += radius + 0.05f;
+                    var name = $"tube_{tubeSize}";
+                    UnifiedIndexedMesh mesh = BuildTubeMesh(args, tallestTrim, radius - allSizes[tubeSize], radius);
+                    mesh.Name = name;
+                    var node = new Node(name);
+                    node.Transform = new TRSTransform(new Vector3(x, tallestTrim.SizeInUnits.Y * 0.5f, 0.0f));
+                    node.Mesh = new MeshReference(mesh, material);
+                    scene.AddChild(node);
+                    x += radius + 0.05f;
+                    break;
+                }
+            }
+
             string fileName = output ?? "box-palette.glb";
             if (!new FileFormatCollection(new GltfFileFormat(), new StlFileFormat()).TryWrite(fileName, container))
             {
@@ -57,6 +78,62 @@ namespace MeshTopologyToolkit.TrimGenerator
                 return 1;
             }
             return 0;
+        }
+
+        private UnifiedIndexedMesh BuildTubeMesh(TrimGenerationArguments args, TrimRecepie tallestTrim, float innerRadius, float outerRadius)
+        {
+            var mesh = new UnifiedIndexedMesh();
+
+            var positions = new ListMeshVertexAttribute<Vector3>();
+            var normals = new ListMeshVertexAttribute<Vector3>();
+            var texCoords = new ListMeshVertexAttribute<Vector2>();
+
+            int numSideSegments = 36;
+            var halfHeight = new Vector3(0, tallestTrim.SizeInUnits.Y * 0.5f, 0);
+            for (int sideSegmentIndex=0; sideSegmentIndex<=numSideSegments; ++sideSegmentIndex)
+            {
+                var factor = sideSegmentIndex / (float)numSideSegments;
+                var a = - factor * MathF.PI * 2.0f;
+                var normal = new Vector3(MathF.Cos(a), 0.0f, MathF.Sin(a));
+                positions.Add(normal * innerRadius - halfHeight);
+                positions.Add(normal * innerRadius + halfHeight);
+                positions.Add(normal * outerRadius - halfHeight);
+                positions.Add(normal * outerRadius + halfHeight);
+                normals.Add(-normal);
+                normals.Add(-normal);
+                normals.Add(normal);
+                normals.Add(normal);
+                texCoords.Add(new Vector2(tallestTrim.TexCoord.X + tallestTrim.TexCoordSize.X * (1.0f - factor), tallestTrim.TexCoord.Y + tallestTrim.TexCoordSize.Y));
+                texCoords.Add(new Vector2(tallestTrim.TexCoord.X + tallestTrim.TexCoordSize.X * (1.0f - factor), tallestTrim.TexCoord.Y));
+                texCoords.Add(new Vector2(tallestTrim.TexCoord.X + tallestTrim.TexCoordSize.X * factor, tallestTrim.TexCoord.Y + tallestTrim.TexCoordSize.Y));
+                texCoords.Add(new Vector2(tallestTrim.TexCoord.X + tallestTrim.TexCoordSize.X * factor, tallestTrim.TexCoord.Y));
+            }
+            for (int sideSegmentIndex = 0; sideSegmentIndex < numSideSegments; ++sideSegmentIndex)
+            {
+                var i0 = sideSegmentIndex * 4;
+                var i1 = i0 + 1;
+                var i2 = i0 + 4;
+                var i3 = i0 + 5;
+                mesh.Indices.Add(i0);
+                mesh.Indices.Add(i1);
+                mesh.Indices.Add(i2);
+                mesh.Indices.Add(i1);
+                mesh.Indices.Add(i3);
+                mesh.Indices.Add(i2);
+                mesh.Indices.Add(i0 + 2);
+                mesh.Indices.Add(i2 + 2);
+                mesh.Indices.Add(i1 + 2);
+                mesh.Indices.Add(i1 + 2);
+                mesh.Indices.Add(i2 + 2);
+                mesh.Indices.Add(i3 + 2);
+            }
+
+            mesh.AddAttribute(MeshAttributeKey.Position, positions);
+            mesh.AddAttribute(MeshAttributeKey.Normal, normals);
+            mesh.AddAttribute(MeshAttributeKey.TexCoord, texCoords);
+            mesh.DrawCalls.Add(new MeshDrawCall(0, 0, MeshTopology.TriangleList, 0, mesh.Indices.Count));
+            mesh.EnsureTangents();
+            return mesh;
         }
     }
 }

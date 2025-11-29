@@ -15,6 +15,11 @@ namespace MeshTopologyToolkit.TrimGenerator
         public int HeightInPixels { get; set; }
 
         /// <summary>
+        /// Bevel width/height in pixels.
+        /// </summary>
+        public int BevelSizeInPixels { get; set; }
+
+        /// <summary>
         /// The corner texture coordinate in the atlas where this trim's image begins.
         /// </summary>
         public Vector2 TexCoord { get; set; }
@@ -23,6 +28,12 @@ namespace MeshTopologyToolkit.TrimGenerator
         /// The size of the trim region in texture coordinate space (UV units).
         /// </summary>
         public Vector2 TexCoordSize { get; set; }
+
+        /// <summary>
+        /// Bevel width/height in texture coordinate space (UV units).
+        /// </summary>
+        public Vector2 BevelSize { get; set; }
+
 
         /// <summary>
         /// Physical size of the generated trim geometry in world units.

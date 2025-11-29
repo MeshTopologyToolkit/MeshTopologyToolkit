@@ -89,9 +89,9 @@ namespace MeshTopologyToolkit.TrimGenerator
                 {
                     step *= 2;
                 }
-                for (int x = 0; x < width; x+=step)
+                for (int x = 0; x <= width - step; x+=step)
                 {
-                    for (int y = 0; y < height; y+=step)
+                    for (int y = 0; y <= height - step; y+=step)
                     {
                         DrawArrows(x + step / 2, y + step / 2);
                     }

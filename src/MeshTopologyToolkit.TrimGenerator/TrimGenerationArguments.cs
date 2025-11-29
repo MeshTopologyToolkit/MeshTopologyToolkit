@@ -52,10 +52,20 @@ namespace MeshTopologyToolkit.TrimGenerator
             var trimRecepies = new List<TrimRecepie>();
             foreach (var trimHeight in trimHeights)
             {
+                var trimBevelSize = Math.Min(bevelInPixels, trimHeight/2);
                 var uvSize = new Vector2(width - uvOffsetInPixels2, trimHeight - uvOffsetInPixels2) * PixelsToUV;
                 var uvPos = new Vector2(uvOffsetInPixels, y + uvOffsetInPixels) * PixelsToUV;
                 var sizeInUnits = new Vector2(widthInTexels, trimHeight - uvOffsetInPixels2) * PixelsToUnits;
-                trimRecepies.Add(new TrimRecepie { TexCoord = uvPos, TexCoordSize = uvSize, SizeInUnits = sizeInUnits, HeightInPixels = trimHeight });
+                var recepie = new TrimRecepie
+                {
+                    TexCoord = uvPos,
+                    TexCoordSize = uvSize,
+                    SizeInUnits = sizeInUnits,
+                    HeightInPixels = trimHeight,
+                    BevelSizeInPixels = trimBevelSize,
+                    BevelSize = PixelsToUV * trimBevelSize,
+                };
+                trimRecepies.Add(recepie);
                 y += trimHeight;
             }
             TrimRecepies = trimRecepies;

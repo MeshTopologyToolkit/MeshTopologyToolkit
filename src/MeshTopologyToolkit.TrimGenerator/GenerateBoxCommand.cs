@@ -25,7 +25,7 @@ namespace MeshTopologyToolkit.TrimGenerator
             var args = new TrimGenerationArguments(trimHeight, width: width, bevelInPixels: bevelWidth, widthInUnits: widthInUnits);
             Material material = BuildMaterial(normalMap, checkerMap, albedo, args);
 
-            UnifiedIndexedMesh mesh = BuildBoxMesh(bevelWidth, new Vector3(sizeX, sizeY, sizeZ), maxDeviation, args);
+            UnifiedIndexedMesh mesh = BuildBoxMesh(new Vector3(sizeX, sizeY, sizeZ), maxDeviation, args);
 
             var container = new FileContainer();
             container.AddSingleMeshScene(new MeshReference(mesh, material));
@@ -39,7 +39,7 @@ namespace MeshTopologyToolkit.TrimGenerator
             return 0;
         }
 
-        public static Material BuildMaterial(bool normalMap, bool checkerMap, string albedo, TrimGenerationArguments args)
+        public static Material BuildMaterial(bool normalMap, bool checkerMap, string? albedo, TrimGenerationArguments args)
         {
             var material = new Material("Default", new Vector4(1.0f, 1.0f, 1.0f, 1.0f));
 
@@ -63,126 +63,127 @@ namespace MeshTopologyToolkit.TrimGenerator
             return material;
         }
 
-        public static UnifiedIndexedMesh BuildBoxMesh(int bevelWidth, Vector3 size, float maxDeviation, TrimGenerationArguments args)
+        public static UnifiedIndexedMesh BuildBoxMesh(Vector3 size, float maxDeviation, TrimGenerationArguments args)
         {
             var halfSize = size * 0.5f;
-            var mesh = new UnifiedIndexedMesh();
+            var boxAttributes = new BoxBuilder();
 
-            var positions = new ListMeshVertexAttribute<Vector3>();
-            var normals = new ListMeshVertexAttribute<Vector3>();
-            var texCoords = new ListMeshVertexAttribute<Vector2>();
-            var tangents = new ListMeshVertexAttribute<Vector4>();
+            AddSideToBox(maxDeviation, args, new Vector2(size.X, size.Y), Matrix4x4.CreateTranslation(new Vector3(0, 0, halfSize.Z)), boxAttributes);
+            AddSideToBox(maxDeviation, args, new Vector2(size.X, size.Y), Matrix4x4.CreateTranslation(new Vector3(0, 0, halfSize.Z)) * Matrix4x4.CreateRotationY(MathF.PI), boxAttributes);
+            AddSideToBox(maxDeviation, args, new Vector2(size.Z, size.Y), Matrix4x4.CreateTranslation(new Vector3(0, 0, halfSize.X)) * Matrix4x4.CreateRotationY(MathF.PI * 0.5f), boxAttributes);
+            AddSideToBox(maxDeviation, args, new Vector2(size.Z, size.Y), Matrix4x4.CreateTranslation(new Vector3(0, 0, halfSize.X)) * Matrix4x4.CreateRotationY(-MathF.PI * 0.5f), boxAttributes);
+            AddSideToBox(maxDeviation, args, new Vector2(size.X, size.Z), Matrix4x4.CreateTranslation(new Vector3(0, 0, halfSize.Y)) * Matrix4x4.CreateRotationX(MathF.PI * 0.5f), boxAttributes);
+            AddSideToBox(maxDeviation, args, new Vector2(size.X, size.Z), Matrix4x4.CreateTranslation(new Vector3(0, 0, halfSize.Y)) * Matrix4x4.CreateRotationX(-MathF.PI * 0.5f), boxAttributes);
 
-            var addQuad = (BoundingBox3 pos, BoundingBox2 uv, Matrix4x4 tranform) =>
+            return boxAttributes.Build();
+        }
+
+        public static void AddSideToBox(float maxDeviation, TrimGenerationArguments args, Vector2 size, Matrix4x4 tranform, BoxBuilder boxAttributes)
+        {
+            float width = size.X;
+            float height = size.Y;
+
+            if (height > width)
             {
-                if (MathF.Abs(pos.Max.X - pos.Min.X) < 1e-6f)
-                    return;
-                if (MathF.Abs(pos.Max.Y - pos.Min.Y) < 1e-6f)
-                    return;
+                (height, width) = (width, height);
+                tranform = Matrix4x4.CreateRotationZ(MathF.PI * 0.5f) * tranform;
+            }
 
-                var startIndex = positions.Count;
+            var recepie = args.FindMatchingRecepie(height);
 
-                positions.Add(Vector3.Transform(pos.Lerp(new Vector3(0, 0, 0)), tranform));
-                positions.Add(Vector3.Transform(pos.Lerp(new Vector3(1, 0, 0)), tranform));
-                positions.Add(Vector3.Transform(pos.Lerp(new Vector3(1, 1, 0)), tranform));
-                positions.Add(Vector3.Transform(pos.Lerp(new Vector3(0, 1, 0)), tranform));
+            var halfSize = new Vector3(width, height, 0) * 0.5f;
+            var requestedSizeInUV = new Vector2(width, height) * args.UnitsToUV;
 
-                var n = Vector3.TransformNormal(new Vector3(0, 0, 1), tranform);
-                normals.Add(n);
-                normals.Add(n);
-                normals.Add(n);
-                normals.Add(n);
-
-                texCoords.Add(uv.Lerp(new Vector2(0, 0)));
-                texCoords.Add(uv.Lerp(new Vector2(1, 0)));
-                texCoords.Add(uv.Lerp(new Vector2(1, 1)));
-                texCoords.Add(uv.Lerp(new Vector2(0, 1)));
-
-                mesh.Indices.Add(startIndex);
-                mesh.Indices.Add(startIndex + 1);
-                mesh.Indices.Add(startIndex + 2);
-
-                mesh.Indices.Add(startIndex);
-                mesh.Indices.Add(startIndex + 2);
-                mesh.Indices.Add(startIndex + 3);
-            };
-
-            var addSide = (float width, float height, Matrix4x4 tranform) =>
+            // If requested normal map slice is bigger than the recepie slice we have to scale the requested size down.
+            if (requestedSizeInUV.X > recepie.TexCoordSize.X || requestedSizeInUV.Y > recepie.TexCoordSize.Y)
             {
-                if (height > width)
-                {
-                    (height, width) = (width, height);
-                    tranform = Matrix4x4.CreateRotationZ(MathF.PI * 0.5f) * tranform;
-                }
+                var scaleFactor = MathF.Min(recepie.TexCoordSize.X / requestedSizeInUV.X, recepie.TexCoordSize.Y / requestedSizeInUV.Y);
+                requestedSizeInUV *= scaleFactor;
+            }
 
-                var recepie = args.FindMatchingRecepie(height);
+            (var leftFactor, var rightFactor) = GetSliceFactors(maxDeviation, requestedSizeInUV.X, recepie.TexCoordSize.X, recepie.BevelSize.X);
+            (var bottomFactor, var topFactor) = GetSliceFactors(maxDeviation, requestedSizeInUV.Y, recepie.TexCoordSize.Y, recepie.BevelSize.Y);
+            if (rightFactor == 0 || leftFactor == 0)
+                requestedSizeInUV.X = recepie.TexCoordSize.X;
+            if (bottomFactor == 0 || topFactor == 0)
+                requestedSizeInUV.Y = recepie.TexCoordSize.Y;
 
-                var halfSize = new Vector3(width, height, 0) * 0.5f;
-                var requestedSizeInUV = new Vector2(width, height) * args.UnitsToUV;
+            var wholeBox = new BoundingBox3(halfSize * new Vector3(-1, -1, 1), halfSize * new Vector3(1, 1, 1));
+            var wholeUvBox = FlipY(new BoundingBox2(recepie.TexCoord, recepie.TexCoord + recepie.TexCoordSize));
+            var requestedUvBox = FlipY(new BoundingBox2(recepie.TexCoord, recepie.TexCoord + requestedSizeInUV));
+            var breakPoint = wholeBox.Lerp(new Vector3(leftFactor, topFactor, 0.0f));
+            var breakUvPoint = requestedUvBox.Lerp(new Vector2(leftFactor, topFactor));
 
-                // If requested normal map slice is bigger than the recepie slice we have to scale the requested size down.
-                if (requestedSizeInUV.X > recepie.TexCoordSize.X || requestedSizeInUV.Y > recepie.TexCoordSize.Y)
-                {
-                    var scaleFactor = MathF.Min(recepie.TexCoordSize.X / requestedSizeInUV.X, recepie.TexCoordSize.Y / requestedSizeInUV.Y);
-                    requestedSizeInUV *= scaleFactor;
-                }
+            AddQuadToBox(
+                new BoundingBox3(wholeBox.Min, breakPoint),
+                new BoundingBox2(requestedUvBox.Min, breakUvPoint).AlignWithin(wholeUvBox, new Vector2(0, 0)),
+                tranform,
+                boxAttributes);
+            AddQuadToBox(
+                new BoundingBox3(breakPoint, wholeBox.Max),
+                new BoundingBox2(breakUvPoint, requestedUvBox.Max).AlignWithin(wholeUvBox, new Vector2(1, 1)),
+                tranform,
+                boxAttributes);
+            AddQuadToBox(
+                new BoundingBox3(
+                    wholeBox.Min * new Vector3(1, 0, 1) + breakPoint * new Vector3(0, 1, 0),
+                    breakPoint * new Vector3(1, 0, 1) + wholeBox.Max * new Vector3(0, 1, 0)
+                    ),
+                new BoundingBox2(
+                    requestedUvBox.Min * new Vector2(1, 0) + breakUvPoint * new Vector2(0, 1),
+                    breakUvPoint * new Vector2(1, 0) + requestedUvBox.Max * new Vector2(0, 1)
+                    ).AlignWithin(wholeUvBox, new Vector2(0, 1)),
+                tranform,
+                boxAttributes);
+            AddQuadToBox(
+                new BoundingBox3(
+                    wholeBox.Min * new Vector3(0, 1, 1) + breakPoint * new Vector3(1, 0, 0),
+                    breakPoint * new Vector3(0, 1, 1) + wholeBox.Max * new Vector3(1, 0, 0)
+                    ),
+                new BoundingBox2(
+                    requestedUvBox.Min * new Vector2(0, 1) + breakUvPoint * new Vector2(1, 0),
+                    breakUvPoint * new Vector2(0, 1) + requestedUvBox.Max * new Vector2(1, 0)
+                    ).AlignWithin(wholeUvBox, new Vector2(1, 0)),
+                tranform,
+                boxAttributes);
+        }
 
-                (var leftFactor, var rightFactor) = GetSliceFactors(maxDeviation, requestedSizeInUV.X, recepie.TexCoordSize.X, bevelWidth * args.PixelsToUV.X);
-                (var bottomFactor, var topFactor) = GetSliceFactors(maxDeviation, requestedSizeInUV.Y, recepie.TexCoordSize.Y, bevelWidth * args.PixelsToUV.Y);
-                if (rightFactor == 0 || leftFactor == 0)
-                    requestedSizeInUV.X = recepie.TexCoordSize.X;
-                if (bottomFactor == 0 || topFactor == 0)
-                    requestedSizeInUV.Y = recepie.TexCoordSize.Y;
+        private static bool AddQuadToBox(BoundingBox3 pos, BoundingBox2 uv, Matrix4x4 tranform, BoxBuilder boxAttributes)
+        {
+            if (MathF.Abs(pos.Max.X - pos.Min.X) < 1e-6f)
+                return false;
+            if (MathF.Abs(pos.Max.Y - pos.Min.Y) < 1e-6f)
+                return false;
 
-                var wholeBox = new BoundingBox3(halfSize * new Vector3(-1, -1, 1), halfSize * new Vector3(1, 1, 1));
-                var wholeUvBox = FlipY(new BoundingBox2(recepie.TexCoord, recepie.TexCoord + recepie.TexCoordSize));
-                var requestedUvBox = FlipY(new BoundingBox2(recepie.TexCoord, recepie.TexCoord + requestedSizeInUV));
-                var breakPoint = wholeBox.Lerp(new Vector3(leftFactor, topFactor, 0.0f));
-                var breakUvPoint = requestedUvBox.Lerp(new Vector2(leftFactor, topFactor));
+            var positions = boxAttributes.Positions;
+            var normals = boxAttributes.Normals;
+            var texCoords = boxAttributes.TexCoords;
 
-                addQuad(
-                    new BoundingBox3(wholeBox.Min, breakPoint),
-                    new BoundingBox2(requestedUvBox.Min, breakUvPoint).AlignWithin(wholeUvBox, new Vector2(0, 0)),
-                    tranform);
-                addQuad(
-                    new BoundingBox3(breakPoint, wholeBox.Max),
-                    new BoundingBox2(breakUvPoint, requestedUvBox.Max).AlignWithin(wholeUvBox, new Vector2(1, 1)),
-                    tranform);
-                addQuad(
-                    new BoundingBox3(
-                        wholeBox.Min * new Vector3(1, 0, 1) + breakPoint * new Vector3(0, 1, 0),
-                        breakPoint * new Vector3(1, 0, 1) + wholeBox.Max * new Vector3(0, 1, 0)
-                        ),
-                    new BoundingBox2(
-                        requestedUvBox.Min * new Vector2(1, 0) + breakUvPoint * new Vector2(0, 1),
-                        breakUvPoint * new Vector2(1, 0) + requestedUvBox.Max * new Vector2(0, 1)
-                        ).AlignWithin(wholeUvBox, new Vector2(0, 1)),
-                    tranform);
-                addQuad(
-                    new BoundingBox3(
-                        wholeBox.Min * new Vector3(0, 1, 1) + breakPoint * new Vector3(1, 0, 0),
-                        breakPoint * new Vector3(0, 1, 1) + wholeBox.Max * new Vector3(1, 0, 0)
-                        ),
-                    new BoundingBox2(
-                        requestedUvBox.Min * new Vector2(0, 1) + breakUvPoint * new Vector2(1, 0),
-                        breakUvPoint * new Vector2(0, 1) + requestedUvBox.Max * new Vector2(1, 0)
-                        ).AlignWithin(wholeUvBox, new Vector2(1, 0)),
-                    tranform);
-            };
+            var startIndex = positions.Count;
 
-            addSide(size.X, size.Y, Matrix4x4.CreateTranslation(new Vector3(0, 0, halfSize.Z)));
-            addSide(size.X, size.Y, Matrix4x4.CreateTranslation(new Vector3(0, 0, halfSize.Z)) * Matrix4x4.CreateRotationY(MathF.PI));
-            addSide(size.Z, size.Y, Matrix4x4.CreateTranslation(new Vector3(0, 0, halfSize.X)) * Matrix4x4.CreateRotationY(MathF.PI * 0.5f));
-            addSide(size.Z, size.Y, Matrix4x4.CreateTranslation(new Vector3(0, 0, halfSize.X)) * Matrix4x4.CreateRotationY(-MathF.PI * 0.5f));
-            addSide(size.X, size.Z, Matrix4x4.CreateTranslation(new Vector3(0, 0, halfSize.Y)) * Matrix4x4.CreateRotationX(MathF.PI * 0.5f));
-            addSide(size.X, size.Z, Matrix4x4.CreateTranslation(new Vector3(0, 0, halfSize.Y)) * Matrix4x4.CreateRotationX(-MathF.PI * 0.5f));
+            positions.Add(Vector3.Transform(pos.Lerp(new Vector3(0, 0, 0)), tranform));
+            positions.Add(Vector3.Transform(pos.Lerp(new Vector3(1, 0, 0)), tranform));
+            positions.Add(Vector3.Transform(pos.Lerp(new Vector3(1, 1, 0)), tranform));
+            positions.Add(Vector3.Transform(pos.Lerp(new Vector3(0, 1, 0)), tranform));
 
-            mesh.AddAttribute(MeshAttributeKey.Position, positions);
-            mesh.AddAttribute(MeshAttributeKey.Normal, normals);
-            mesh.AddAttribute(MeshAttributeKey.TexCoord, texCoords);
-            mesh.DrawCalls.Add(new MeshDrawCall(0, 0, MeshTopology.TriangleList, 0, mesh.Indices.Count));
-            mesh.EnsureTangents();
-            return mesh;
+            var n = Vector3.TransformNormal(new Vector3(0, 0, 1), tranform);
+            normals.Add(n);
+            normals.Add(n);
+            normals.Add(n);
+            normals.Add(n);
+
+            texCoords.Add(uv.Lerp(new Vector2(0, 0)));
+            texCoords.Add(uv.Lerp(new Vector2(1, 0)));
+            texCoords.Add(uv.Lerp(new Vector2(1, 1)));
+            texCoords.Add(uv.Lerp(new Vector2(0, 1)));
+
+            boxAttributes.Indices.Add(startIndex);
+            boxAttributes.Indices.Add(startIndex + 1);
+            boxAttributes.Indices.Add(startIndex + 2);
+            boxAttributes.Indices.Add(startIndex);
+            boxAttributes.Indices.Add(startIndex + 2);
+            boxAttributes.Indices.Add(startIndex + 3);
+            return true;
         }
 
         private static BoundingBox2 FlipY(BoundingBox2 boundingBox2)
@@ -202,14 +203,14 @@ namespace MeshTopologyToolkit.TrimGenerator
 
             if (requestedSize < actualSize)
             {
-                var bevelFactor = MathF.Min(2.0f * bevelSize / actualSize, 0.5f);
+                var bevelFactor = MathF.Min(2.0f * bevelSize / requestedSize, 0.5f);
                 return (1.0f- bevelFactor, bevelFactor);
             }
             else
             {
-                var maxWidth = actualSize - 2.0f * bevelSize;
-                var bevelFactor = MathF.Max(MathF.Min((requestedSize - maxWidth) / actualSize, 0.5f), 0.0f);
-                return (1.0f - bevelFactor, bevelFactor);
+                var fullWidthA = Math.Max(actualSize - 2.0f * bevelSize, bevelSize);
+                var fullWidthB = requestedSize - fullWidthA;
+                return (fullWidthA / requestedSize, fullWidthB / requestedSize);
             }
         }
     }
