@@ -9,7 +9,7 @@ namespace MeshTopologyToolkit
     {
         private Dictionary<MeshAttributeKey, AttributeAndIndices> _attributes = new Dictionary<MeshAttributeKey, AttributeAndIndices>();
 
-        public SeparatedIndexedMesh()
+        public SeparatedIndexedMesh(string? name = null): base(name)
         {
         }
 

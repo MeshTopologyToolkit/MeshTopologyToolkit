@@ -29,13 +29,9 @@ namespace MeshTopologyToolkit.TrimGenerator
             container.AddSingleMeshScene(new MeshReference(mesh, material));
 
             string fileName = output ?? "box.glb";
-            if (!FileFormats.TryWrite(fileName, container))
-            {
-                Console.Error.WriteLine($"Failed to save file {output}");
-                return 1;
-            }
-            return 0;
+            return SaveOutputModel(container, fileName) ? 1 : 0;
         }
+
 
         public static Material BuildMaterial(bool normalMap, bool checkerMap, string? albedo, TrimGenerationArguments args)
         {

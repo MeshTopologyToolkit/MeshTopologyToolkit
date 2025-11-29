@@ -24,6 +24,7 @@ public class ColladaFileFormatTests
     [InlineData("samples.kronos.SimpleSkin.gltf")]
     [InlineData("samples.kronos.VC.glb")]
     [InlineData("samples.primitives.Primitives.glb")]
+    [InlineData("samples.primitives.TangentFaces.glb")]
     public void ReadAndWriteSamples(string fileName)
     {
         var resourceName = this.GetType().Namespace + "." + fileName;

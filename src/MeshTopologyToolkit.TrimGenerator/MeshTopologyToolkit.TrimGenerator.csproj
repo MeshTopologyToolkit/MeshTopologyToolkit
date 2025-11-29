@@ -32,6 +32,7 @@
 		<None Include="docs\**\*" Pack="true" PackagePath="docs\" />
 	</ItemGroup>
 	<ItemGroup>
+		<ProjectReference Include="..\MeshTopologyToolkit.Ase\MeshTopologyToolkit.Ase.csproj" />
 		<ProjectReference Include="..\MeshTopologyToolkit.Collada\MeshTopologyToolkit.Collada.csproj" />
 		<ProjectReference Include="..\MeshTopologyToolkit.Gltf\MeshTopologyToolkit.Gltf.csproj" />
 		<ProjectReference Include="..\MeshTopologyToolkit.Obj\MeshTopologyToolkit.Obj.csproj" />

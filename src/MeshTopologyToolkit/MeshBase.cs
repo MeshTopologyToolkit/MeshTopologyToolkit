@@ -8,8 +8,9 @@ namespace MeshTopologyToolkit
 
         IList<MeshLod> _meshLods = new List<MeshLod>();
 
-        public MeshBase()
+        public MeshBase(string? name = null)
         {
+            Name = name;
             _meshLods.Add(new MeshLod());
         }
 

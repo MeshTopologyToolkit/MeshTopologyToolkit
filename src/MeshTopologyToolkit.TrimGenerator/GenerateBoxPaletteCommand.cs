@@ -72,12 +72,7 @@ namespace MeshTopologyToolkit.TrimGenerator
             }
 
             string fileName = output ?? "box-palette.glb";
-            if (!FileFormats.TryWrite(fileName, container))
-            {
-                Console.Error.WriteLine($"Failed to save file {output}");
-                return 1;
-            }
-            return 0;
+            return SaveOutputModel(container, fileName) ? 1 : 0;
         }
 
         private UnifiedIndexedMesh BuildTubeMesh(TrimGenerationArguments args, TrimRecepie tallestTrim, float innerRadius, float outerRadius)
