@@ -49,6 +49,7 @@ jobs:
         run: |
           mkdir -p output
           dotnet pack "src/MeshTopologyToolkit/" --configuration Release /p:PackageVersion=$BUILD_VERSION --no-build --output ./output
+          dotnet pack "src/MeshTopologyToolkit.Ase/" --configuration Release /p:PackageVersion=$BUILD_VERSION --no-build --output ./output
           dotnet pack "src/MeshTopologyToolkit.Obj/" --configuration Release /p:PackageVersion=$BUILD_VERSION --no-build --output ./output
           dotnet pack "src/MeshTopologyToolkit.Stl/" --configuration Release /p:PackageVersion=$BUILD_VERSION --no-build --output ./output
           dotnet pack "src/MeshTopologyToolkit.Gltf/" --configuration Release /p:PackageVersion=$BUILD_VERSION --no-build --output ./output

@@ -54,7 +54,7 @@ namespace MeshTopologyToolkit.Operators
 
             if (!cache.TryGetValue(value, out var result))
             {
-                result = transform(result);
+                result = transform(value);
                 cache.Add(value, result);
             }
             return result;

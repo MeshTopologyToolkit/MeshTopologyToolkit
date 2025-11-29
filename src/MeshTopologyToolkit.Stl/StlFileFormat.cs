@@ -3,12 +3,28 @@ using System.Text;
 
 namespace MeshTopologyToolkit.Stl
 {
+    /// <summary>
+    /// Provides functionality to read and write Stereolithography (STL) files.
+    /// </summary>
+    /// <remarks>This class supports both binary and ASCII STL file formats. It implements the <see
+    /// cref="IFileFormat"/> interface to provide methods for reading from and writing to STL files.
+    /// </remarks>
     public class StlFileFormat : IFileFormat
     {
+        /// <summary>
+        /// Represents a collection of supported file extensions for the file format.
+        /// </summary>
+        /// <remarks>This static readonly field contains an array of <see cref="SupportedExtension"/>
+        /// objects, each representing a specific file extension that is supported by the class.</remarks>
         static readonly SupportedExtension[] _extensions = new[] {
             new SupportedExtension("Stereolithography .STL", ".stl"),
         };
 
+        /// <summary>
+        /// Represents a collection of supported file extensions for the file format.
+        /// </summary>
+        /// <remarks>This property contains an array of <see cref="SupportedExtension"/>
+        /// objects, each representing a specific file extension that is supported by the class.</remarks>
         public IReadOnlyList<SupportedExtension> SupportedExtensions => _extensions;
 
 

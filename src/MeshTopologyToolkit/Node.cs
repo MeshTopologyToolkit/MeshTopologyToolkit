@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace MeshTopologyToolkit
 {
@@ -52,5 +53,16 @@ namespace MeshTopologyToolkit
                 return $"Node \"{Name}\"";
             return "Node";
         }
+
+        public IEnumerable<Node> VisitAllChildren()
+        {
+            foreach (var child in _children)
+            {
+                yield return child;
+                foreach (var grandChild in child.VisitAllChildren())
+                    yield return grandChild;
+            }
+        }
+
     }
 }

@@ -1,11 +1,9 @@
 ﻿using Cocona;
-using MeshTopologyToolkit.Gltf;
-using MeshTopologyToolkit.Stl;
 using System.Numerics;
 
 namespace MeshTopologyToolkit.TrimGenerator
 {
-    public class GenerateBoxCommand
+    public class GenerateBoxCommand: CommandBase
     {
         [Command("box", Description = "Generate trim normal map from trim height data.")]
         public int Build(
@@ -31,7 +29,7 @@ namespace MeshTopologyToolkit.TrimGenerator
             container.AddSingleMeshScene(new MeshReference(mesh, material));
 
             string fileName = output ?? "box.glb";
-            if (!new FileFormatCollection(new GltfFileFormat(), new StlFileFormat()).TryWrite(fileName, container))
+            if (!FileFormats.TryWrite(fileName, container))
             {
                 Console.Error.WriteLine($"Failed to save file {output}");
                 return 1;

@@ -86,6 +86,11 @@ namespace MeshTopologyToolkit
                     attribute = res;
                     return true;
                 }
+                if (value.Attribute.TryCast<T>(MeshVertexAttributeConverterProvider.Default, out res))
+                {
+                    attribute = res;
+                    return true;
+                }
             }
             attribute = EmptyMeshAttribute<T>.Instance;
             return false;

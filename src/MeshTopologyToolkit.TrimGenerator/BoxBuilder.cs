@@ -1,5 +1,4 @@
-﻿using SharpGLTF.Schema2;
-using System.Numerics;
+﻿using System.Numerics;
 
 namespace MeshTopologyToolkit.TrimGenerator
 {

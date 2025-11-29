@@ -5,7 +5,7 @@ using System.Numerics;
 
 namespace MeshTopologyToolkit.TrimGenerator
 {
-    public class GenerateBoxPaletteCommand
+    public class GenerateBoxPaletteCommand: CommandBase
     {
         [Command("box-palette", Description = "Generate palette of boxes that combine all trim sizes.")]
         public int Build(
@@ -72,7 +72,7 @@ namespace MeshTopologyToolkit.TrimGenerator
             }
 
             string fileName = output ?? "box-palette.glb";
-            if (!new FileFormatCollection(new GltfFileFormat(), new StlFileFormat()).TryWrite(fileName, container))
+            if (!FileFormats.TryWrite(fileName, container))
             {
                 Console.Error.WriteLine($"Failed to save file {output}");
                 return 1;

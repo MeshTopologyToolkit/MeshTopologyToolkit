@@ -1,4 +1,7 @@
-﻿namespace MeshTopologyToolkit
+﻿using System;
+using System.Collections.Generic;
+
+namespace MeshTopologyToolkit
 {
     public class Scene : Node
     {

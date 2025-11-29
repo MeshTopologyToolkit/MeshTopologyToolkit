@@ -1,4 +1,6 @@
-﻿namespace MeshTopologyToolkit.Operators
+﻿using System;
+
+namespace MeshTopologyToolkit.Operators
 {
     public class EnsureNormalsOperator: ContentOperatorBase
     {

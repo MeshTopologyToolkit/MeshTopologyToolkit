@@ -19,6 +19,11 @@ namespace MeshTopologyToolkit
                 From = from;
                 To = to;
             }
+
+            public override string ToString()
+            {
+                return $"{From.Name} -> {To.Name}";
+            }
         }
 
         Dictionary<Key, IMeshVertexAttributeConverter> _converters = new Dictionary<Key, IMeshVertexAttributeConverter> ();
@@ -35,7 +40,8 @@ namespace MeshTopologyToolkit
 
         public bool TryGetConverter<TFrom, TTo>(out IMeshVertexAttributeConverter<TFrom, TTo>? converter)
         {
-            if (_converters.TryGetValue(new Key(typeof(TFrom), typeof(TFrom)), out var value))
+            var key = new Key(typeof(TFrom), typeof(TTo));
+            if (_converters.TryGetValue(key, out var value))
             {
                 converter = (IMeshVertexAttributeConverter<TFrom, TTo>)value;
                 return true;
