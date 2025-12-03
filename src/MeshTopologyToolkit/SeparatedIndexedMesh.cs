@@ -13,6 +13,14 @@ namespace MeshTopologyToolkit
         {
         }
 
+        public SeparatedIndexedMesh(params ValueTuple<MeshAttributeKey, IMeshVertexAttribute, IReadOnlyList<int>>[] attributes) : base()
+        {
+            foreach (var attr in attributes)
+            {
+                _attributes.Add(attr.Item1, new AttributeAndIndices(attr.Item2, attr.Item3));
+            }
+        }
+
         public SeparatedIndexedMesh(IMesh mesh)
         {
             var attributes = mesh.GetAttributeKeys();

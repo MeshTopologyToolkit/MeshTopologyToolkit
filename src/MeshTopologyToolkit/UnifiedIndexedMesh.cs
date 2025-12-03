@@ -14,6 +14,15 @@ namespace MeshTopologyToolkit
         {
         }
 
+        public UnifiedIndexedMesh(IReadOnlyList<int> indices, params ValueTuple<MeshAttributeKey, IMeshVertexAttribute>[] attributes) : base()
+        {
+            _indices.AddRange(indices);
+            foreach (var attr in attributes)
+            {
+                _attributes.Add(attr.Item1, attr.Item2);
+            }
+        }
+
         public UnifiedIndexedMesh(IMesh mesh)
         {
             var attrKeys = mesh.GetAttributeKeys().ToList();
@@ -237,6 +246,12 @@ namespace MeshTopologyToolkit
                 return attr.Count;
             }
             return 0;
+        }
+
+        public UnifiedIndexedMesh WithTriangleList()
+        {
+            DrawCalls.Add(new MeshDrawCall(0, 0, MeshTopology.TriangleList, 0, _indices.Count));
+            return this;
         }
     }
 }

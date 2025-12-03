@@ -72,6 +72,7 @@ namespace MeshTopologyToolkit.Collada
                     new XElement(c + "unit", new XAttribute("name", "meter"), new XAttribute("meter", "1")),
                     new XElement(c + "up_axis", up)
                 ),
+                new XElement(c + "library_images", CreateLibraryImages(content.Textures)),
                 new XElement(c + "library_materials", CreateLibraryMaterials(content.Materials)),
                 new XElement(c + "library_effects", CreateLibraryEffects(content.Materials)),
                 new XElement(c + "library_geometries", CreateLibraryGeometries(content.Meshes))
@@ -110,6 +111,23 @@ namespace MeshTopologyToolkit.Collada
                     new XAttribute("name", material.Name),
                     new XElement(c + "instance_effect",
                         new XAttribute("url", "#" + ToColladaId("effect_" + material.Name))
+                    )
+                );
+            }
+        }
+
+        private IEnumerable<XElement> CreateLibraryImages(IList<Texture> textures)
+        {
+            foreach (var texture in textures)
+            {
+                if (texture?.FileSystemEntry == null)
+                    continue;
+                var mime = Path.GetExtension(texture.FileSystemEntry.Name).ToLowerInvariant().TrimStart('.');
+                yield return new XElement(c + "image",
+                    new XAttribute("id", ToColladaId(Path.GetFileName(texture.FileSystemEntry.Name))),
+                    new XAttribute("name", texture.FileSystemEntry.Name),
+                    new XElement(c + "init_from",
+                        "data:image/" + mime + ";base64," + Convert.ToBase64String(texture.FileSystemEntry.ReadAllBytes())
                     )
                 );
             }

@@ -115,6 +115,12 @@ namespace MeshTopologyToolkit
             return float.IsNaN(val) || float.IsInfinity(val);
         }
 
+        public static Vector3 NextVector3(this Random rnd)
+        {
+            return new Vector3((float)rnd.NextDouble(), (float)rnd.NextDouble(), (float)rnd.NextDouble());
+        }
+        
+
         public static string ReadStringZ(this BinaryReader reader, Encoding? encoding = null)
         {
             var buf = new List<byte>();
