@@ -3,7 +3,7 @@ using Svg.Pathing;
 using System.Drawing;
 using System.Numerics;
 
-namespace MeshTopologyToolkit.SVG
+namespace MeshTopologyToolkit.Svg
 {
     public class SvgFileFormat : IFileFormat
     {

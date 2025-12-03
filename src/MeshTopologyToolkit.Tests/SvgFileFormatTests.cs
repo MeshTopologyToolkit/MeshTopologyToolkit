@@ -1,5 +1,5 @@
 ﻿using MeshTopologyToolkit.Gltf;
-using MeshTopologyToolkit.SVG;
+using MeshTopologyToolkit.Svg;
 
 namespace MeshTopologyToolkit.Tests;
 

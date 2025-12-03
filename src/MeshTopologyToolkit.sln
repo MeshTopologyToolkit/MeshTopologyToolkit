@@ -21,9 +21,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{02EA
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{2D397983-D0B6-4BC7-921F-47F10499F146}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeshTopologyToolkit.BSP", "MeshTopologyToolkit.BSP\MeshTopologyToolkit.BSP.csproj", "{26501AB1-9C41-46C3-B986-11E798F4CC04}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeshTopologyToolkit.Bsp", "MeshTopologyToolkit.Bsp\MeshTopologyToolkit.Bsp.csproj", "{26501AB1-9C41-46C3-B986-11E798F4CC04}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeshTopologyToolkit.SVG", "MeshTopologyToolkit.SVG\MeshTopologyToolkit.SVG.csproj", "{0549F4E2-6D44-4289-BA91-FF298F0AA5BC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeshTopologyToolkit.Svg", "MeshTopologyToolkit.Svg\MeshTopologyToolkit.Svg.csproj", "{0549F4E2-6D44-4289-BA91-FF298F0AA5BC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeshTopologyToolkit.TrimGenerator", "MeshTopologyToolkit.TrimGenerator\MeshTopologyToolkit.TrimGenerator.csproj", "{874C6CCF-4DAA-468C-92F0-3AA2B770449B}"
 EndProject

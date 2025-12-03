@@ -179,7 +179,10 @@ namespace MeshTopologyToolkit
                 {
                     if (!mesh.TryGetAttribute(key, out var attr))
                         continue;
-                    attributeKeySet.Add(key, attr.GetElementType());
+                    if (!attributeKeySet.TryGetValue(key, out var existingType))
+                        attributeKeySet.Add(key, attr.GetElementType());
+                    else if (existingType != attr.GetElementType())
+                        throw new InvalidOperationException($"Cannot merge meshes: attribute type mismatch for key {key.Name}: {existingType.Name} vs {attr.GetElementType().Name}.");
                 }
             }
             attributeKeys = attributeKeySet.Keys.ToList();
@@ -235,6 +238,7 @@ namespace MeshTopologyToolkit
                     mergedMesh.DrawCalls.Add(new MeshDrawCall(drawCall.LodLevel, drawCall.MaterialIndex, drawCall.Type, drawCall.StartIndex + indexOffset, drawCall.NumIndices));
                 }
                 indexOffset += mesh.Indices.Count;
+                vertexOffset += mesh.GetNumVertices();
             }
             return mergedMesh;
         }

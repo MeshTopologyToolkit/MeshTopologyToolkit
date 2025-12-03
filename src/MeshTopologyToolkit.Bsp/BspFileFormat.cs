@@ -1,6 +1,6 @@
-﻿namespace MeshTopologyToolkit.BSP
+﻿namespace MeshTopologyToolkit.Bsp
 {
-    public class BSPFileFormat : IFileFormat
+    public class BspFileFormat : IFileFormat
     {
         static readonly SupportedExtension[] _extensions = new[] {
             new SupportedExtension("Quake BSP", ".bsp"),

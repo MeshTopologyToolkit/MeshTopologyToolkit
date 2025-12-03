@@ -53,7 +53,7 @@ jobs:
           dotnet pack "src/MeshTopologyToolkit.Obj/" --configuration Release /p:PackageVersion=$BUILD_VERSION --no-build --output ./output
           dotnet pack "src/MeshTopologyToolkit.Stl/" --configuration Release /p:PackageVersion=$BUILD_VERSION --no-build --output ./output
           dotnet pack "src/MeshTopologyToolkit.Gltf/" --configuration Release /p:PackageVersion=$BUILD_VERSION --no-build --output ./output
-          dotnet pack "src/MeshTopologyToolkit.SVG/" --configuration Release /p:PackageVersion=$BUILD_VERSION --no-build --output ./output
+          dotnet pack "src/MeshTopologyToolkit.Svg/" --configuration Release /p:PackageVersion=$BUILD_VERSION --no-build --output ./output
           dotnet pack "src/MeshTopologyToolkit.Urho3D/" --configuration Release /p:PackageVersion=$BUILD_VERSION --no-build --output ./output
           dotnet pack "src/MeshTopologyToolkit.TextureFormats/" --configuration Release /p:PackageVersion=$BUILD_VERSION --no-build --output ./output
           dotnet pack "src/MeshTopologyToolkit.TrimGenerator/" --configuration Release /p:PackageVersion=$BUILD_VERSION --no-build --output ./output
