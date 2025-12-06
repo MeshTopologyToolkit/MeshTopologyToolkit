@@ -39,6 +39,14 @@ namespace MeshTopologyToolkit
             _max = max;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BoundingBox3"/> class that encompasses the specified positions.
+        /// </summary>
+        /// <remarks>The bounding box is calculated to be the smallest box that can contain all the
+        /// specified positions.</remarks>
+        /// <param name="positions">A collection of <see cref="Vector3"/> positions to be enclosed by the bounding box. Each position must be a
+        /// valid, finite vector.</param>
+        /// <exception cref="ArgumentException">Thrown if any position in <paramref name="positions"/> is not a valid finite vector.</exception>
         public BoundingBox3(IEnumerable<Vector3> positions)
         {
             _min = Empty.Min;
@@ -96,11 +104,11 @@ namespace MeshTopologyToolkit
         /// <summary>
         /// Returns a new bounding box that contains both this box and the specified point.
         /// </summary>
-        /// <param name="other">The point to include in the resulting box.</param>
-        /// <returns>A bounding box that encloses this box and <paramref name="other"/>.</returns>
-        public BoundingBox3 Merge(Vector3 other)
+        /// <param name="point">The point to include in the resulting box.</param>
+        /// <returns>A bounding box that encloses this box and <paramref name="point"/>.</returns>
+        public BoundingBox3 Merge(Vector3 point)
         {
-            return new BoundingBox3(Vector3.Min(_min, other), Vector3.Max(_max, other));
+            return new BoundingBox3(Vector3.Min(_min, point), Vector3.Max(_max, point));
         }
 
         /// <summary>
