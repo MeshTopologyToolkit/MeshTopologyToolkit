@@ -58,7 +58,7 @@ namespace MeshTopologyToolkit.TrimGenerator
             {
                 if (trimHeight >= 2)
                 {
-                    DrawBevel(pixels, arguments.WidthInPixels, y, trimHeight, Math.Min(arguments.BevelInPixels, trimHeight / 2));
+                    DrawBevel(pixels, arguments.WidthInPixels, y, trimHeight, arguments.BevelInPixels);
                 }
                 y += trimHeight;
             }
@@ -67,6 +67,12 @@ namespace MeshTopologyToolkit.TrimGenerator
 
         private void DrawBevel(Vector3[] pixels, int width, int top, int trimHeight, int bevel)
         {
+            bevel = (int)Math.Min((float)bevel, trimHeight / 4.0f);
+            if (bevel < 1)
+            {
+                return;
+            }
+
             var quaterPi = MathF.PI * 0.25f;
             var corner = Vector3.Normalize(new Vector3(1f, 1f, 1f));
             for (int y = 0; y < trimHeight; ++y)
