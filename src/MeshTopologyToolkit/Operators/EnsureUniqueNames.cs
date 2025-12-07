@@ -26,7 +26,7 @@ namespace MeshTopologyToolkit.Operators
 
         public override Texture Transform(Texture texture)
         {
-            if (texture?.FileSystemEntry != null)
+            if (texture.FileSystemEntry != null)
             {
                 //texture.FileSystemEntry.Name = GetUniqueName(existingNames, string.IsNullOrEmpty(texture.FileSystemEntry.Name) ? "Texture" : texture.FileSystemEntry.Name);
             }

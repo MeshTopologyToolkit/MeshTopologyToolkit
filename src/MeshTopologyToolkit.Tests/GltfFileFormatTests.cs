@@ -211,7 +211,7 @@ public class GltfFileFormatTests
             var srcTangents = srcMesh.GetAttribute<Vector4>(MeshAttributeKey.Tangent);
             var testTangents = testMesh.GetAttribute<Vector4>(MeshAttributeKey.Tangent);
 
-            for (int index=0; index<srcTangents.Count; ++index)
+            for (int index = 0; index < srcTangents.Count; ++index)
             {
                 var srcTangent = srcTangents[index];
                 var testTangent = testTangents[index];
@@ -294,7 +294,7 @@ public class GltfFileFormatTests
         Assert.True(fileFormat.TryRead(StreamFileSystemEntry.FromEmbeddedResource(resourceName), out var content));
         Assert.NotNull(content);
 
-        foreach (var mesh in content.Meshes.Where(_=>_.Name == meshName))
+        foreach (var mesh in content.Meshes.Where(_ => _.Name == meshName))
         {
             _testOutput.WriteLine($"public static IMesh Build{mesh.Name}(float size)");
             _testOutput.WriteLine("{");
@@ -312,7 +312,7 @@ public class GltfFileFormatTests
                     foreach (var pos in vec3Attr)
                     {
                         var adjPos = pos * scale;
-                        _testOutput.WriteLine($"        values.Add(new Vector3({adjPos.X}f, {adjPos.Y}f, {adjPos.Z}f){(scaled ? " * radius":"")});");
+                        _testOutput.WriteLine($"        values.Add(new Vector3({adjPos.X}f, {adjPos.Y}f, {adjPos.Z}f){(scaled ? " * radius" : "")});");
                     }
                 }
                 else if (positions is IMeshVertexAttribute<Vector4> vec4Attr)
@@ -466,7 +466,7 @@ public class GltfFileFormatTests
                 mesh = Shapes.BuildSphere(3);
                 break;
             case "torus":
-                mesh = Shapes.BuildTorus(32,12,0.5f);
+                mesh = Shapes.BuildTorus(32, 12, 0.5f);
                 break;
             default:
                 throw new NotImplementedException();
@@ -481,6 +481,6 @@ public class GltfFileFormatTests
         scene.AddChild(node);
         content.Scenes.Add(scene);
         var fileFormat = new GltfFileFormat();
-        fileFormat.TryWrite(new FileSystemEntry(type +".glb"), content);
+        fileFormat.TryWrite(new FileSystemEntry(type + ".glb"), content);
     }
 }

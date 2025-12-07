@@ -9,7 +9,7 @@ public class RTree3Tests
     {
         float boxHalfSize = 0.1f;
         var tree = new RTree3();
-        for (int i = 0; i < tree.MaxEntries+2; ++i)
+        for (int i = 0; i < tree.MaxEntries + 2; ++i)
         {
             tree.Insert(new BoundingBox3(Vector3.UnitX * i, boxHalfSize));
         }
@@ -26,7 +26,7 @@ public class RTree3Tests
         float weldRadius = 0.1f;
         var tree = new RTree3();
         var rnd = new Random(12345);
-        for (int i=0; i<1000; ++i)
+        for (int i = 0; i < 1000; ++i)
         {
             tree.Insert(new BoundingBox3(
                 new Vector3(
@@ -47,7 +47,7 @@ public class RTree3Tests
             }
         }
 
-        var leaves = GetLeavesWithDepth(tree._root!, 0).OrderBy(_=>_.Item1).ToList();
+        var leaves = GetLeavesWithDepth(tree._root!, 0).OrderBy(_ => _.Item1).ToList();
 
         Assert.DoesNotContain(leaves, _ => _.Item1 != 3);
     }
@@ -88,3 +88,4 @@ public class RTree3Tests
         }
     }
 }
+

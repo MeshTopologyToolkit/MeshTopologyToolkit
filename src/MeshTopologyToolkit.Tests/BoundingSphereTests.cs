@@ -14,15 +14,15 @@ public class BoundingSphereTests
     [Fact]
     public void SphereFromSinglePosition()
     {
-        var boundingShere = BoundingSphere.RittersBoundingSphere(new Vector3[] { Vector3.UnitY});
+        var boundingShere = BoundingSphere.RittersBoundingSphere(new Vector3[] { Vector3.UnitY });
         Assert.Equal(new BoundingSphere(Vector3.UnitY, 0.0f), boundingShere);
     }
 
     [Fact]
     public void SphereFromTwoPositions()
     {
-        var boundingShere = BoundingSphere.RittersBoundingSphere(new Vector3[] { Vector3.UnitY , 3.0f*Vector3.UnitY });
-        Assert.Equal(new BoundingSphere(Vector3.UnitY*2.0f, 1.0f), boundingShere);
+        var boundingShere = BoundingSphere.RittersBoundingSphere(new Vector3[] { Vector3.UnitY, 3.0f * Vector3.UnitY });
+        Assert.Equal(new BoundingSphere(Vector3.UnitY * 2.0f, 1.0f), boundingShere);
     }
 
     [Fact]

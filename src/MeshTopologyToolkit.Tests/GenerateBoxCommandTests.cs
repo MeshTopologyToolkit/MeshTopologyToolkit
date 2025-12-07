@@ -9,7 +9,7 @@ public class GenerateBoxCommandTests
     public void ExactMatchToRecepie()
     {
         var command = new GenerateBoxCommand();
-        var args = new TrimGenerationArguments(new int[] { 8,16,32,64,128,256,448}, width: 1024, bevelInPixels: 8, widthInUnits: 5, uvOffsetInPixels: 0.5f);
+        var args = new TrimGenerationArguments(new int[] { 8, 16, 32, 64, 128, 256, 448 }, width: 1024, bevelInPixels: 8, widthInUnits: 5, uvOffsetInPixels: 0.5f);
         for (int i = 0; i < args.TrimRecepies.Count; ++i)
         {
             var expectedRecepie = args.TrimRecepies[i];
@@ -18,7 +18,7 @@ public class GenerateBoxCommandTests
 
             var bbox = new BoundingBox3(mesh.Positions);
             var size = bbox.Max - bbox.Min;
-            Assert.True((size-new Vector3(expectedRecepie.SizeInUnits.X, expectedRecepie.SizeInUnits.Y, 0.0f)).Length() < 1e-6f);
+            Assert.True((size - new Vector3(expectedRecepie.SizeInUnits.X, expectedRecepie.SizeInUnits.Y, 0.0f)).Length() < 1e-6f);
 
             var uvBox = new BoundingBox2(mesh.TexCoords);
             var uvSize = uvBox.Max - uvBox.Min;
@@ -76,7 +76,7 @@ public class GenerateBoxCommandTests
                 var uvBox1 = new BoundingBox2(mesh.TexCoords.Take(4));
                 var uvSize1 = (uvBox1.Max - uvBox1.Min);
                 var uvSizeInPixels1 = uvSize1 / args.PixelsToUV;
-                Assert.Equal(expectedRecepie.BevelSizeInPixels*2, (int)uvSizeInPixels1.X);
+                Assert.Equal(expectedRecepie.BevelSizeInPixels * 2, (int)uvSizeInPixels1.X);
 
                 var uvBox2 = new BoundingBox2(mesh.TexCoords.Skip(4));
                 var uvSize2 = (uvBox2.Max - uvBox2.Min);
