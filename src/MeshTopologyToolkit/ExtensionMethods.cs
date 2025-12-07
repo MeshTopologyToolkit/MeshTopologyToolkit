@@ -110,6 +110,11 @@ namespace MeshTopologyToolkit
             return val.X.IsNanOrInf() || val.Y.IsNanOrInf() || val.Z.IsNanOrInf() || val.W.IsNanOrInf();
         }
 
+        public static bool IsNanOrInf(this double val)
+        {
+            return double.IsNaN(val) || double.IsInfinity(val);
+        }
+
         public static bool IsNanOrInf(this float val)
         {
             return float.IsNaN(val) || float.IsInfinity(val);
