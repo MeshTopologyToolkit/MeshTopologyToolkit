@@ -151,6 +151,21 @@ namespace MeshTopologyToolkit
             return result;
         }
 
+        /// <summary>
+        /// Build 
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <param name="c"></param>
+        /// <param name="d"></param>
+        public void BuildEnclosingTetrahedron(out Vector3 a, out Vector3 b, out Vector3 c, out Vector3 d)
+        {
+            a = new Vector3(3, 3, 3) * Radius;
+            b = new Vector3(3, -3, -3) * Radius;
+            c = new Vector3(-3, 3, -3) * Radius;
+            d = new Vector3(-3, -3, 3) * Radius;
+        }
+
         /// <inheritdoc/>
         public override bool Equals(object? obj)
         {

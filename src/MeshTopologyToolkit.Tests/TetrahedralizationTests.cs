@@ -108,6 +108,13 @@ public class TetrahedralizationTests
             Assert.True(count <= 1, $"Position {pos} is inside of {count} tetrahedrons");
         }
 
+        foreach (var tetrahedron in tetrahedrons)
+        {
+            var pos = tetrahedron.Position;
+            var count = tetrahedrons.Where(_ => _.DotCoordinate(pos) > 1e-6f).Count();
+            Assert.True(count == 1, $"Position {pos} is inside of {count} tetrahedrons");
+        }
+
         var fileFormat = new GltfFileFormat();
         fileFormat.TryWrite(new FileSystemEntry($"Tetrahedralization{numVertices}.glb"), content);
     }
@@ -146,7 +153,7 @@ public class TetrahedralizationTests
 
                 var n = Vector3.Cross(_vertices[face[1]] - _vertices[face[0]], _vertices[face[2]] - _vertices[face[0]]);
                 var nl = n.Length();
-                Assert.True(nl > 1e-6f, "Empty tetrahedrons should be eliminated by algorithm");
+                Assert.True(nl > 1e-6f, "Empty tetrahedrons should be eliminated by the algorithm");
                 n = Vector3.Normalize(n);
                 if (Vector3.Dot(n, _vertices[face[0]]) < 0.0f)
                 {
@@ -175,7 +182,7 @@ public class TetrahedralizationTests
 
         public float DotCoordinate(Vector3 pos)
         {
-            return _planes.Select(p => Plane.DotCoordinate(p, pos + _position)).Min();
+            return _planes.Select(p => Plane.DotCoordinate(p, pos - _position)).Min();
         }
     }
 

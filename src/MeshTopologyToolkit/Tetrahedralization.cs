@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Numerics;
 
@@ -17,11 +16,16 @@ namespace MeshTopologyToolkit
             // Cached geometric properties
             public double CircumRadiusSq { get; private set; }
             public Vector3d CircumCenter { get; private set; }
+#if DEBUG
+            public double Volume { get; private set; }
+#endif
 
             public Tetrahedron(int v1, int v2, int v3, int v4, IReadOnlyList<Vector3d> positions)
             {
+#if DEBUG
                 if (v1 == v2 || v1 == v3 || v1 == v4 || v2 == v3 || v2 == v4 || v3 == v4) 
                     throw new ArgumentException("Invalid set of vertices");
+#endif
 
                 // Ensure canonical ordering (optional, but helpful for debugging/uniqueness)
                 A = v1; B = v2; C = v3; D = v4;
@@ -70,6 +74,9 @@ namespace MeshTopologyToolkit
 
                 var radiusNum = u2u3 * d01 + u3u1 * d02 + u1u2 * d03;
                 double radiusDen = 2 * Vector3d.Dot(u1, u2u3);
+#if DEBUG
+                Volume = Math.Abs(Vector3d.Dot(u1, u2u3)) / 6.0f;
+#endif
 
                 if (Math.Abs(radiusDen) < 1e-6)
                 {
@@ -107,14 +114,12 @@ namespace MeshTopologyToolkit
             }
         }
 
-        // --- Core Algorithm ---
-
         /// <summary>
         /// Performs the Delaunay Tetrahedralization using the Bowyer-Watson algorithm.
         /// </summary>
         /// <param name="inputPoints">The list of vertices to triangulate.</param>
         /// <returns>A list of Delaunay tetrahedra.</returns>
-        public List<Tetrahedron> Generate(IReadOnlyCollection<Vector3> positions)
+        public List<Tetrahedron> Generate(IReadOnlyList<Vector3> positions)
         {
             if (positions == null || positions.Count < 4)
             {
@@ -126,7 +131,7 @@ namespace MeshTopologyToolkit
 
             // Create a "Super-Tetrahedron" that bounds all input points.
             // The vertices of this super-tetrahedron will be removed at the end.
-            var superTetra = CreateSuperTetrahedron(inputPoints);
+            var superTetra = CreateSuperTetrahedron(inputPoints, BoundingSphere.RittersBoundingSphere(positions));
             var tetrahedra = new List<Tetrahedron> { superTetra };
 
             // Incrementally add each point
@@ -144,10 +149,18 @@ namespace MeshTopologyToolkit
                 }
 
                 // If no bad tetrahedra, the point is already outside the existing circumspheres
-                if (badTetrahedra.Count == 0) continue;
+                if (badTetrahedra.Count == 0)
+                {
+                    continue;
+                }
 
                 // Find the boundary of the cavity (the "bad" region)
                 var boundaryFaces = FindBoundary(badTetrahedra);
+
+#if DEBUG
+                var totalBadVolume = badTetrahedra.Sum(_ => _.Volume);
+                var actualVolume = 0.0;
+#endif
 
                 // Remove the bad tetrahedra from the main list
                 foreach (var t in badTetrahedra)
@@ -161,9 +174,22 @@ namespace MeshTopologyToolkit
                 {
                     // A face is a list of 3 vertices (vA, vB, vC)
                     var newTetra = new Tetrahedron(p, face.A, face.B, face.C, inputPoints);
-                    //if (!double.IsNaN(newTetra.CircumRadiusSq))
+                    if (!double.IsNaN(newTetra.CircumRadiusSq))
                         tetrahedra.Add(newTetra);
+                    else
+                    {
+                        newTetra = newTetra;
+                    }    
+#if DEBUG
+                        actualVolume += newTetra.Volume;
+#endif
                 }
+#if DEBUG
+                if (Math.Abs(actualVolume - totalBadVolume)>1e-6)
+                {
+                    throw new Exception("Something went wrong");
+                }
+#endif
             }
 
             // 3. Remove all tetrahedra that reference any of the super-tetrahedron's vertices.
@@ -298,29 +324,43 @@ namespace MeshTopologyToolkit
         /// Creates a large tetrahedron encompassing all points.
         /// </summary>
         /// <returns>A tuple containing the super-tetrahedron and a stating index of super tetrahedron.</returns>
-        private Tetrahedron CreateSuperTetrahedron(IList<Vector3d> points)
+        private Tetrahedron CreateSuperTetrahedron(IList<Vector3d> points, BoundingSphere sphere)
         {
-            // Determine the bounding box of the input points (using float components from Position)
-            double minX = points.Min(p => p.X), maxX = points.Max(p => p.X);
-            double minY = points.Min(p => p.Y), maxY = points.Max(p => p.Y);
-            double minZ = points.Min(p => p.Z), maxZ = points.Max(p => p.Z);
-
-            // Calculations still use double for intermediate steps
-            var range = Math.Max(maxX - minX, Math.Max(maxY - minY, maxZ - minZ));
-            var center = (minX + maxX + minY + maxY + minZ + maxZ) / 6.0;
-            var big = range * 1000.0; // A sufficiently large value
+            sphere.BuildEnclosingTetrahedron(out var a, out var b, out var c, out var d);
 
             // Define four vertices of a tetrahedron large enough to contain the bounding box
             // Using large, unique IDs (negative) to ensure they don't clash with user points.
             int superIdStart = points.Count;
-            points.Add(new Vector3d(center, center, center + big));
-            points.Add(new Vector3d(center + big, center - big, center - big));
-            points.Add(new Vector3d(center - big, center + big, center - big));
-            points.Add(new Vector3d(center - big, center - big, center + big));
+            points.Add(new Vector3d(a));
+            points.Add(new Vector3d(b));
+            points.Add(new Vector3d(c));
+            points.Add(new Vector3d(d));
 
-            var superTetra = new Tetrahedron(superIdStart, superIdStart+1, superIdStart+2, superIdStart+3, (IReadOnlyList<Vector3d>)points);
+            var superTetra = new Tetrahedron(superIdStart, superIdStart + 1, superIdStart + 2, superIdStart + 3, (IReadOnlyList<Vector3d>)points);
 
             return superTetra;
+
+            //// Determine the bounding box of the input points (using float components from Position)
+            //double minX = points.Min(p => p.X), maxX = points.Max(p => p.X);
+            //double minY = points.Min(p => p.Y), maxY = points.Max(p => p.Y);
+            //double minZ = points.Min(p => p.Z), maxZ = points.Max(p => p.Z);
+
+            //// Calculations still use double for intermediate steps
+            //var range = Math.Max(maxX - minX, Math.Max(maxY - minY, maxZ - minZ));
+            //var center = (minX + maxX + minY + maxY + minZ + maxZ) / 6.0;
+            //var big = range * 1000.0; // A sufficiently large value
+
+            //// Define four vertices of a tetrahedron large enough to contain the bounding box
+            //// Using large, unique IDs (negative) to ensure they don't clash with user points.
+            //int superIdStart = points.Count;
+            //points.Add(new Vector3d(center, center, center + big));
+            //points.Add(new Vector3d(center + big, center - big, center - big));
+            //points.Add(new Vector3d(center - big, center + big, center - big));
+            //points.Add(new Vector3d(center - big, center - big, center + big));
+
+            //var superTetra = new Tetrahedron(superIdStart, superIdStart+1, superIdStart+2, superIdStart+3, (IReadOnlyList<Vector3d>)points);
+
+            //return superTetra;
         }
     }
 }
