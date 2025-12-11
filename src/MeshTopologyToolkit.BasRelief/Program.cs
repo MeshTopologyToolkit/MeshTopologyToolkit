@@ -7,6 +7,7 @@ namespace MeshTopologyToolkit.BasRelief
         {
             CoconaLiteApp.Run(new[] {
                 typeof(GenerateBasRelief),
+                typeof(GenerateRing),
             });
 
             return 0;
