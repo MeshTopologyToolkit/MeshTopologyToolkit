@@ -309,5 +309,127 @@ namespace MeshTopologyToolkit
             return mesh;
 
         }
+
+        private const int Degree = 3; // Standard cubic Bezier patches
+
+        /// <summary>
+        /// Calculates the 3rd degree Bernstein basis polynomial B_i,3(t).
+        /// </summary>
+        private static float BernsteinBasis(int i, float t)
+        {
+            switch (i)
+            {
+                case 0: return (1 - t) * (1 - t) * (1 - t);
+                case 1: return 3 * t * (1 - t) * (1 - t);
+                case 2: return 3 * t * t * (1 - t);
+                case 3: return t * t * t;
+                default: return 0;
+            }
+        }
+
+        /// <summary>
+        /// Calculates the derivative of the 3rd degree Bernstein basis polynomial B_i,3'(t).
+        /// </summary>
+        private static float BernsteinDerivative(int i, float t)
+        {
+            // d/dt [ B_i,n(t) ] = n * [ B_{i-1,n-1}(t) - B_{i,n-1}(t) ]
+            // Since B_{j,n} = 0 if j < 0 or j > n, we handle boundaries.
+            float B_prev = (i > 0) ? BernsteinBasis(i - 1, t) : 0f;
+            float B_curr = (i < Degree) ? BernsteinBasis(i, t) : 0f;
+            return Degree * (B_prev - B_curr);
+        }
+
+        public static IMesh BuildQuadPatch(IReadOnlyList<Vector3> controlPoints, int steps, ShapeGenerationOptions? options = null)
+        {
+            if (controlPoints == null || controlPoints.Count != 16)
+                throw new ArgumentException("Quad Bezier patch requires exactly 16 control points (4x4).");
+
+            options = options ?? new ShapeGenerationOptions();
+
+            var data = new UnifiedIndexedMesh();
+            var Positions = new ListMeshVertexAttribute<Vector3>((steps + 1) * (steps + 1));
+            var Normals = new ListMeshVertexAttribute<Vector3>((steps + 1) * (steps + 1));
+            data.AddAttribute(MeshAttributeKey.Position, Positions);
+            if (options.Mask.HasFlag(MeshAttributeMask.Normal))
+                data.AddAttribute(MeshAttributeKey.Normal, Normals);
+            float stepSize = 1f / steps;
+
+            // 1. Calculate Positions and Normals
+            for (int i = 0; i <= steps; i++)
+            {
+                float u = i * stepSize;
+                for (int j = 0; j <= steps; j++)
+                {
+                    float v = j * stepSize;
+
+                    Vector3 position = new Vector3(0, 0, 0);
+                    Vector3 tangentU = new Vector3(0, 0, 0);
+                    Vector3 tangentV = new Vector3(0, 0, 0);
+
+                    // Sum over all 16 control points
+                    for (int m = 0; m <= Degree; m++) // u-axis basis
+                    {
+                        float Bu = BernsteinBasis(m, u);
+                        float dBu = BernsteinDerivative(m, u);
+
+                        for (int n = 0; n <= Degree; n++) // v-axis basis
+                        {
+                            int cpIndex = m * 4 + n; // Index into the 1D array
+                            Vector3 C = controlPoints[cpIndex];
+                            float Bv = BernsteinBasis(n, v);
+                            float dBv = BernsteinDerivative(n, v);
+
+                            // P(u,v) = Sum_m Sum_n ( B_m,3(u) * B_n,3(v) * C_mn )
+                            float weight = Bu * Bv;
+                            position += C * weight;
+
+                            // dP/du = Sum_m Sum_n ( B'_m,3(u) * B_n,3(v) * C_mn )
+                            float weightU = dBu * Bv;
+                            tangentU += C * weightU;
+
+                            // dP/dv = Sum_m Sum_n ( B_m,3(u) * B'_n,3(v) * C_mn )
+                            float weightV = Bu * dBv;
+                            tangentV += C * weightV;
+                        }
+                    }
+
+                    Positions.Add(position);
+
+                    // Normal is the normalized cross product of the tangents
+                    Vector3 normal = Vector3.Normalize(Vector3.Cross(tangentU, tangentV));
+                    if (normal.IsNanOrInf())
+                    {
+                        //throw new Exception();
+                    }
+                    Normals.Add(normal);
+                }
+            }
+
+            // 2. Generate Face Indices (Quads into two triangles)
+            int numVerticesPerSide = steps + 1;
+            for (int i = 0; i < steps; i++)
+            {
+                for (int j = 0; j < steps; j++)
+                {
+                    int i0 = i * numVerticesPerSide + j;
+                    int i1 = i0 + 1;
+                    int i2 = (i + 1) * numVerticesPerSide + j;
+                    int i3 = i2 + 1;
+
+                    // Triangle 1 (i0, i2, i1)
+                    data.Indices.Add(i0);
+                    data.Indices.Add(i1);
+                    data.Indices.Add(i2);
+
+                    // Triangle 2 (i1, i2, i3)
+                    data.Indices.Add(i1);
+                    data.Indices.Add(i3);
+                    data.Indices.Add(i2);
+                }
+            }
+            data.WithTriangleList();
+
+            return data;
+        }
     }
 }

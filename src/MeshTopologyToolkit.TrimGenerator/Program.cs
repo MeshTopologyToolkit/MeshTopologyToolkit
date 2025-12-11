@@ -14,6 +14,5 @@ namespace MeshTopologyToolkit.TrimGenerator
 
             return 0;
         }
-
     }
 }

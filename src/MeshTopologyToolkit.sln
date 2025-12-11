@@ -40,6 +40,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeshTopologyToolkit.Ase", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeshTopologyToolkit.Off", "MeshTopologyToolkit.Off\MeshTopologyToolkit.Off.csproj", "{4771F088-173A-4291-8601-A25CF5198A14}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeshTopologyToolkit.BasRelief", "MeshTopologyToolkit.BasRelief\MeshTopologyToolkit.BasRelief.csproj", "{7672BB49-4A55-4926-9E92-0E3BC54C96E4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -102,6 +104,10 @@ Global
 		{4771F088-173A-4291-8601-A25CF5198A14}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4771F088-173A-4291-8601-A25CF5198A14}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4771F088-173A-4291-8601-A25CF5198A14}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7672BB49-4A55-4926-9E92-0E3BC54C96E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7672BB49-4A55-4926-9E92-0E3BC54C96E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7672BB49-4A55-4926-9E92-0E3BC54C96E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7672BB49-4A55-4926-9E92-0E3BC54C96E4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -121,6 +127,7 @@ Global
 		{0F476AA4-E08E-4E78-B2E7-2EFD12FD593E} = {2D397983-D0B6-4BC7-921F-47F10499F146}
 		{FBDF0E07-6E37-47D9-945D-2ABFD286B067} = {2D397983-D0B6-4BC7-921F-47F10499F146}
 		{4771F088-173A-4291-8601-A25CF5198A14} = {2D397983-D0B6-4BC7-921F-47F10499F146}
+		{7672BB49-4A55-4926-9E92-0E3BC54C96E4} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {77388166-23D8-4103-BC76-F7EA4C9033BF}
