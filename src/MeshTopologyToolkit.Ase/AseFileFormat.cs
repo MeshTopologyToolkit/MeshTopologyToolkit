@@ -142,7 +142,7 @@ namespace MeshTopologyToolkit.Ase
                                             var a = normal[normalIndices[face.A]];
                                             var b = normal[normalIndices[face.B]];
                                             var c = normal[normalIndices[face.C]];
-                                            var faceNormal = Vector3.Normalize(a+b+c);
+                                            var faceNormal = Vector3.Normalize(a + b + c);
                                             sb.WriteLine($"\t\t\t*MESH_FACENORMAL {faceIndex} {faceNormal.X:0.####} {faceNormal.Y:0.####} {faceNormal.Z:0.####}");
                                             sb.WriteLine($"\t\t\t\t*MESH_VERTEXNORMAL {positionIndices[face.A]} {a.X:0.####} {a.Y:0.####} {a.Z:0.####}");
                                             sb.WriteLine($"\t\t\t\t*MESH_VERTEXNORMAL {positionIndices[face.B]} {b.X:0.####} {b.Y:0.####} {b.Z:0.####}");

@@ -10,7 +10,7 @@ namespace MeshTopologyToolkit
         private Dictionary<MeshAttributeKey, IMeshVertexAttribute> _attributes = new Dictionary<MeshAttributeKey, IMeshVertexAttribute>();
         private List<int> _indices = new List<int>();
 
-        public UnifiedIndexedMesh(string? name = null): base(name)
+        public UnifiedIndexedMesh(string? name = null) : base(name)
         {
         }
 

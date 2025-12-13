@@ -5,7 +5,7 @@ using System.Numerics;
 
 namespace MeshTopologyToolkit
 {
-    public class MeshVertexAttributeAdapter<TFrom, TTo>: IMeshVertexAttribute<TTo> where TFrom : notnull where TTo: notnull
+    public class MeshVertexAttributeAdapter<TFrom, TTo> : IMeshVertexAttribute<TTo> where TFrom : notnull where TTo : notnull
     {
         IMeshVertexAttribute<TFrom> _source;
         IMeshVertexAttributeConverter<TFrom, TTo> _converter;
@@ -34,6 +34,9 @@ namespace MeshTopologyToolkit
 
         public IMeshVertexAttribute Compact(float weldRadius, out IReadOnlyList<int> indexMap)
         {
+            if (weldRadius <= 0.0f)
+                return Compact(out indexMap);
+
             var map = new int[Count];
             indexMap = map;
 

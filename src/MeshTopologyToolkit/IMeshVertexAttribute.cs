@@ -15,13 +15,12 @@ namespace MeshTopologyToolkit
         IMeshVertexAttribute Compact(out IReadOnlyList<int> indexMap);
 
         /// <summary>
-        /// Converts attribute to <see cref="RTree*MeshVertexAttribute<T>"/> or <see cref="DictionaryMeshVertexAttribute<T>"/> and provides mapping from original indices to new indices.
+        /// Converts attribute to <see cref="RTree2MeshVertexAttribute<T>"/>, <see cref="RTree3MeshVertexAttribute<T>"/> or <see cref="DictionaryMeshVertexAttribute<T>"/> and provides mapping from original indices to new indices.
         /// </summary>
         /// <param name="weldRadius">Weld radius for values. Only used if RTree is created.</param>
         /// <param name="indexMap">Map from original indices to new indices.</param>
-        /// <returns>New instance of <see cref="RTree*MeshVertexAttribute<T>"/> or <see cref="DictionaryMeshVertexAttribute<T>"/></returns>
+        /// <returns>New instance of RTree*MeshVertexAttribute<T> or <see cref="DictionaryMeshVertexAttribute<T>"/></returns>
         IMeshVertexAttribute Compact(float weldRadius, out IReadOnlyList<int> indexMap);
-
 
         /// <summary>
         /// Create new vertex attribute container by remapping values according to the given index map.
@@ -51,7 +50,7 @@ namespace MeshTopologyToolkit
         int Count { get; }
     }
 
-    public interface IMeshVertexAttribute<T>: IMeshVertexAttribute, IReadOnlyList<T> where T : notnull
+    public interface IMeshVertexAttribute<T> : IMeshVertexAttribute, IReadOnlyList<T> where T : notnull
     {
         int Add(T value);
 

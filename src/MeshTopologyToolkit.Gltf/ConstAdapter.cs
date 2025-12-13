@@ -2,7 +2,7 @@
 
 namespace MeshTopologyToolkit.Gltf
 {
-    public class ConstAdapter<T> : IAccessorAdapter where T: notnull
+    public class ConstAdapter<T> : IAccessorAdapter where T : notnull
     {
         private T _value;
 

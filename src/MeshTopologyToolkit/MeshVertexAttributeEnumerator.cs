@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace MeshTopologyToolkit
 {
-    internal class MeshVertexAttributeEnumerator<T>: IEnumerator<T> where T : notnull
+    internal class MeshVertexAttributeEnumerator<T> : IEnumerator<T> where T : notnull
     {
         IMeshVertexAttribute<T> _values;
         int _index;

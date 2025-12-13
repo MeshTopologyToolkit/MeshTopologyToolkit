@@ -5,7 +5,7 @@ using System.Numerics;
 
 namespace MeshTopologyToolkit
 {
-    public class MeshVertexAttributeConverterProvider: IMeshVertexAttributeConverterProvider
+    public class MeshVertexAttributeConverterProvider : IMeshVertexAttributeConverterProvider
     {
         public static readonly MeshVertexAttributeConverterProvider Default = new MeshVertexAttributeConverterProvider();
 
@@ -26,7 +26,7 @@ namespace MeshTopologyToolkit
             }
         }
 
-        Dictionary<Key, IMeshVertexAttributeConverter> _converters = new Dictionary<Key, IMeshVertexAttributeConverter> ();
+        Dictionary<Key, IMeshVertexAttributeConverter> _converters = new Dictionary<Key, IMeshVertexAttributeConverter>();
 
         public MeshVertexAttributeConverterProvider()
         {

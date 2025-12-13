@@ -179,7 +179,7 @@ namespace MeshTopologyToolkit.Urho3D
                                     finalMesh.Indices.Add(index);
                                 }
 
-                                finalMesh.DrawCalls.Add(new MeshDrawCall((int)lodLevelIndex, (int)geometryIndex, GetPrimType(primitiveType), drawCallStartIndex, finalMesh.Indices.Count-drawCallStartIndex ));
+                                finalMesh.DrawCalls.Add(new MeshDrawCall((int)lodLevelIndex, (int)geometryIndex, GetPrimType(primitiveType), drawCallStartIndex, finalMesh.Indices.Count - drawCallStartIndex));
                             }
                         }
                     }
@@ -252,35 +252,39 @@ namespace MeshTopologyToolkit.Urho3D
             var ms = new MemoryStream(buffer);
             var reader = new BinaryReader(ms);
 
-            IMeshVertexAttribute<T> ReadSparseList<T>(Func<T> read) where T:notnull
+            IMeshVertexAttribute<T> ReadSparseList<T>(Func<T> read) where T : notnull
             {
                 var attr = new ListMeshVertexAttribute<T>();
-                for (int i=0; i<vertexCount; ++i)
+                for (int i = 0; i < vertexCount; ++i)
                 {
-                    var pos = vertexSize*i + element.Offset;
+                    var pos = vertexSize * i + element.Offset;
                     ms.Seek(pos, SeekOrigin.Begin);
                     attr.Add(read());
                 }
                 return attr;
-            };
+            }
+            ;
 
             switch (element.Type)
             {
                 case VertexElementType.TYPE_VECTOR2:
-                    return ReadSparseList<Vector2>(() => {
+                    return ReadSparseList<Vector2>(() =>
+                    {
                         var x = reader.ReadSingle();
                         var y = reader.ReadSingle();
                         return new Vector2(x, y);
                     });
                 case VertexElementType.TYPE_VECTOR3:
-                    return ReadSparseList<Vector3>(() => {
+                    return ReadSparseList<Vector3>(() =>
+                    {
                         var x = reader.ReadSingle();
                         var y = reader.ReadSingle();
                         var z = reader.ReadSingle();
                         return new Vector3(x, y, z);
                     });
                 case VertexElementType.TYPE_VECTOR4:
-                    return ReadSparseList<Vector4>(() => {
+                    return ReadSparseList<Vector4>(() =>
+                    {
                         var x = reader.ReadSingle();
                         var y = reader.ReadSingle();
                         var z = reader.ReadSingle();
@@ -288,7 +292,8 @@ namespace MeshTopologyToolkit.Urho3D
                         return new Vector4(x, y, z, w);
                     });
                 case VertexElementType.TYPE_UBYTE4:
-                    return ReadSparseList<Vector4>(() => {
+                    return ReadSparseList<Vector4>(() =>
+                    {
                         var x = reader.ReadByte();
                         var y = reader.ReadByte();
                         var z = reader.ReadByte();

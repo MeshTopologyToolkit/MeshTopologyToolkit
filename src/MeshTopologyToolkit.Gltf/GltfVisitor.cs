@@ -29,7 +29,7 @@ namespace MeshTopologyToolkit.Gltf
 
         public void Visit(SharpGLTF.Schema2.ModelRoot? modelRoot)
         {
-            if (modelRoot == null) 
+            if (modelRoot == null)
                 return;
 
             foreach (var mesh in modelRoot.LogicalMeshes)
@@ -275,7 +275,7 @@ namespace MeshTopologyToolkit.Gltf
             meshRef = new MeshReference(mesh);
 
             Dictionary<string, AccessorAdapter> meshAdapters = new Dictionary<string, AccessorAdapter>();
-            
+
             int numIndices = 0;
 
             for (int primitiveIndex = 0; primitiveIndex < sourceMesh.Primitives.Count; primitiveIndex++)
@@ -329,7 +329,7 @@ namespace MeshTopologyToolkit.Gltf
 
                 int pimStartIndex = numIndices;
                 var primIndexAccessor = prim.GetIndexAccessor();
-                IReadOnlyList<uint> indexAccessor = (primIndexAccessor != null)? primIndexAccessor.AsIndicesArray() : Enumerable.Range(0, prim.GetVertexAccessor("POSITION").Count).Select(_=>(uint)_).ToList();
+                IReadOnlyList<uint> indexAccessor = (primIndexAccessor != null) ? primIndexAccessor.AsIndicesArray() : Enumerable.Range(0, prim.GetVertexAccessor("POSITION").Count).Select(_ => (uint)_).ToList();
                 foreach (var primIndex in indexAccessor)
                 {
                     foreach (var meshAdapter in meshAdapters)
@@ -339,7 +339,7 @@ namespace MeshTopologyToolkit.Gltf
                     ++numIndices;
 
                 }
-                mesh.DrawCalls.Add(new MeshDrawCall(0, primitiveIndex, topology, pimStartIndex, numIndices- pimStartIndex));
+                mesh.DrawCalls.Add(new MeshDrawCall(0, primitiveIndex, topology, pimStartIndex, numIndices - pimStartIndex));
 
             }
 
@@ -377,7 +377,7 @@ namespace MeshTopologyToolkit.Gltf
                 case PrimitiveType.LINE_STRIP:
                     return MeshTopology.LineStrip;
                 default:
-                throw new NotImplementedException();
+                    throw new NotImplementedException();
             }
         }
     }

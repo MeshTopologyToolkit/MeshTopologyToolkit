@@ -4,13 +4,13 @@ using System.Numerics;
 
 namespace MeshTopologyToolkit
 {
-    public class ListMeshVertexAttribute<T> : List<T>, IMeshVertexAttribute<T> where T: notnull
+    public class ListMeshVertexAttribute<T> : List<T>, IMeshVertexAttribute<T> where T : notnull
     {
         public ListMeshVertexAttribute()
         {
         }
 
-        public ListMeshVertexAttribute(int capacity): base(capacity)
+        public ListMeshVertexAttribute(int capacity) : base(capacity)
         {
         }
 
@@ -19,7 +19,7 @@ namespace MeshTopologyToolkit
             return typeof(T);
         }
 
-        public bool TryCast<TTo>(IMeshVertexAttributeConverterProvider converterProvider, out IMeshVertexAttribute<TTo> attribute) where TTo: notnull
+        public bool TryCast<TTo>(IMeshVertexAttributeConverterProvider converterProvider, out IMeshVertexAttribute<TTo> attribute) where TTo : notnull
         {
             if (typeof(T) == typeof(TTo))
             {
@@ -53,6 +53,9 @@ namespace MeshTopologyToolkit
 
         public IMeshVertexAttribute Compact(float weldRadius, out IReadOnlyList<int> indexMap)
         {
+            if (weldRadius <= 0.0f)
+                return Compact(out indexMap);
+
             var map = new int[Count];
             indexMap = map;
 

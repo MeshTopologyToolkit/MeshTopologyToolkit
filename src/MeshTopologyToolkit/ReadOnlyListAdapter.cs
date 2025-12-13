@@ -6,7 +6,7 @@ namespace MeshTopologyToolkit
 {
     public class ReadOnlyListAdapter
     {
-        public static IReadOnlyList<TTo> From<TFrom,TTo>(IReadOnlyList<TFrom> from, Func<TFrom, TTo> proj)
+        public static IReadOnlyList<TTo> From<TFrom, TTo>(IReadOnlyList<TFrom> from, Func<TFrom, TTo> proj)
         {
             return new ReadOnlyListAdapter<TFrom, TTo>(from, proj);
         }

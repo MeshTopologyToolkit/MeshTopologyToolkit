@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace MeshTopologyToolkit
 {
-    public class DictionaryMeshVertexAttribute<T> : MeshVertexAttributeBase<T>, IMeshVertexAttribute<T> where T: notnull
+    public class DictionaryMeshVertexAttribute<T> : MeshVertexAttributeBase<T>, IMeshVertexAttribute<T> where T : notnull
     {
         private List<T> _values = new List<T>();
         private Dictionary<T, int> _map = new Dictionary<T, int>();

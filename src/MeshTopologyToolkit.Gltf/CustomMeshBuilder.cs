@@ -6,7 +6,7 @@ using System.Text.Json.Nodes;
 
 namespace MeshTopologyToolkit.Gltf
 {
-    internal class CustomMeshBuilder: IMeshBuilder<MaterialBuilder>
+    internal class CustomMeshBuilder : IMeshBuilder<MaterialBuilder>
     {
         private List<IPrimitiveReader<MaterialBuilder>> _primitives = new List<IPrimitiveReader<MaterialBuilder>>();
 
@@ -18,7 +18,7 @@ namespace MeshTopologyToolkit.Gltf
             for (int i = 0; i < sourceMesh.DrawCalls.Count; i++)
             {
                 MeshDrawCall drawCall = sourceMesh.DrawCalls[i];
-                _primitives.Add(new CustomPrimitiveReader(sourceMesh, drawCall, materials[i]));  
+                _primitives.Add(new CustomPrimitiveReader(sourceMesh, drawCall, materials[i]));
             }
         }
 

@@ -13,8 +13,8 @@ public class GenerateBoxCommandTests
         for (int i = 0; i < args.TrimRecepies.Count; ++i)
         {
             var expectedRecepie = args.TrimRecepies[i];
-            var mesh = new BoxBuilder();
-            GenerateBoxCommand.AddSideToBox(10f, args, expectedRecepie.SizeInUnits, Matrix4x4.Identity, mesh);
+            var mesh = new BoxBuilder(10f);
+            mesh.AddSideToBox(args, expectedRecepie.SizeInUnits, Matrix4x4.Identity);
 
             var bbox = new BoundingBox3(mesh.Positions);
             var size = bbox.Max - bbox.Min;
@@ -34,8 +34,8 @@ public class GenerateBoxCommandTests
         for (int i = 0; i < args.TrimRecepies.Count; ++i)
         {
             var expectedRecepie = args.TrimRecepies[i];
-            var mesh = new BoxBuilder();
-            GenerateBoxCommand.AddSideToBox(10f, args, new Vector2(expectedRecepie.SizeInUnits.Y, expectedRecepie.SizeInUnits.X), Matrix4x4.Identity, mesh);
+            var mesh = new BoxBuilder(10f);
+            mesh.AddSideToBox(args, new Vector2(expectedRecepie.SizeInUnits.Y, expectedRecepie.SizeInUnits.X), Matrix4x4.Identity);
 
             Assert.Equal(4, mesh.Positions.Count);
 
@@ -58,8 +58,8 @@ public class GenerateBoxCommandTests
         {
             var expectedRecepie = args.TrimRecepies[i];
             var expectedSize = expectedRecepie.SizeInUnits * new Vector2(0.5f, 1.0f);
-            var mesh = new BoxBuilder();
-            GenerateBoxCommand.AddSideToBox(10f, args, expectedSize, Matrix4x4.Identity, mesh);
+            var mesh = new BoxBuilder(10f);
+            mesh.AddSideToBox(args, expectedSize, Matrix4x4.Identity);
 
             Assert.Equal(8, mesh.Positions.Count);
 

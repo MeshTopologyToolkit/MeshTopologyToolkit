@@ -5,7 +5,7 @@ using System.Numerics;
 
 namespace MeshTopologyToolkit
 {
-    public abstract class MeshVertexAttributeBase<T>: IMeshVertexAttribute<T> where T : notnull
+    public abstract class MeshVertexAttributeBase<T> : IMeshVertexAttribute<T> where T : notnull
     {
         public abstract int Count { get; }
 
@@ -16,7 +16,7 @@ namespace MeshTopologyToolkit
             return typeof(T);
         }
 
-        public bool TryCast<TTo>(IMeshVertexAttributeConverterProvider converterProvider, out IMeshVertexAttribute<TTo> attribute) where TTo:notnull
+        public bool TryCast<TTo>(IMeshVertexAttributeConverterProvider converterProvider, out IMeshVertexAttribute<TTo> attribute) where TTo : notnull
         {
             if (typeof(T) == typeof(TTo))
             {
@@ -48,6 +48,9 @@ namespace MeshTopologyToolkit
 
         public IMeshVertexAttribute<T> Compact(float weldRadius, out IReadOnlyList<int> indexMap)
         {
+            if (weldRadius <= 0.0f)
+                return Compact(out indexMap);
+
             var map = new int[Count];
             indexMap = map;
 

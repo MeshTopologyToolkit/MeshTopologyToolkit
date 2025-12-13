@@ -9,7 +9,7 @@ namespace MeshTopologyToolkit
     {
         private Dictionary<MeshAttributeKey, AttributeAndIndices> _attributes = new Dictionary<MeshAttributeKey, AttributeAndIndices>();
 
-        public SeparatedIndexedMesh(string? name = null): base(name)
+        public SeparatedIndexedMesh(string? name = null) : base(name)
         {
         }
 
@@ -21,7 +21,7 @@ namespace MeshTopologyToolkit
             }
         }
 
-        public SeparatedIndexedMesh(IMesh mesh)
+        public SeparatedIndexedMesh(IMesh mesh, float weldRadius = 0.0f)
         {
             var attributes = mesh.GetAttributeKeys();
             foreach (var attributeKey in attributes)
@@ -31,7 +31,7 @@ namespace MeshTopologyToolkit
                 if (!mesh.TryGetAttributeIndices(attributeKey, out var indices))
                     throw new KeyNotFoundException($"Can't get attribute indices for {attributeKey}");
 
-                var compactAttr = attribute.Compact(out var mapping);
+                var compactAttr = attribute.Compact(weldRadius, out var mapping);
                 var compactIndices = indices.Select(_ => mapping[_]).ToList();
                 _attributes.Add(attributeKey, new AttributeAndIndices(compactAttr, compactIndices));
             }

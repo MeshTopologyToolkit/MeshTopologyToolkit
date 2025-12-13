@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using MeshTopologyToolkit.Operators;
+using System.Numerics;
 
 namespace MeshTopologyToolkit.Tests;
 
@@ -38,7 +39,7 @@ public class ExtensionMethodsEnsureNormalsTests
             Matrix4x4.Invert(Matrix4x4.CreateFromQuaternion(projectionRotation), out var inverseProjection);
             mesh.ApplyUVProjection(inverseProjection);
             var expectedTangent = Vector3.Transform(new Vector3(1, 0, 0), projectionRotation);
-            mesh.EnsureTangents();
+            mesh = (SeparatedIndexedMesh)new EnsureTangentsOperator().Transform(mesh);
 
             expectedTangent = expectedTangent - Vector3.Dot(expectedTangent, faceNormal) * faceNormal;
             expectedTangent = Vector3.Normalize(expectedTangent);

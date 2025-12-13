@@ -47,7 +47,7 @@ namespace MeshTopologyToolkit.Gltf
         {
             var nodeBuilder = new NodeBuilder() { Name = node.Name ?? "Node" };
             nodeBuilder.LocalTransform = VisitTransform(node.Transform);
-            
+
             if (node.Mesh?.Mesh != null)
             {
                 var meshBuilder = VisitMesh(node.Mesh);
@@ -87,7 +87,8 @@ namespace MeshTopologyToolkit.Gltf
             materialBuilder = materialBuilder.WithMetallicRoughnessShader();
             foreach (var scalarParam in material.ScalarParams)
             {
-                switch (scalarParam.Key) {
+                switch (scalarParam.Key)
+                {
                     case MaterialParam.MetallicFactor:
                         materialBuilder.WithChannelParam(KnownChannel.MetallicRoughness, KnownProperty.MetallicFactor, scalarParam.Value);
                         break;
@@ -176,7 +177,7 @@ namespace MeshTopologyToolkit.Gltf
                 return new AffineTransform(trs.Scale, trs.Rotation, trs.Translation);
             }
             return new AffineTransform(transform.ToMatrix());
-            
+
         }
     }
 }

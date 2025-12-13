@@ -3,7 +3,7 @@
     public class Input
     {
         public Input(string semantic, int offset, string source, int? set, IReadOnlyList<int> indices)
-        { 
+        {
             Semantic = semantic;
             Offset = offset;
             Set = set;

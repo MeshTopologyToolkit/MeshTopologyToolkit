@@ -1,4 +1,6 @@
 ﻿using MeshTopologyToolkit.Gltf;
+using MeshTopologyToolkit.Operators;
+using SharpGLTF.Schema2;
 using System.Numerics;
 using Xunit.Abstractions;
 
@@ -140,7 +142,7 @@ public class GltfFileFormatTests
                 testMesh.DrawCalls.Add(drawCall);
             }
 
-            testMesh.EnsureTangents();
+            testMesh = (SeparatedIndexedMesh)new EnsureTangentsOperator().Transform(testMesh);
 
             var srcTangents = srcMesh.GetAttribute<Vector4>(MeshAttributeKey.Tangent);
             var srcTangentIndices = srcMesh.GetAttributeIndices(MeshAttributeKey.Tangent);
@@ -206,7 +208,7 @@ public class GltfFileFormatTests
                 testMesh.DrawCalls.Add(drawCall);
             }
 
-            testMesh.EnsureTangents();
+            testMesh = (UnifiedIndexedMesh)new EnsureTangentsOperator().Transform(testMesh);
 
             var srcTangents = srcMesh.GetAttribute<Vector4>(MeshAttributeKey.Tangent);
             var testTangents = testMesh.GetAttribute<Vector4>(MeshAttributeKey.Tangent);
@@ -262,7 +264,7 @@ public class GltfFileFormatTests
                 testMesh.DrawCalls.Add(drawCall);
             }
 
-            testMesh.EnsureNormals();
+            testMesh = (SeparatedIndexedMesh)new EnsureNormalsOperator().Transform(testMesh);
 
             var srcNormals = srcMesh.GetAttribute<Vector3>(MeshAttributeKey.Normal);
             var srcNormalIndices = srcMesh.GetAttributeIndices(MeshAttributeKey.Normal);

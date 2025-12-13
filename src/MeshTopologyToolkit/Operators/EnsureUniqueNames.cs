@@ -2,12 +2,12 @@
 
 namespace MeshTopologyToolkit.Operators
 {
-    public class EnsureUniqueNames: ContentOperatorBase
+    public class EnsureUniqueNames : ContentOperatorBase
     {
         HashSet<string> _existingNames = new HashSet<string>();
 
         Material? _defaultMaterial = null;
-        
+
 
         public override Scene Transform(Scene scene)
         {
@@ -43,7 +43,7 @@ namespace MeshTopologyToolkit.Operators
 
         public override IMesh Transform(IMesh mesh)
         {
-            mesh.Name = GetUniqueName(_existingNames, string.IsNullOrEmpty(mesh.Name)? "Mesh": mesh.Name);
+            mesh.Name = GetUniqueName(_existingNames, string.IsNullOrEmpty(mesh.Name) ? "Mesh" : mesh.Name);
             return mesh;
         }
 
@@ -51,7 +51,7 @@ namespace MeshTopologyToolkit.Operators
         {
             if (existingNames.Add(baseName))
                 return baseName;
-            for (int i=0; ; ++i)
+            for (int i = 0; ; ++i)
             {
                 var newName = $"{baseName}_{i}";
                 if (existingNames.Add(newName))

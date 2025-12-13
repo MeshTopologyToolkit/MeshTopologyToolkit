@@ -83,7 +83,7 @@ namespace MeshTopologyToolkit
 
             // Find the index of the first whitespace character
             int delimiterIndex = _remainingText.IndexOfAny(WhitespaceValues);
-            
+
             if (delimiterIndex < 0)
             {
                 // If no delimiter, the rest of the span is the token
@@ -115,7 +115,7 @@ namespace MeshTopologyToolkit
                 return false;
             }
 
-            Func<char,bool> currentState = (char c)=> false;
+            Func<char, bool> currentState = (char c) => false;
             var expDidgits = (char c) =>
             {
                 if (char.IsDigit(c))
@@ -169,7 +169,8 @@ namespace MeshTopologyToolkit
                 }
                 return false;
             };
-            var startOfValue = (char c) =>{
+            var startOfValue = (char c) =>
+            {
                 if (c == '+' || c == '-')
                 {
                     currentState = intDidgits;
@@ -233,7 +234,7 @@ namespace MeshTopologyToolkit
             }
 
             Func<char, bool> currentState = (char c) => false;
-            
+
             var intDidgits = (char c) =>
             {
                 if (char.IsDigit(c))
@@ -242,7 +243,8 @@ namespace MeshTopologyToolkit
                 }
                 return false;
             };
-            var startOfValue = (char c) => {
+            var startOfValue = (char c) =>
+            {
                 if (c == '+' || c == '-')
                 {
                     currentState = intDidgits;
@@ -310,7 +312,7 @@ namespace MeshTopologyToolkit
                 var c = _remainingText[endOfValue];
                 if (c == 10)
                 {
-                    ++ endOfValue;
+                    ++endOfValue;
                     if (endOfValue < _remainingText.Length && _remainingText[endOfValue] == 13)
                         ++endOfValue;
                     break;

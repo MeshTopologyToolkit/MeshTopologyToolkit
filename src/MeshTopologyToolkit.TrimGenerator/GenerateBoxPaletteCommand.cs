@@ -1,11 +1,50 @@
 ﻿using Cocona;
-using MeshTopologyToolkit.Gltf;
-using MeshTopologyToolkit.Stl;
+using MeshTopologyToolkit.Operators;
+using SharpGLTF.Schema2;
 using System.Numerics;
 
 namespace MeshTopologyToolkit.TrimGenerator
 {
-    public class GenerateBoxPaletteCommand: CommandBase
+    public class GenerateBrickWallCommand : CommandBase
+    {
+        [Command("brick-wall", Description = "Generate brick wall with randomized bricks.")]
+        public int Build(
+            [Option('t', Description = "Trim height in pixels")] int[] trimHeight,
+            [Option('w', Description = "Texture width in pixels")] int width = 1024,
+            [Option(Description = "Full trim width in world units")] float widthInUnits = 5.0f,
+            [Option(Description = "Wall width in world units")] float wallWidth = 5.0f,
+            [Option(Description = "Wall height in world units")] float wallHeight = 4.0f,
+            [Option(Description = "Wall thickness in world units. Zero means it matches brick height.")] float wallThickness = 0.0f,
+            [Option(Description = "Number of brick columns in the wall")] int columns = 8,
+            [Option(Description = "Number of brick rows in the wall")] int rows = 16,
+            [Option('b', Description = "Bevel width in pixels")] int bevelWidth = 8,
+            [Option('n', Description = "Add normal map")] bool normalMap = false,
+            [Option('c', Description = "Add checker map as base color (albedo)")] bool checkerMap = false,
+            [Option('a', Description = "Base color (albedo) texture file name")] string? albedo = null,
+            [Option('o', Description = "Output file name")] string output = "brick-wall.glb")
+        {
+            var args = new TrimGenerationArguments(trimHeight, width: width, bevelInPixels: bevelWidth, widthInUnits: widthInUnits);
+
+            Material material = GenerateBoxCommand.BuildMaterial(normalMap, checkerMap, albedo, args);
+
+            var container = new FileContainer();
+            container.Materials.Add(material);
+            foreach (var texture in material.TextureParams.Values)
+                container.Textures.Add(texture);
+
+            var brickWidth = wallWidth / columns;
+            var brickHeight = wallHeight / rows;
+            if (wallThickness == 0.0f)
+                wallThickness = brickHeight;
+
+
+            var scene = new Scene();
+            container.Scenes.Add(scene);
+
+            return SaveOutputModel(container, output) ? 1 : 0;
+        }
+    }
+    public class GenerateBoxPaletteCommand : CommandBase
     {
         [Command("box-palette", Description = "Generate palette of boxes that combine all trim sizes.")]
         public int Build(
@@ -32,14 +71,14 @@ namespace MeshTopologyToolkit.TrimGenerator
 
             var allSizes = args.TrimRecepies.Select(_ => _.SizeInUnits.Y).Concat(new[] { args.TrimRecepies[0].SizeInUnits.X }).Distinct().Order().ToList();
             var x = 0.0f;
-            for (var sizeX = 0; sizeX < allSizes.Count-1; ++sizeX)
+            for (var sizeX = 0; sizeX < allSizes.Count - 1; ++sizeX)
             {
-                for (var sizeY = sizeX; sizeY < allSizes.Count-1; ++sizeY)
+                for (var sizeY = sizeX; sizeY < allSizes.Count - 1; ++sizeY)
                 {
                     for (var sizeZ = sizeY; sizeZ < allSizes.Count; ++sizeZ)
                     {
                         var name = $"box_{sizeX}_{sizeY}_{sizeZ}";
-                        UnifiedIndexedMesh mesh = GenerateBoxCommand.BuildBoxMesh(new Vector3(allSizes[sizeX], allSizes[sizeY], allSizes[sizeZ]), 1, args);
+                        UnifiedIndexedMesh mesh = GenerateBoxCommand.BuildBoxMesh(new Vector3(allSizes[sizeX], allSizes[sizeY], allSizes[sizeZ]), args, new BoxBuilder(1, false, false));
                         mesh.Name = name;
                         var node = new Node(name);
                         node.Transform = new TRSTransform(new Vector3(x, allSizes[sizeY] * 0.5f, 0.0f));
@@ -53,7 +92,7 @@ namespace MeshTopologyToolkit.TrimGenerator
             {
                 var tallestTrim = args.TrimRecepies.OrderByDescending(_ => _.SizeInUnits.Y).First();
 
-                var radius = args.WidthInUnits*0.5f/MathF.PI;
+                var radius = args.WidthInUnits * 0.5f / MathF.PI;
                 for (var tubeSize = 0; tubeSize < allSizes.Count; ++tubeSize)
                 {
                     if (allSizes[tubeSize] > radius)
@@ -85,10 +124,10 @@ namespace MeshTopologyToolkit.TrimGenerator
 
             int numSideSegments = 36;
             var halfHeight = new Vector3(0, tallestTrim.SizeInUnits.Y * 0.5f, 0);
-            for (int sideSegmentIndex=0; sideSegmentIndex<=numSideSegments; ++sideSegmentIndex)
+            for (int sideSegmentIndex = 0; sideSegmentIndex <= numSideSegments; ++sideSegmentIndex)
             {
                 var factor = sideSegmentIndex / (float)numSideSegments;
-                var a = - factor * MathF.PI * 2.0f;
+                var a = -factor * MathF.PI * 2.0f;
                 var normal = new Vector3(MathF.Cos(a), 0.0f, MathF.Sin(a));
                 positions.Add(normal * innerRadius - halfHeight);
                 positions.Add(normal * innerRadius + halfHeight);
@@ -127,7 +166,7 @@ namespace MeshTopologyToolkit.TrimGenerator
             mesh.AddAttribute(MeshAttributeKey.Normal, normals);
             mesh.AddAttribute(MeshAttributeKey.TexCoord, texCoords);
             mesh.DrawCalls.Add(new MeshDrawCall(0, 0, MeshTopology.TriangleList, 0, mesh.Indices.Count));
-            mesh.EnsureTangents();
+            mesh = (UnifiedIndexedMesh)new EnsureTangentsOperator().Transform(mesh);
             return mesh;
         }
     }

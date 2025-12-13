@@ -26,7 +26,7 @@ namespace MeshTopologyToolkit.Gltf
                 _indices.Add(remappedIndices.Add(sourceMesh.Indices[i]));
             }
 
-            Vertices = remappedIndices.Select(_=>new CustomVertexBuilder(sourceMesh, _)).ToList();
+            Vertices = remappedIndices.Select(_ => new CustomVertexBuilder(sourceMesh, _)).ToList();
 
             switch (drawCall.Type)
             {
@@ -60,13 +60,13 @@ namespace MeshTopologyToolkit.Gltf
         private IReadOnlyList<(int A, int B, int C)> VisitTrianlgeList()
         {
             var result = new List<(int A, int B, int C)>();
-            for (int i=0; i<_indices.Count-2;i+=3)
+            for (int i = 0; i < _indices.Count - 2; i += 3)
             {
                 result.Add((_indices[i], _indices[i + 1], _indices[i + 2]));
             }
             return result;
         }
-        
+
         public Type VertexType => typeof(CutomVertexType);
 
         public MaterialBuilder Material { get; set; }

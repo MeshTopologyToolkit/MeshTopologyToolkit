@@ -100,10 +100,10 @@ namespace MeshTopologyToolkit
 
         public override string ToString()
         {
-            return $"{Type} ({StartIndex} ... {StartIndex+NumIndices-1})";
+            return $"{Type} ({StartIndex} ... {StartIndex + NumIndices - 1})";
         }
 
-        public struct Face: IEnumerable<int>
+        public struct Face : IEnumerable<int>
         {
             public int A;
             public int B;

@@ -43,13 +43,13 @@ namespace MeshTopologyToolkit.BasRelief
                 mesh.AddAttribute(MeshAttributeKey.Position, positions);
                 var indices = mesh.Indices;
 
-                var pixelSizeInUnits = width / (image.Width-1);
+                var pixelSizeInUnits = width / (image.Width - 1);
 
                 Vector3 offset = new Vector3(-pixelSizeInUnits * (image.Width - 1) / 2.0f, -pixelSizeInUnits * (image.Height - 1) / 2.0f, 0.0f);
 
                 var getVertex = (int x, int y, float h) =>
                 {
-                    return (offset + new Vector3(pixelSizeInUnits * x, pixelSizeInUnits * y, h))*new Vector3(1,-1,1);
+                    return (offset + new Vector3(pixelSizeInUnits * x, pixelSizeInUnits * y, h)) * new Vector3(1, -1, 1);
                 };
                 for (int y = 0; y < heigthmap.Height; ++y)
                 {
@@ -85,8 +85,8 @@ namespace MeshTopologyToolkit.BasRelief
                     }
                     {
                         var pixelOffset = (image.Height - 1) * image.Width;
-                        var a = allPositions[x+ pixelOffset];
-                        var b = allPositions[x + 1+ pixelOffset];
+                        var a = allPositions[x + pixelOffset];
+                        var b = allPositions[x + 1 + pixelOffset];
                         if (a.Z > 0 || b.Z > 0)
                         {
                             var ia = positions.Add(a);
@@ -105,7 +105,7 @@ namespace MeshTopologyToolkit.BasRelief
                     }
                 }
 
-                for (int y=0; y<image.Height-1; ++y)
+                for (int y = 0; y < image.Height - 1; ++y)
                 {
                     {
                         var a = allPositions[0 + y * image.Width];
@@ -127,8 +127,8 @@ namespace MeshTopologyToolkit.BasRelief
                         }
                     }
                     {
-                        var a = allPositions[(y+1) * image.Width-1];
-                        var b = allPositions[(y + 2) * image.Width-1];
+                        var a = allPositions[(y + 1) * image.Width - 1];
+                        var b = allPositions[(y + 2) * image.Width - 1];
                         if (a.Z > 0 || b.Z > 0)
                         {
                             var ia = positions.Add(a);
@@ -145,12 +145,12 @@ namespace MeshTopologyToolkit.BasRelief
                             indices.Add(id);
                         }
                     }
-                    for (int x = 0; x < image.Width-1; ++x)
+                    for (int x = 0; x < image.Width - 1; ++x)
                     {
                         var a = allPositions[x + y * image.Width];
-                        var b = allPositions[x+1 + y * image.Width];
-                        var c = allPositions[x+1 + (y+1) * image.Width];
-                        var d = allPositions[x + (y+1) * image.Width];
+                        var b = allPositions[x + 1 + y * image.Width];
+                        var c = allPositions[x + 1 + (y + 1) * image.Width];
+                        var d = allPositions[x + (y + 1) * image.Width];
                         if (a.Z > 0 || b.Z > 0 || c.Z > 0)
                         {
                             var ia = positions.Add(a);

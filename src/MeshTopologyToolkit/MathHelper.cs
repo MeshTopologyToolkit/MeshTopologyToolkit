@@ -8,7 +8,7 @@ namespace MeshTopologyToolkit
         public static IMathHelper<T> Default { get; set; }
 
         static MathHelper()
-        { 
+        {
             switch (typeof(T))
             {
                 case var t when t == typeof(float):

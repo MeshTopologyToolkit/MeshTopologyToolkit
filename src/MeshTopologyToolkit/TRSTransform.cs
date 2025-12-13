@@ -2,7 +2,7 @@
 
 namespace MeshTopologyToolkit
 {
-    public class TRSTransform: ITransform
+    public class TRSTransform : ITransform
     {
         public static readonly TRSTransform Identity = new TRSTransform();
 

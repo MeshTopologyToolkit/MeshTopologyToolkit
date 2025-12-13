@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace MeshTopologyToolkit.Operators
 {
-    public class ContentOperatorBase: IContentOperator
+    public class ContentOperatorBase : IContentOperator
     {
         Dictionary<Texture, Texture> _visitedTextures = new Dictionary<Texture, Texture>();
 
@@ -47,7 +47,7 @@ namespace MeshTopologyToolkit.Operators
 
         protected Material Visit(Material material) => Visit(_visitedMaterials, material, Transform);
 
-        private T Visit<T>(Dictionary<T, T> cache, T value, Func<T,T> transform)
+        private T Visit<T>(Dictionary<T, T> cache, T value, Func<T, T> transform)
         {
             if (value == null)
                 return value;

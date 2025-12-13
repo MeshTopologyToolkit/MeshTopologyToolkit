@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace MeshTopologyToolkit
 {
-    internal class StridedListView<T>: IReadOnlyList<T> where T : notnull
+    internal class StridedListView<T> : IReadOnlyList<T> where T : notnull
     {
         private readonly IList<T> _list;
         private readonly int _start;
@@ -30,7 +30,7 @@ namespace MeshTopologyToolkit
 
         public IEnumerator<T> GetEnumerator()
         {
-            for (int i=0; i<_count; ++i)
+            for (int i = 0; i < _count; ++i)
             {
                 yield return this[i];
             }

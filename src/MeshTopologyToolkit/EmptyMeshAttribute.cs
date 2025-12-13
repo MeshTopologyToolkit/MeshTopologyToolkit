@@ -58,7 +58,7 @@ namespace MeshTopologyToolkit
     /// <summary>
     /// Empty mesh attribute. This only exists for to avoid null reference exceptions in the code.
     /// </summary>
-    public class EmptyMeshAttribute<T> : EmptyMeshAttribute, IMeshVertexAttribute<T> where T: notnull
+    public class EmptyMeshAttribute<T> : EmptyMeshAttribute, IMeshVertexAttribute<T> where T : notnull
     {
         public new static readonly EmptyMeshAttribute<T> Instance = new EmptyMeshAttribute<T>();
 

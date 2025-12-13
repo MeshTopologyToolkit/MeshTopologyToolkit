@@ -1,37 +1,39 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 
-namespace MeshTopologyToolkit
+namespace MeshTopologyToolkit.Operators
 {
-    /// <summary>
-    /// EnsureTangents extension methods and it's implementation details.
-    /// </summary>
-    public static partial class ExtensionMethods
+    public class EnsureTangentsOperator : ContentOperatorBase
     {
-        /// <summary>
-        /// Ensure the mesh has tangent attribute. If not, generate it.
-        /// The tangent is generated assuming the input data is in GLTf style (right-handed UVs, bitangent pointing down).
-        /// Explanation of how the algorithm works: https://terathon.com/blog/tangent-space.html
-        /// </summary>
-        /// <param name="mesh">Mesh to modify.</param>
-        public static void EnsureTangents(this IMesh mesh)
+        private struct ComponentIndices
         {
+            public int Position;
+            public int TexCoord;
+            public int Normal;
+        }
+
+        public override IMesh Transform(IMesh mesh)
+        {
+            mesh = base.Transform(mesh);
+
             if (mesh.HasAttribute(MeshAttributeKey.Tangent))
             {
-                return;
+                return mesh;
             }
 
-            mesh.EnsureNormals();
+            mesh = new EnsureTangentsOperator().Transform(mesh);
 
             if (mesh is SeparatedIndexedMesh separatedIndexedMesh)
             {
                 EnsureSeparatedIndexedMeshTangents(separatedIndexedMesh);
+                return separatedIndexedMesh;
             }
             else if (mesh is UnifiedIndexedMesh unifiedIndexedMesh)
             {
                 EnsureUnifiedIndexedMeshTangents(unifiedIndexedMesh);
+                return unifiedIndexedMesh;
             }
             else
             {
@@ -39,12 +41,6 @@ namespace MeshTopologyToolkit
             }
         }
 
-        private struct ComponentIndices
-        {
-            public int Position;
-            public int TexCoord;
-            public int Normal;
-        }
 
         private static void EnsureSeparatedIndexedMeshTangents(SeparatedIndexedMesh mesh)
         {
@@ -63,7 +59,7 @@ namespace MeshTopologyToolkit
             var uniqueVertexMap = new Dictionary<ComponentIndices, int>();
             var uniqueVertexNormals = new List<Vector3>();
             var tangentIndices = new int[positionIndices.Count];
-            for (int i=0; i<positionIndices.Count; i++)
+            for (int i = 0; i < positionIndices.Count; i++)
             {
                 var key = new ComponentIndices
                 {
@@ -81,7 +77,7 @@ namespace MeshTopologyToolkit
                     uniqueVertexMap.Add(key, uniqueVertexMap.Count);
                     uniqueVertexNormals.Add(normals[key.Normal]);
                 }
-                
+
             }
 
             var accTangent = new Vector3[uniqueVertexMap.Count];
@@ -134,7 +130,7 @@ namespace MeshTopologyToolkit
                 }
             }
 
-            mesh.AddAttribute(MeshAttributeKey.Tangent, tangents, tangentIndices.Select(i=>finalTangentIndices[i]).ToList());
+            mesh.AddAttribute(MeshAttributeKey.Tangent, tangents, tangentIndices.Select(i => finalTangentIndices[i]).ToList());
         }
 
         private static void EnsureUnifiedIndexedMeshTangents(UnifiedIndexedMesh mesh)
@@ -211,19 +207,5 @@ namespace MeshTopologyToolkit
             return tangents.Add(tangent);
         }
 
-        //private static Vector3 CrossGltfViaLeftHandConversion(Vector3 aGltf, Vector3 bGltf)
-        //{
-        //    // Convert from glTF (RH) to left-handed by negating Z
-        //    Vector3 aLH = new Vector3(aGltf.X, aGltf.Y, -aGltf.Z);
-        //    Vector3 bLH = new Vector3(bGltf.X, bGltf.Y, -bGltf.Z);
-
-        //    // Compute cross in left-handed space (algebraic cross)
-        //    Vector3 crossLH = Vector3.Cross(aLH, bLH);
-
-        //    // Convert back to glTF coordinates (negate Z again)
-        //    Vector3 crossGltf = new Vector3(crossLH.X, crossLH.Y, -crossLH.Z);
-
-        //    return crossGltf;
-        //}
     }
 }

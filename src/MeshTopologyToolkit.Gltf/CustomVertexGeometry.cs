@@ -64,7 +64,7 @@ namespace MeshTopologyToolkit.Gltf
 
         public Vector3 GetPosition()
         {
-            return (_positions != null)? _positions[_index] : Vector3.Zero;
+            return (_positions != null) ? _positions[_index] : Vector3.Zero;
         }
 
         public void SetNormal(in Vector3 normal)

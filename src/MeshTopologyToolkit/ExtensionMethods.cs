@@ -22,7 +22,7 @@ namespace MeshTopologyToolkit
             }
         }
 
-        public static IMeshVertexAttribute<T> GetAttribute<T>(this IMesh mesh, MeshAttributeKey key) where T: notnull
+        public static IMeshVertexAttribute<T> GetAttribute<T>(this IMesh mesh, MeshAttributeKey key) where T : notnull
         {
             if (!mesh.TryGetAttribute<T>(key, out var result))
             {
@@ -124,7 +124,7 @@ namespace MeshTopologyToolkit
         {
             return new Vector3((float)rnd.NextDouble(), (float)rnd.NextDouble(), (float)rnd.NextDouble());
         }
-        
+
 
         public static string ReadStringZ(this BinaryReader reader, Encoding? encoding = null)
         {

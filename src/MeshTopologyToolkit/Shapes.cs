@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MeshTopologyToolkit.Operators;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -27,7 +28,7 @@ namespace MeshTopologyToolkit
                 values.Add(options.TransformPosition(new Vector3(0.5f, 0.5f, -0.5f)));
                 values.Add(options.TransformPosition(new Vector3(0.5f, -0.5f, 0.5f)));
                 values.Add(options.TransformPosition(new Vector3(0.5f, -0.5f, -0.5f)));
-                var indices = options.TransformIndices(new List<int>() { 
+                var indices = options.TransformIndices(new List<int>() {
                     0, 1, 2,  0, 2, 3,
                     1, 4, 5,  1, 5, 2,
                     4, 6, 7,  4, 7, 5,
@@ -45,7 +46,7 @@ namespace MeshTopologyToolkit
                 values.Add(new Vector3(0f, -1f, 0f));
                 values.Add(new Vector3(0f, 0f, 1f));
                 values.Add(new Vector3(0f, 0f, -1f));
-                var indices = options.TransformIndices(new List<int>() { 
+                var indices = options.TransformIndices(new List<int>() {
                     0, 0, 0, 0, 0, 0,
                     1, 1, 1, 1, 1, 1,
                     2, 2, 2, 2, 2, 2,
@@ -61,12 +62,12 @@ namespace MeshTopologyToolkit
                 values.Add(new Vector2(1f, 0f));
                 values.Add(new Vector2(0f, 0f));
                 values.Add(new Vector2(0f, 1f));
-                var indices = options.TransformIndices(new List<int>() { 
-                    0, 1, 2, 0, 2, 3, 
-                    1, 2, 3, 1, 3, 0, 
-                    2, 3, 0, 2, 0, 1, 
-                    3, 0, 1, 3, 1, 2, 
-                    1, 2, 3, 1, 3, 0, 
+                var indices = options.TransformIndices(new List<int>() {
+                    0, 1, 2, 0, 2, 3,
+                    1, 2, 3, 1, 3, 0,
+                    2, 3, 0, 2, 0, 1,
+                    3, 0, 1, 3, 1, 2,
+                    1, 2, 3, 1, 3, 0,
                     0, 1, 2, 3, 0, 2 });
                 mesh.AddAttribute(MeshAttributeKey.TexCoord, values, indices);
             }
@@ -74,7 +75,7 @@ namespace MeshTopologyToolkit
             {
                 var values = new ConstMeshVertexAttribute<Vector4>(Vector4.One, 1);
                 var indices = options.TransformIndices(new List<int>() {
-                    0, 0, 0, 0, 0, 0, 
+                    0, 0, 0, 0, 0, 0,
                     0, 0, 0, 0, 0, 0,
                     0, 0, 0, 0, 0, 0,
                     0, 0, 0, 0, 0, 0,
@@ -87,7 +88,7 @@ namespace MeshTopologyToolkit
 
             if ((options.Mask & MeshAttributeMask.Tangent) == MeshAttributeMask.Tangent)
             {
-                mesh.EnsureTangents();
+                return new EnsureTangentsOperator().Transform(mesh);
             }
             return mesh;
         }
@@ -122,7 +123,7 @@ namespace MeshTopologyToolkit
                         positions.Add(options.TransformPosition(position));
                     }
                 }
-                
+
                 mesh.AddAttribute(MeshAttributeKey.Position, positions);
             }
 
@@ -136,9 +137,9 @@ namespace MeshTopologyToolkit
                     {
                         var theta = (float)thetaIndex / maxThetaIndex * MathF.PI;
                         var st = MathF.Sin(theta);
-                        var x = st* MathF.Cos(phi);
+                        var x = st * MathF.Cos(phi);
                         var y = -MathF.Cos(theta);
-                        var z = st* MathF.Sin(phi);
+                        var z = st * MathF.Sin(phi);
                         var normal = new Vector3(x, y, z);
                         normals.Add(options.TransformNormal(normal));
                     }
@@ -158,17 +159,17 @@ namespace MeshTopologyToolkit
                     {
                         var theta = (float)thetaIndex / maxThetaIndex;
                         var x = 1.0f - phi;
-                        var y = 1.0f-theta;
+                        var y = 1.0f - theta;
                         var uv = new Vector2(x, y);
                         values.Add(uv);
                     }
                 }
-                
+
                 mesh.AddAttribute(MeshAttributeKey.TexCoord, values);
             }
             if ((options.Mask & MeshAttributeMask.Color) == MeshAttributeMask.Color)
             {
-                var values = new ConstMeshVertexAttribute<Vector4>(Vector4.One, (maxPhiIndex+1)*(maxThetaIndex+1));
+                var values = new ConstMeshVertexAttribute<Vector4>(Vector4.One, (maxPhiIndex + 1) * (maxThetaIndex + 1));
                 mesh.AddAttribute(MeshAttributeKey.Color, values);
             }
 
@@ -199,7 +200,7 @@ namespace MeshTopologyToolkit
 
             if ((options.Mask & MeshAttributeMask.Tangent) == MeshAttributeMask.Tangent)
             {
-                mesh.EnsureTangents();
+                return new EnsureTangentsOperator().Transform(mesh);
             }
 
             return mesh;
@@ -241,8 +242,8 @@ namespace MeshTopologyToolkit
                     for (int thetaIndex = 0; thetaIndex <= segmentsTheta; ++thetaIndex)
                     {
                         var theta = (float)thetaIndex * thetaStep;
-                        var normal = - direction * MathF.Cos(theta) - up * MathF.Sin(theta);
-                        var position = center + tubeRadius* normal;
+                        var normal = -direction * MathF.Cos(theta) - up * MathF.Sin(theta);
+                        var position = center + tubeRadius * normal;
                         positions.Add(options.TransformPosition(position));
                         if (normals != null)
                         {
@@ -303,7 +304,7 @@ namespace MeshTopologyToolkit
 
             if ((options.Mask & MeshAttributeMask.Tangent) == MeshAttributeMask.Tangent)
             {
-                mesh.EnsureTangents();
+                return new EnsureTangentsOperator().Transform(mesh);
             }
 
             return mesh;

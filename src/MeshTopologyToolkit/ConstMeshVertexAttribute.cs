@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace MeshTopologyToolkit
 {
-    public class ConstMeshVertexAttribute<T> : MeshVertexAttributeBase<T>, IMeshVertexAttribute<T> where T: notnull
+    public class ConstMeshVertexAttribute<T> : MeshVertexAttributeBase<T>, IMeshVertexAttribute<T> where T : notnull
     {
         T _value;
         public ConstMeshVertexAttribute(T value, int count = 1)

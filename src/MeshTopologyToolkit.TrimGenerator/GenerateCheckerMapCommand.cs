@@ -4,11 +4,11 @@ using System.Numerics;
 
 namespace MeshTopologyToolkit.TrimGenerator
 {
-        public class GenerateCheckerMapCommand
+    public class GenerateCheckerMapCommand
     {
         [Command("checkermap", Description = "Generate checker map.")]
         public int Build(
-            [Option('w', Description = "Texture width in pixels")] int width = 1024, 
+            [Option('w', Description = "Texture width in pixels")] int width = 1024,
             [Option('h', Description = "Texture height in pixels")] int height = 1024,
             [Option('s', Description = "Maximum number of shades of gray, rounded to next power of 2")] int levels = 8,
             [Option('c', Description = "Cell size in pixels")] int cellSize = 0,
@@ -89,9 +89,9 @@ namespace MeshTopologyToolkit.TrimGenerator
                 {
                     step *= 2;
                 }
-                for (int x = 0; x <= width - step; x+=step)
+                for (int x = 0; x <= width - step; x += step)
                 {
-                    for (int y = 0; y <= height - step; y+=step)
+                    for (int y = 0; y <= height - step; y += step)
                     {
                         DrawArrows(x + step / 2, y + step / 2);
                     }
@@ -101,7 +101,7 @@ namespace MeshTopologyToolkit.TrimGenerator
             return pixels;
         }
 
-  
+
         internal static IFileSystemEntry BuildPng(int width, int height, int levels, int cellSize, int gridLevels)
         {
             var generator = new GenerateCheckerMapCommand();

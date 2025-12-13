@@ -80,7 +80,7 @@ namespace MeshTopologyToolkit
             // Check if the point 'p' is outside the current sphere
             float distSqToCenter = Vector3.DistanceSquared(position, Center);
 
-            if (distSqToCenter > Radius*Radius)
+            if (distSqToCenter > Radius * Radius)
             {
                 // The point is outside. We must expand the sphere to enclose it.
                 float distance = (float)Math.Sqrt(distSqToCenter);

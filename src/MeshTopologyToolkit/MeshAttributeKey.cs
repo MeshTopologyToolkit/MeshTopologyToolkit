@@ -25,10 +25,12 @@ namespace MeshTopologyToolkit
 
         public int Channel => _channel;
 
-        public bool IsValid { get
+        public bool IsValid
+        {
+            get
             {
                 return !string.IsNullOrEmpty(_name);
-            } 
+            }
         }
 
         public override bool Equals(object? obj)

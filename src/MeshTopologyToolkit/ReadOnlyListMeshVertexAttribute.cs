@@ -21,7 +21,7 @@ namespace MeshTopologyToolkit
             throw new System.InvalidOperationException("The mesh attribute is read-only");
         }
 
-      
+
         public override IEnumerator<T> GetEnumerator()
         {
             return _values.GetEnumerator();

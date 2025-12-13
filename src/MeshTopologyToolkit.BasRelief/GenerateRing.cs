@@ -48,10 +48,10 @@ namespace MeshTopologyToolkit.BasRelief
 
                 var getVertex = (int x, int y, float h) =>
                 {
-                    var a = -MathF.PI * (x/(float)image.Width) * 2.0f;
+                    var a = -MathF.PI * (x / (float)image.Width) * 2.0f;
                     var cos = MathF.Cos(a);
                     var sin = MathF.Sin(a);
-                    return new Vector3(cos*(radius+h), -pixelSizeInUnits * y, sin*(radius+h));
+                    return new Vector3(cos * (radius + h), -pixelSizeInUnits * y, sin * (radius + h));
                 };
 
                 for (int x = 0; x < image.Width; ++x)
@@ -116,8 +116,8 @@ namespace MeshTopologyToolkit.BasRelief
                     for (int x = 0; x < image.Width; ++x)
                     {
                         var ha = heigthmap[x, y];
-                        var hb = heigthmap[(x + 1)% image.Width, y];
-                        var hc = heigthmap[(x + 1)% image.Width, y + 1];
+                        var hb = heigthmap[(x + 1) % image.Width, y];
+                        var hc = heigthmap[(x + 1) % image.Width, y + 1];
                         var hd = heigthmap[x, y + 1];
                         if (ha > 0 || hb > 0 || hc > 0)
                         {

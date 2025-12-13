@@ -25,7 +25,7 @@ namespace MeshTopologyToolkit.Gltf
                 if (key.Name == MeshAttributeNames.Color)
                 {
                     _colors[key.Channel] = sourceMesh.GetAttribute<Vector4>(key);
-                    MaxColors = Math.Max(MaxColors, key.Channel+1);
+                    MaxColors = Math.Max(MaxColors, key.Channel + 1);
                 }
                 if (key.Name == MeshAttributeNames.TexCoord)
                 {

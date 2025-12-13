@@ -43,11 +43,11 @@ namespace MeshTopologyToolkit.Gltf
 
         public int MaxBindings { get; set; } = 0;
 
-        public Vector4 JointsLow => (_jointsAttrLow != null)?_jointsAttrLow[_index]:Vector4.Zero;
+        public Vector4 JointsLow => (_jointsAttrLow != null) ? _jointsAttrLow[_index] : Vector4.Zero;
 
         public Vector4 JointsHigh => Vector4.Zero;
 
-        public Vector4 WeightsLow => (_weightsAttrLow != null) ? _weightsAttrLow[_index] : Vector4.Zero; 
+        public Vector4 WeightsLow => (_weightsAttrLow != null) ? _weightsAttrLow[_index] : Vector4.Zero;
 
         public Vector4 WeightsHigh => Vector4.Zero;
 

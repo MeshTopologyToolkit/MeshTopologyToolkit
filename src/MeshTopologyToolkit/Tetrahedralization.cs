@@ -9,7 +9,7 @@ namespace MeshTopologyToolkit
     public class Tetrahedralization
     {
         /// <summary>Represents a single tetrahedron defined by four vertices.</summary>
-        public class Tetrahedron:IEnumerable<int>
+        public class Tetrahedron : IEnumerable<int>
         {
             public int A, B, C, D;
 
@@ -23,7 +23,7 @@ namespace MeshTopologyToolkit
             public Tetrahedron(int v1, int v2, int v3, int v4, IReadOnlyList<Vector3d> positions)
             {
 #if DEBUG
-                if (v1 == v2 || v1 == v3 || v1 == v4 || v2 == v3 || v2 == v4 || v3 == v4) 
+                if (v1 == v2 || v1 == v3 || v1 == v4 || v2 == v3 || v2 == v4 || v3 == v4)
                     throw new ArgumentException("Invalid set of vertices");
 #endif
 
@@ -41,10 +41,10 @@ namespace MeshTopologyToolkit
                 // Returns faces: (1,2,3), (1,2,4), (1,3,4), (2,3,4)
                 return index switch
                 {
-                    0 => new Face( A, B, C ),
-                    1 => new Face( A, B, D ),
-                    2 => new Face( A, C, D ),
-                    3 => new Face( B, C, D ),
+                    0 => new Face(A, B, C),
+                    1 => new Face(A, B, D),
+                    2 => new Face(A, C, D),
+                    3 => new Face(B, C, D),
                     _ => throw new IndexOutOfRangeException("Face index must be 0-3.")
                 };
             }
@@ -126,8 +126,8 @@ namespace MeshTopologyToolkit
                 return new List<Tetrahedron>();
             }
 
-            var inputPoints = new List<Vector3d>(positions.Count+4);
-            inputPoints.AddRange(positions.Select(_=>new Vector3d(_)));
+            var inputPoints = new List<Vector3d>(positions.Count + 4);
+            inputPoints.AddRange(positions.Select(_ => new Vector3d(_)));
 
             // Create a "Super-Tetrahedron" that bounds all input points.
             // The vertices of this super-tetrahedron will be removed at the end.
@@ -179,13 +179,13 @@ namespace MeshTopologyToolkit
                     else
                     {
                         newTetra = newTetra;
-                    }    
+                    }
 #if DEBUG
-                        actualVolume += newTetra.Volume;
+                    actualVolume += newTetra.Volume;
 #endif
                 }
 #if DEBUG
-                if (Math.Abs(actualVolume - totalBadVolume)>1e-6)
+                if (Math.Abs(actualVolume - totalBadVolume) > 1e-6)
                 {
                     throw new Exception("Something went wrong");
                 }
@@ -258,7 +258,7 @@ namespace MeshTopologyToolkit
         /// Helper struct for identifying and comparing triangular faces robustly.
         /// Uses vertex IDs for comparison.
         /// </summary>
-        public struct Face: IEnumerable<int>
+        public struct Face : IEnumerable<int>
         {
             public int A { get; }
             public int B { get; }

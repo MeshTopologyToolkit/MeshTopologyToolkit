@@ -15,7 +15,7 @@ namespace MeshTopologyToolkit
             SupportedExtensions = _formats.SelectMany(_ => _.SupportedExtensions).ToList();
         }
 
-        public FileFormatCollection(params IFileFormat[] formats):this((IEnumerable<IFileFormat>)formats)
+        public FileFormatCollection(params IFileFormat[] formats) : this((IEnumerable<IFileFormat>)formats)
         {
         }
 
@@ -26,7 +26,7 @@ namespace MeshTopologyToolkit
             var ext = Path.GetExtension(entry.Name);
             foreach (var format in _formats)
             {
-                if (format.SupportedExtensions.Any(_=>_.Extension.Equals(ext, StringComparison.OrdinalIgnoreCase)))
+                if (format.SupportedExtensions.Any(_ => _.Extension.Equals(ext, StringComparison.OrdinalIgnoreCase)))
                 {
                     if (format.TryRead(entry, out content))
                         return true;

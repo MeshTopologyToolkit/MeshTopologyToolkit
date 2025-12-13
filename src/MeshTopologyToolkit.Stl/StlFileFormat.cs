@@ -39,7 +39,7 @@ namespace MeshTopologyToolkit.Stl
 
                 var initialPosition = stream.Position;
                 var buf = new byte[5];
-                var header = stream.Read(buf,0,buf.Length);
+                var header = stream.Read(buf, 0, buf.Length);
                 stream.Position = initialPosition;
 
                 if (new SpanTokenizer(buf).Expect("solid"))
@@ -198,7 +198,7 @@ namespace MeshTopologyToolkit.Stl
             {
                 Merge(position, content.Scenes[0]);
                 var sceneName = content.Scenes[0].Name;
-                name = string.IsNullOrWhiteSpace(sceneName) ?name: sceneName;
+                name = string.IsNullOrWhiteSpace(sceneName) ? name : sceneName;
             }
             else if (content.Meshes.Count > 0)
             {
@@ -214,18 +214,18 @@ namespace MeshTopologyToolkit.Stl
             {
                 using (var binaryWriter = new BinaryWriter(stream))
                 {
-                    var start = new UTF8Encoding(false).GetBytes("STLEXP "+name);
+                    var start = new UTF8Encoding(false).GetBytes("STLEXP " + name);
                     binaryWriter.Write(start, 0, Math.Min(80, start.Length));
                     for (int i = start.Length; i < 80; ++i)
                     {
                         binaryWriter.Write((byte)0);
                     }
                     binaryWriter.Write((int)(position.Count / 3));
-                    for (int i=0; i<position.Count; i+=3)
+                    for (int i = 0; i < position.Count; i += 3)
                     {
                         var a = position[i];
-                        var b = position[i+1];
-                        var c = position[i+2];
+                        var b = position[i + 1];
+                        var c = position[i + 2];
                         var n = Vector3.Cross(b - a, c - a);
                         var nLength = n.Length();
                         if (nLength < 1e-6f)

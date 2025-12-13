@@ -19,9 +19,10 @@ namespace MeshTopologyToolkit.BasRelief
             _data = new float[_width * _height];
         }
 
-        public Heightmap(Image<Rgba32> image):this(image.Width, image.Height)
+        public Heightmap(Image<Rgba32> image) : this(image.Width, image.Height)
         {
-            image.ProcessPixelRows(accessor => {
+            image.ProcessPixelRows(accessor =>
+            {
                 for (int y = 0; y < accessor.Height; y++)
                 {
                     Span<Rgba32> row = accessor.GetRowSpan(y);
@@ -53,7 +54,7 @@ namespace MeshTopologyToolkit.BasRelief
             }
             set
             {
-                _data[x + y*_width] = value;
+                _data[x + y * _width] = value;
             }
         }
 
@@ -185,7 +186,7 @@ namespace MeshTopologyToolkit.BasRelief
                 // Iterate over columns (x)
                 for (int x = 0; x < _width; x++)
                 {
-                    res[x,y] = this[x,y] - blur[x,y];
+                    res[x, y] = this[x, y] - blur[x, y];
                 }
             }
             return res;
@@ -210,7 +211,7 @@ namespace MeshTopologyToolkit.BasRelief
                 // Iterate over columns (x)
                 for (int x = 0; x < _width; x++)
                 {
-                    res[x, y] = (this[x, y]-min)*scale + padding;
+                    res[x, y] = (this[x, y] - min) * scale + padding;
                 }
             }
             return res;

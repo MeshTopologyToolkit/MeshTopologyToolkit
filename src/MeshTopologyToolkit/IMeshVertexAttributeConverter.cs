@@ -4,7 +4,7 @@
     {
     }
 
-    public interface IMeshVertexAttributeConverter<TFrom, TTo>: IMeshVertexAttributeConverter
+    public interface IMeshVertexAttributeConverter<TFrom, TTo> : IMeshVertexAttributeConverter
     {
         TTo Convert(TFrom value);
     }

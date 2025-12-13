@@ -138,7 +138,7 @@ namespace MeshTopologyToolkit.Collada
             foreach (var material in materials)
             {
                 yield return new XElement(c + "effect",
-                    new XAttribute("id", ToColladaId("effect_" +material.Name)),
+                    new XAttribute("id", ToColladaId("effect_" + material.Name)),
                     new XAttribute("name", "effect_" + material.Name),
                     new XElement(c + "profile_COMMON",
                             new XElement(c + "technique", new XAttribute("sid", "common"),
@@ -173,7 +173,7 @@ namespace MeshTopologyToolkit.Collada
                         if (data == null)
                             continue;
 
-                        inputs.Add(new Input(semantic, inputs.Count, "#" + ToColladaId(mesh.Name + "_" + key.Name), (key == MeshAttributeKey.TexCoord)?key.Channel:null, mesh.GetAttributeIndices(key)));
+                        inputs.Add(new Input(semantic, inputs.Count, "#" + ToColladaId(mesh.Name + "_" + key.Name), (key == MeshAttributeKey.TexCoord) ? key.Channel : null, mesh.GetAttributeIndices(key)));
 
                         var source = new XElement(c + "source", new XAttribute("id", ToColladaId(mesh.Name + "_" + key.Name)));
                         var floatArray = new XElement(c + "float_array",
@@ -330,7 +330,7 @@ namespace MeshTopologyToolkit.Collada
                 yield return new XElement(c + "node",
                     new XAttribute("id", ToColladaId(child.Name)),
                     new XAttribute("name", child.Name),
-                    new XElement(c+"matrix", new XAttribute("sid", "matrix"), GetMatrixComponentString(child.Transform.ToMatrix())),
+                    new XElement(c + "matrix", new XAttribute("sid", "matrix"), GetMatrixComponentString(child.Transform.ToMatrix())),
                     CreateMesh(child.Mesh),
                     CreateNodes(child.Children)
                 );
@@ -383,7 +383,7 @@ namespace MeshTopologyToolkit.Collada
             if (mesh?.Mesh == null)
                 yield break;
 
-            yield return new XElement(c + "instance_geometry", 
+            yield return new XElement(c + "instance_geometry",
                 new XAttribute("url", "#" + ToColladaId(mesh.Mesh.Name)),
                 CreateMaterials(mesh.Materials));
         }

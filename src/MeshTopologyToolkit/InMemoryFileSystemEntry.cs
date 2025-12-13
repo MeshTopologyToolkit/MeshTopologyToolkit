@@ -54,7 +54,7 @@ namespace MeshTopologyToolkit
             return Name ?? base.ToString();
         }
 
-        internal class EntryMemoryStream: MemoryStream
+        internal class EntryMemoryStream : MemoryStream
         {
             Dictionary<string, byte[]> _files;
             string _name;

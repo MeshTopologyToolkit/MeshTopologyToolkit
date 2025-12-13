@@ -229,16 +229,16 @@ namespace MeshTopologyToolkit.Obj
                     {
                         if (data.NormalIndices.Count > 0)
                         {
-                            indexFormatter = (int index) => { return string.Format(CultureInfo.InvariantCulture, "{0}//{1}", data.PositionIndices[index]+1, data.NormalIndices[index] + 1); };
+                            indexFormatter = (int index) => { return string.Format(CultureInfo.InvariantCulture, "{0}//{1}", data.PositionIndices[index] + 1, data.NormalIndices[index] + 1); };
                         }
                     }
 
                     writer.WriteLine();
                     writer.WriteLine("o Mesh");
                     writer.WriteLine("g Mesh");
-                    for (int index=0; index<data.PositionIndices.Count; index+=3)
+                    for (int index = 0; index < data.PositionIndices.Count; index += 3)
                     {
-                        writer.WriteLine("f {0} {1} {2}", indexFormatter(index), indexFormatter(index+1), indexFormatter(index+2));
+                        writer.WriteLine("f {0} {1} {2}", indexFormatter(index), indexFormatter(index + 1), indexFormatter(index + 2));
                     }
                 }
             }

@@ -39,7 +39,7 @@ namespace MeshTopologyToolkit
 
         public double LengthSquared()
         {
-            return X*X + Y*Y + Z*Z;
+            return X * X + Y * Y + Z * Z;
         }
 
         public static double DistanceSquared(Vector3d a, Vector3d b)
@@ -88,7 +88,7 @@ namespace MeshTopologyToolkit
             return new Vector3d(a.X * scale, a.Y * scale, a.Z * scale);
         }
 
-        public static Vector3d operator -(Vector3d value) { return new Vector3d(-value.X, -value.Y, -value.Z);  }
+        public static Vector3d operator -(Vector3d value) { return new Vector3d(-value.X, -value.Y, -value.Z); }
 
         public static Vector3d operator -(Vector3d left, Vector3d right)
         {
@@ -128,5 +128,5 @@ namespace MeshTopologyToolkit
             left.Z * right.X - left.X * right.Z,
             left.X * right.Y - left.Y * right.X);
         }
-   }
+    }
 }

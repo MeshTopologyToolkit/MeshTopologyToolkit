@@ -13,5 +13,5 @@ namespace MeshTopologyToolkit.MathHelpers
             return from;
         }
     }
-    
+
 }

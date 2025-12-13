@@ -88,7 +88,7 @@ namespace MeshTopologyToolkit.Operators
                                 res.SetAttribute(key, data, TransformIndices(separatedIndexedMesh.GetAttributeIndices(key), separatedIndexedMesh.DrawCalls));
                             }
                             break;
-                            case MeshAttributeNames.TexCoord:
+                        case MeshAttributeNames.TexCoord:
                             if (FlipV)
                             {
                                 var texCoords = separatedIndexedMesh.GetAttribute<Vector2>(key);

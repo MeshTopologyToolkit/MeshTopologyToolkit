@@ -7,7 +7,7 @@ namespace MeshTopologyToolkit.Gltf
 {
     public class GltfFileFormat : IFileFormat
     {
-        static readonly SupportedExtension[] _extensions = new[] {  
+        static readonly SupportedExtension[] _extensions = new[] {
             new SupportedExtension("glTF (Text)", ".gltf"),
             new SupportedExtension("glTF (Binary)", ".glb"),
         };
@@ -24,11 +24,11 @@ namespace MeshTopologyToolkit.Gltf
                     return false;
                 var fileName = entry.Name;
                 var readContext = ReadContext
-                    .Create(_=> ReadBytes((_ == fileName) ? entry.OpenRead():entry.GetNeigbourEntry(Uri.UnescapeDataString(_)).OpenRead()))
+                    .Create(_ => ReadBytes((_ == fileName) ? entry.OpenRead() : entry.GetNeigbourEntry(Uri.UnescapeDataString(_)).OpenRead()))
                     .WithSettingsFrom(new ReadSettings() { Validation = SharpGLTF.Validation.ValidationMode.TryFix });
                 var model = readContext.ReadSchema2(fileName);
 
-                var visitor  = new GltfVisitor(content);
+                var visitor = new GltfVisitor(content);
                 visitor.Visit(model);
 
                 return true;

@@ -2,7 +2,7 @@
 
 namespace MeshTopologyToolkit
 {
-    public class FileSystemEntry: IFileSystemEntry
+    public class FileSystemEntry : IFileSystemEntry
     {
         FileInfo _fileInfo;
         public FileSystemEntry(FileInfo fileInfo)
@@ -22,7 +22,8 @@ namespace MeshTopologyToolkit
         public IFileSystemEntry GetNeigbourEntry(string fileName)
         {
             var dir = Path.GetDirectoryName(_fileInfo.FullName);
-            if (dir == null) {
+            if (dir == null)
+            {
                 return new FileSystemEntry(new FileInfo(fileName));
             }
             return new FileSystemEntry(new FileInfo(Path.Combine(dir, fileName)));

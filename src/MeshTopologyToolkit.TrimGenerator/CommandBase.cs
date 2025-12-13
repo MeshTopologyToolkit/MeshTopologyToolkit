@@ -13,7 +13,7 @@ namespace MeshTopologyToolkit.TrimGenerator
         public static readonly FileFormatCollection FileFormats = new FileFormatCollection(
             new AseFileFormat(),
             new ColladaFileFormat(),
-            new GltfFileFormat(), 
+            new GltfFileFormat(),
             new ObjFileFormat(),
             new StlFileFormat()
             );
