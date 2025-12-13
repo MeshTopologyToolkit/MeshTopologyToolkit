@@ -9,6 +9,7 @@ namespace MeshTopologyToolkit.TrimGenerator
                 typeof(PrintInfoCommand),
                 typeof(GenerateBoxCommand),
                 typeof(GenerateBoxPaletteCommand),
+                typeof(GenerateBrickWallCommand),
                 typeof(GenerateNormalMapCommand),
                 typeof(GenerateCheckerMapCommand) });
 

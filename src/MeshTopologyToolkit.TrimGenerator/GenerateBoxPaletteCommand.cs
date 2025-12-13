@@ -1,49 +1,9 @@
 ﻿using Cocona;
 using MeshTopologyToolkit.Operators;
-using SharpGLTF.Schema2;
 using System.Numerics;
 
 namespace MeshTopologyToolkit.TrimGenerator
 {
-    public class GenerateBrickWallCommand : CommandBase
-    {
-        [Command("brick-wall", Description = "Generate brick wall with randomized bricks.")]
-        public int Build(
-            [Option('t', Description = "Trim height in pixels")] int[] trimHeight,
-            [Option('w', Description = "Texture width in pixels")] int width = 1024,
-            [Option(Description = "Full trim width in world units")] float widthInUnits = 5.0f,
-            [Option(Description = "Wall width in world units")] float wallWidth = 5.0f,
-            [Option(Description = "Wall height in world units")] float wallHeight = 4.0f,
-            [Option(Description = "Wall thickness in world units. Zero means it matches brick height.")] float wallThickness = 0.0f,
-            [Option(Description = "Number of brick columns in the wall")] int columns = 8,
-            [Option(Description = "Number of brick rows in the wall")] int rows = 16,
-            [Option('b', Description = "Bevel width in pixels")] int bevelWidth = 8,
-            [Option('n', Description = "Add normal map")] bool normalMap = false,
-            [Option('c', Description = "Add checker map as base color (albedo)")] bool checkerMap = false,
-            [Option('a', Description = "Base color (albedo) texture file name")] string? albedo = null,
-            [Option('o', Description = "Output file name")] string output = "brick-wall.glb")
-        {
-            var args = new TrimGenerationArguments(trimHeight, width: width, bevelInPixels: bevelWidth, widthInUnits: widthInUnits);
-
-            Material material = GenerateBoxCommand.BuildMaterial(normalMap, checkerMap, albedo, args);
-
-            var container = new FileContainer();
-            container.Materials.Add(material);
-            foreach (var texture in material.TextureParams.Values)
-                container.Textures.Add(texture);
-
-            var brickWidth = wallWidth / columns;
-            var brickHeight = wallHeight / rows;
-            if (wallThickness == 0.0f)
-                wallThickness = brickHeight;
-
-
-            var scene = new Scene();
-            container.Scenes.Add(scene);
-
-            return SaveOutputModel(container, output) ? 1 : 0;
-        }
-    }
     public class GenerateBoxPaletteCommand : CommandBase
     {
         [Command("box-palette", Description = "Generate palette of boxes that combine all trim sizes.")]

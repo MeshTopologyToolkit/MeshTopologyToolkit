@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Numerics;
 
@@ -113,6 +114,14 @@ namespace MeshTopologyToolkit
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
+        }
+
+        internal void AddRange(IEnumerable<Vector3> values)
+        {
+            foreach (var val in values)
+            {
+                Add(val);
+            }
         }
     }
 }

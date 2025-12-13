@@ -5,6 +5,7 @@ using System.Numerics;
 
 namespace MeshTopologyToolkit
 {
+
     public class UnifiedIndexedMesh : MeshBase, IMesh
     {
         private Dictionary<MeshAttributeKey, IMeshVertexAttribute> _attributes = new Dictionary<MeshAttributeKey, IMeshVertexAttribute>();
@@ -27,12 +28,11 @@ namespace MeshTopologyToolkit
         {
             var attrKeys = mesh.GetAttributeKeys().ToList();
             var numAttrs = attrKeys.Count;
-            var vertexAttrIndices = new List<int>();
+            var stridedIndices = new StridedIndexContainer(attrKeys);
             var tmpIndices = new int[numAttrs];
 
             var attributes = new List<AttributeAndIndices>();
-            var indexMap = new Dictionary<IndexRange, int>();
-
+            var indexMap = new Dictionary<StridedIndexRange, int>();
 
             foreach (var attrKey in attrKeys)
             {
@@ -47,19 +47,19 @@ namespace MeshTopologyToolkit
                 {
                     tmpIndices[attrIndex] = attributes[attrIndex].Indices[i];
                 }
-                var indexRange = new IndexRange(tmpIndices, 0, numAttrs);
+                var indexRange = new StridedIndexRange(tmpIndices, 0, numAttrs);
                 if (!indexMap.TryGetValue(indexRange, out var newIndex))
                 {
-                    newIndex = vertexAttrIndices.Count / numAttrs;
-                    vertexAttrIndices.AddRange(tmpIndices);
-                    indexMap.Add(new IndexRange(vertexAttrIndices, newIndex * numAttrs, numAttrs), newIndex);
+                    newIndex = stridedIndices.Count;
+                    stridedIndices.Add(tmpIndices);
+                    indexMap.Add(stridedIndices[newIndex], newIndex);
                 }
                 _indices.Add(newIndex);
             }
 
             for (int attrIndex = 0; attrIndex < numAttrs; ++attrIndex)
             {
-                StridedListView<int> newIndexMap = new(vertexAttrIndices, attrIndex, numAttrs, indexMap.Count);
+                StridedListView<int> newIndexMap = new(stridedIndices.Indices, attrIndex, numAttrs, indexMap.Count);
                 _attributes.Add(attrKeys[attrIndex], attributes[attrIndex].Attribute.Remap(newIndexMap));
             }
 

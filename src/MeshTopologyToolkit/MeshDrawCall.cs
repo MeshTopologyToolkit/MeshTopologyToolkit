@@ -1,4 +1,5 @@
 ﻿
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -44,6 +45,14 @@ namespace MeshTopologyToolkit
         public int NumIndices { get; }
 
         public IEnumerable<Face> GetFaces(IReadOnlyList<int> indices)
+        {
+            foreach (var face in GetFaces())
+            {
+                yield return new Face(indices[face.A], indices[face.B], indices[face.C]);
+            }
+        }
+
+        public IEnumerable<Face> GetFaces(IList<int> indices)
         {
             foreach (var face in GetFaces())
             {
@@ -121,6 +130,11 @@ namespace MeshTopologyToolkit
                 yield return A;
                 yield return B;
                 yield return C;
+            }
+
+            internal Face Rotate()
+            {
+                return new Face(B, C, A);
             }
 
             IEnumerator IEnumerable.GetEnumerator()

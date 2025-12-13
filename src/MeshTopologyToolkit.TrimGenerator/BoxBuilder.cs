@@ -34,7 +34,6 @@ namespace MeshTopologyToolkit.TrimGenerator
         {
             _mesh.DrawCalls.Add(new MeshDrawCall(0, 0, MeshTopology.TriangleList, 0, _mesh.Indices.Count));
             _mesh = (UnifiedIndexedMesh)new EnsureTangentsOperator().Transform(_mesh);
-
             return _mesh;
         }
 

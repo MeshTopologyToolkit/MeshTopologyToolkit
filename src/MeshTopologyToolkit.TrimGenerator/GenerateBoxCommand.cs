@@ -1,4 +1,5 @@
 ﻿using Cocona;
+using MeshTopologyToolkit.Operators;
 using System.Numerics;
 
 namespace MeshTopologyToolkit.TrimGenerator
@@ -16,6 +17,7 @@ namespace MeshTopologyToolkit.TrimGenerator
             [Option(Description = "Box size along Z dimention")] float sizeZ = 1.0f,
             [Option(Description = "Snap to right side of the trim")] bool snapToRight = false,
             [Option(Description = "Snap to bottom side of the trim")] bool snapToBottom = false,
+            [Option(Description = "Split faces to eliminame T-vertices")] bool noT = false,
             [Option('m', Description = "Max deviation from the scale in percents")] float maxDeviation = 10.0f,
             [Option('n', Description = "Add normal map")] bool normalMap = false,
             [Option('c', Description = "Add checker map as base color (albedo)")] bool checkerMap = false,
@@ -25,7 +27,11 @@ namespace MeshTopologyToolkit.TrimGenerator
             var args = new TrimGenerationArguments(trimHeight, width: width, bevelInPixels: bevelWidth, widthInUnits: widthInUnits);
             Material material = BuildMaterial(normalMap, checkerMap, albedo, args);
 
-            UnifiedIndexedMesh mesh = BuildBoxMesh(new Vector3(sizeX, sizeY, sizeZ), args, new BoxBuilder(maxDeviation, snapToRight, snapToBottom));
+            IMesh mesh = BuildBoxMesh(new Vector3(sizeX, sizeY, sizeZ), args, new BoxBuilder(maxDeviation, snapToRight, snapToBottom));
+            if (noT)
+            {
+                mesh = new EliminateTVerticesOperator().Transform(mesh);
+            }
 
             var container = new FileContainer();
             container.AddSingleMeshScene(new MeshReference(mesh, material));

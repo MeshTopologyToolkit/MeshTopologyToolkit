@@ -23,7 +23,7 @@ namespace MeshTopologyToolkit.Operators
                 return mesh;
             }
 
-            mesh = new EnsureTangentsOperator().Transform(mesh);
+            mesh = new EnsureNormalsOperator().Transform(mesh);
 
             if (mesh is SeparatedIndexedMesh separatedIndexedMesh)
             {
