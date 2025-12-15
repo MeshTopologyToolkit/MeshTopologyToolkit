@@ -137,5 +137,12 @@ namespace MeshTopologyToolkit
         {
             return _attributes.TryGetValue(key, out var value) && value.Indices != null && value.Attribute != null;
         }
+
+        public SeparatedIndexedMesh WithTriangleList()
+        {
+            int count = (_attributes.Count != 0)? _attributes.First().Value.Indices.Count : 0;
+            DrawCalls.Add(new MeshDrawCall(0, 0, MeshTopology.TriangleList, 0, count));
+            return this;
+        }
     }
 }

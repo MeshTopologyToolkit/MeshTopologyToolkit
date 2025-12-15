@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<COLLADA xmlns="http://www.collada.org/2005/11/COLLADASchema" version="1.4.1">
+  <asset>
+    <contributor>
+      <author/>
+      <authoring_tool>FBX COLLADA exporter</authoring_tool>
+      <comments/>
+    </contributor>
+    <created>2025-12-13T22:49:28Z</created>
+    <keywords/>
+    <modified>2025-12-13T22:49:28Z</modified>
+    <revision/>
+    <subject/>
+    <title/>
+    <unit meter="0.025400" name="centimeter"/>
+    <up_axis>Z_UP</up_axis>
+  </asset>
+  <library_geometries>
+    <geometry id="Face10_20_30-lib" name="Face10_20_30Mesh">
+      <mesh>
+        <source id="Face10_20_30-POSITION">
+          <float_array id="Face10_20_30-POSITION-array" count="9">
+0.000000 0.000000 0.000000
+21.000000 -22.000000 -23.000000
+10.000000 20.000000 30.000000
+</float_array>
+          <technique_common>
+            <accessor source="#Face10_20_30-POSITION-array" count="3" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="Face10_20_30-Normal0">
+          <float_array id="Face10_20_30-Normal0-array" count="9">
+-0.183401 -0.788626 0.586884
+-0.183401 -0.788626 0.586884
+-0.183401 -0.788626 0.586884
+</float_array>
+          <technique_common>
+            <accessor source="#Face10_20_30-Normal0-array" count="3" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="Face10_20_30-UV0">
+          <float_array id="Face10_20_30-UV0-array" count="8">
+0.000000 0.000000
+1.000000 0.000000
+0.000000 1.000000
+1.000000 1.000000
+</float_array>
+          <technique_common>
+            <accessor source="#Face10_20_30-UV0-array" count="4" stride="2">
+              <param name="S" type="float"/>
+              <param name="T" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="Face10_20_30-VERTEX">
+          <input semantic="POSITION" source="#Face10_20_30-POSITION"/>
+        </vertices>
+        <triangles count="1">
+          <input semantic="VERTEX" offset="0" source="#Face10_20_30-VERTEX"/>
+          <input semantic="NORMAL" offset="1" source="#Face10_20_30-Normal0"/>
+          <input semantic="TEXCOORD" offset="2" set="0" source="#Face10_20_30-UV0"/>
+          <p> 2 0 2 0 1 0 1 2 1</p>
+        </triangles>
+      </mesh>
+    </geometry>
+  </library_geometries>
+  <library_visual_scenes>
+    <visual_scene id="Face102030ZUp" name="Face102030ZUp">
+      <node name="Face10_20_30" id="Face10_20_30" sid="Face10_20_30">
+        <matrix sid="matrix">0.813798 -0.440970 0.378522 10.000000 0.469846 0.882564 0.018028 20.000000 -0.342020 0.163176 0.925417 30.000000 0.000000 0.000000 0.000000 1.000000</matrix>
+        <instance_geometry url="#Face10_20_30-lib"/>
+        <extra>
+          <technique profile="FCOLLADA">
+            <visibility>1.000000</visibility>
+          </technique>
+        </extra>
+      </node>
+      <extra>
+        <technique profile="MAX3D">
+          <frame_rate>30.000000</frame_rate>
+        </technique>
+        <technique profile="FCOLLADA">
+          <start_time>0.000000</start_time>
+          <end_time>3.333333</end_time>
+        </technique>
+      </extra>
+    </visual_scene>
+  </library_visual_scenes>
+  <scene>
+    <instance_visual_scene url="#Face102030ZUp"/>
+  </scene>
+</COLLADA>

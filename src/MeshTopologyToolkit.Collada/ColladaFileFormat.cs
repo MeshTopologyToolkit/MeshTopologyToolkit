@@ -17,7 +17,7 @@ namespace MeshTopologyToolkit.Collada
     public class ColladaFileFormat : IFileFormat
     {
         // COLLADA namespace
-        static readonly XNamespace c = "http://www.collada.org/2005/11/COLLADASchema";
+        static readonly XNamespace Ns = "http://www.collada.org/2005/11/COLLADASchema";
 
         /// <summary>
         /// Represents a collection of supported file extensions for the file format.
@@ -45,7 +45,15 @@ namespace MeshTopologyToolkit.Collada
         public bool TryRead(IFileSystemEntry entry, out FileContainer content)
         {
             content = new FileContainer();
-            return false;
+
+            using (var stream = entry.OpenRead())
+            {
+                if (stream == null)
+                    return false;
+                XDocument doc = XDocument.Load(stream);
+                new ColladaFileReader(content).Parse(doc);
+                return true;
+            }
         }
 
         public bool TryWrite(IFileSystemEntry entry, FileContainer content)
@@ -60,37 +68,37 @@ namespace MeshTopologyToolkit.Collada
                 _ => "Y_UP",
             };
             var doc = new XDocument(new XDeclaration("1.0", "utf-8", "no"));
-            var root = new XElement(c + "COLLADA",
+            var root = new XElement(Ns + "COLLADA",
                 new XAttribute("version", "1.4.1"),
                 // asset
-                new XElement(c + "asset",
-                    new XElement(c + "contributor",
-                        new XElement(c + "authoring_tool", "MeshTopologyToolkit.Collada")
+                new XElement(Ns + "asset",
+                    new XElement(Ns + "contributor",
+                        new XElement(Ns + "authoring_tool", "MeshTopologyToolkit.Collada")
                     ),
-                    new XElement(c + "created", DateTime.UtcNow.ToString("s", CultureInfo.InvariantCulture)),
-                    new XElement(c + "modified", DateTime.UtcNow.ToString("s", CultureInfo.InvariantCulture)),
-                    new XElement(c + "unit", new XAttribute("name", "meter"), new XAttribute("meter", "1")),
-                    new XElement(c + "up_axis", up)
+                    new XElement(Ns + "created", DateTime.UtcNow.ToString("s", CultureInfo.InvariantCulture)),
+                    new XElement(Ns + "modified", DateTime.UtcNow.ToString("s", CultureInfo.InvariantCulture)),
+                    new XElement(Ns + "unit", new XAttribute("name", "meter"), new XAttribute("meter", "1")),
+                    new XElement(Ns + "up_axis", up)
                 ),
-                new XElement(c + "library_images", CreateLibraryImages(content.Textures)),
-                new XElement(c + "library_materials", CreateLibraryMaterials(content.Materials)),
-                new XElement(c + "library_effects", CreateLibraryEffects(content.Materials)),
-                new XElement(c + "library_geometries", CreateLibraryGeometries(content.Meshes))
+                new XElement(Ns + "library_images", CreateLibraryImages(content.Textures)),
+                new XElement(Ns + "library_materials", CreateLibraryMaterials(content.Materials)),
+                new XElement(Ns + "library_effects", CreateLibraryEffects(content.Materials)),
+                new XElement(Ns + "library_geometries", CreateLibraryGeometries(content.Meshes))
             );
             doc.Add(root);
-            var scenes = new XElement(c + "library_visual_scenes");
-            var sceneElement = new XElement(c + "scene");
+            var scenes = new XElement(Ns + "library_visual_scenes");
+            var sceneElement = new XElement(Ns + "scene");
             root.Add(scenes);
             for (int i = 0; i < content.Scenes.Count; i++)
             {
                 Scene? scene = content.Scenes[i];
-                var visualScene = new XElement(c + "visual_scene",
+                var visualScene = new XElement(Ns + "visual_scene",
                     new XAttribute("id", ToColladaId(scene.Name)),
                     new XAttribute("name", scene.Name),
                     CreateNodes(scene.Children)
                 );
                 if (i == 0)
-                    sceneElement.Add(new XElement(c + "instance_visual_scene", new XAttribute("url", "#" + ToColladaId(scene.Name))));
+                    sceneElement.Add(new XElement(Ns + "instance_visual_scene", new XAttribute("url", "#" + ToColladaId(scene.Name))));
                 scenes.Add(visualScene);
             }
             root.Add(sceneElement);
@@ -106,10 +114,10 @@ namespace MeshTopologyToolkit.Collada
         {
             foreach (var material in materials)
             {
-                yield return new XElement(c + "material",
+                yield return new XElement(Ns + "material",
                     new XAttribute("id", ToColladaId(material.Name)),
                     new XAttribute("name", material.Name),
-                    new XElement(c + "instance_effect",
+                    new XElement(Ns + "instance_effect",
                         new XAttribute("url", "#" + ToColladaId("effect_" + material.Name))
                     )
                 );
@@ -123,10 +131,10 @@ namespace MeshTopologyToolkit.Collada
                 if (texture?.FileSystemEntry == null)
                     continue;
                 var mime = Path.GetExtension(texture.FileSystemEntry.Name).ToLowerInvariant().TrimStart('.');
-                yield return new XElement(c + "image",
+                yield return new XElement(Ns + "image",
                     new XAttribute("id", ToColladaId(Path.GetFileName(texture.FileSystemEntry.Name))),
                     new XAttribute("name", texture.FileSystemEntry.Name),
-                    new XElement(c + "init_from",
+                    new XElement(Ns + "init_from",
                         "data:image/" + mime + ";base64," + Convert.ToBase64String(texture.FileSystemEntry.ReadAllBytes())
                     )
                 );
@@ -137,14 +145,14 @@ namespace MeshTopologyToolkit.Collada
         {
             foreach (var material in materials)
             {
-                yield return new XElement(c + "effect",
+                yield return new XElement(Ns + "effect",
                     new XAttribute("id", ToColladaId("effect_" + material.Name)),
                     new XAttribute("name", "effect_" + material.Name),
-                    new XElement(c + "profile_COMMON",
-                            new XElement(c + "technique", new XAttribute("sid", "common"),
-                                new XElement(c + "lambert",
-                                    new XElement(c + "diffuse",
-                                        new XElement(c + "color", "0.8 0.8 0.8 1")
+                    new XElement(Ns + "profile_COMMON",
+                            new XElement(Ns + "technique", new XAttribute("sid", "common"),
+                                new XElement(Ns + "lambert",
+                                    new XElement(Ns + "diffuse",
+                                        new XElement(Ns + "color", "0.8 0.8 0.8 1")
                                     )
                                 )
                             )
@@ -157,8 +165,8 @@ namespace MeshTopologyToolkit.Collada
         {
             foreach (var mesh in meshes)
             {
-                var geometry = new XElement(c + "geometry", new XAttribute("id", ToColladaId(mesh.Name)), new XAttribute("name", mesh.Name));
-                var meshElement = new XElement(c + "mesh");
+                var geometry = new XElement(Ns + "geometry", new XAttribute("id", ToColladaId(mesh.Name)), new XAttribute("name", mesh.Name));
+                var meshElement = new XElement(Ns + "mesh");
                 geometry.Add(meshElement);
                 var inputs = new List<Input>();
                 foreach (var key in mesh.GetAttributeKeys())
@@ -175,22 +183,22 @@ namespace MeshTopologyToolkit.Collada
 
                         inputs.Add(new Input(semantic, inputs.Count, "#" + ToColladaId(mesh.Name + "_" + key.Name), (key == MeshAttributeKey.TexCoord) ? key.Channel : null, mesh.GetAttributeIndices(key)));
 
-                        var source = new XElement(c + "source", new XAttribute("id", ToColladaId(mesh.Name + "_" + key.Name)));
-                        var floatArray = new XElement(c + "float_array",
+                        var source = new XElement(Ns + "source", new XAttribute("id", ToColladaId(mesh.Name + "_" + key.Name)));
+                        var floatArray = new XElement(Ns + "float_array",
                             new XAttribute("id", mesh.Name + "_" + key.Name + "_array"),
                             new XAttribute("count", data.Count),
                             string.Join(" ", data)
                         );
                         source.Add(floatArray);
-                        var techniqueCommon = new XElement(c + "technique_common");
-                        var accessor = new XElement(c + "accessor",
+                        var techniqueCommon = new XElement(Ns + "technique_common");
+                        var accessor = new XElement(Ns + "accessor",
                             new XAttribute("source", "#" + ToColladaId(mesh.Name + "_" + key.Name + "_array")),
                             new XAttribute("count", attribute.Count),
                             new XAttribute("stride", components.Count)
                         );
                         for (int i = 0; i < components.Count; i++)
                         {
-                            accessor.Add(new XElement(c + "param", new XAttribute("name", components[i].Name), new XAttribute("type", components[i].Type)));
+                            accessor.Add(new XElement(Ns + "param", new XAttribute("name", components[i].Name), new XAttribute("type", components[i].Type)));
                         }
                         techniqueCommon.Add(accessor);
                         source.Add(techniqueCommon);
@@ -199,8 +207,8 @@ namespace MeshTopologyToolkit.Collada
                 }
 
                 {
-                    var vertices = new XElement(c + "vertices", new XAttribute("id", ToColladaId(mesh.Name + "_vertices")),
-                        new XElement(c + "input", new XAttribute("semantic", "POSITION"), new XAttribute("source", "#" + ToColladaId(mesh.Name + "_" + MeshAttributeKey.Position))));
+                    var vertices = new XElement(Ns + "vertices", new XAttribute("id", ToColladaId(mesh.Name + "_vertices")),
+                        new XElement(Ns + "input", new XAttribute("semantic", "POSITION"), new XAttribute("source", "#" + ToColladaId(mesh.Name + "_" + MeshAttributeKey.Position))));
                     meshElement.Add(vertices);
                     for (int i = 0; i < inputs.Count; i++)
                     {
@@ -217,10 +225,10 @@ namespace MeshTopologyToolkit.Collada
                     if (drawCall.Type == MeshTopology.TriangleList || drawCall.Type == MeshTopology.TriangleStrip || drawCall.Type == MeshTopology.TriangleFan)
                     {
                         var faces = drawCall.GetFaces().ToList();
-                        var primitive = new XElement(c + "triangles", new XAttribute("count", faces.Count));
+                        var primitive = new XElement(Ns + "triangles", new XAttribute("count", faces.Count));
                         foreach (var input in inputs)
                         {
-                            var inp = new XElement(c + "input",
+                            var inp = new XElement(Ns + "input",
                                 new XAttribute("semantic", input.Semantic),
                                 new XAttribute("source", input.Source),
                                 new XAttribute("offset", input.Offset)
@@ -229,7 +237,7 @@ namespace MeshTopologyToolkit.Collada
                                 inp.Add(new XAttribute("set", input.Set.Value));
                             primitive.Add(inp);
                         }
-                        var p = new XElement(c + "p");
+                        var p = new XElement(Ns + "p");
                         var allIndices = new List<int>();
                         foreach (var face in faces)
                         {
@@ -327,10 +335,10 @@ namespace MeshTopologyToolkit.Collada
         {
             foreach (var child in children)
             {
-                yield return new XElement(c + "node",
+                yield return new XElement(Ns + "node",
                     new XAttribute("id", ToColladaId(child.Name)),
                     new XAttribute("name", child.Name),
-                    new XElement(c + "matrix", new XAttribute("sid", "matrix"), GetMatrixComponentString(child.Transform.ToMatrix())),
+                    new XElement(Ns + "matrix", new XAttribute("sid", "matrix"), GetMatrixComponentString(child.Transform.ToMatrix())),
                     CreateMesh(child.Mesh),
                     CreateNodes(child.Children)
                 );
@@ -340,40 +348,41 @@ namespace MeshTopologyToolkit.Collada
         private string GetMatrixComponentString(Matrix4x4 matrix4x4)
         {
             var sb = new StringBuilder();
-            sb.Append(matrix4x4.M11);
+            matrix4x4 = Matrix4x4.Transpose(matrix4x4);
+            sb.Append(matrix4x4.M11.ToString(CultureInfo.InvariantCulture));
             sb.Append(" ");
-            sb.Append(matrix4x4.M12);
+            sb.Append(matrix4x4.M12.ToString(CultureInfo.InvariantCulture));
             sb.Append(" ");
-            sb.Append(matrix4x4.M13);
+            sb.Append(matrix4x4.M13.ToString(CultureInfo.InvariantCulture));
             sb.Append(" ");
-            sb.Append(matrix4x4.M14);
-            sb.Append(" ");
-
-            sb.Append(matrix4x4.M21);
-            sb.Append(" ");
-            sb.Append(matrix4x4.M22);
-            sb.Append(" ");
-            sb.Append(matrix4x4.M23);
-            sb.Append(" ");
-            sb.Append(matrix4x4.M24);
+            sb.Append(matrix4x4.M14.ToString(CultureInfo.InvariantCulture));
             sb.Append(" ");
 
-            sb.Append(matrix4x4.M31);
+            sb.Append(matrix4x4.M21.ToString(CultureInfo.InvariantCulture));
             sb.Append(" ");
-            sb.Append(matrix4x4.M32);
+            sb.Append(matrix4x4.M22.ToString(CultureInfo.InvariantCulture));
             sb.Append(" ");
-            sb.Append(matrix4x4.M33);
+            sb.Append(matrix4x4.M23.ToString(CultureInfo.InvariantCulture));
             sb.Append(" ");
-            sb.Append(matrix4x4.M34);
+            sb.Append(matrix4x4.M24.ToString(CultureInfo.InvariantCulture));
             sb.Append(" ");
 
-            sb.Append(matrix4x4.M41);
+            sb.Append(matrix4x4.M31.ToString(CultureInfo.InvariantCulture));
             sb.Append(" ");
-            sb.Append(matrix4x4.M42);
+            sb.Append(matrix4x4.M32.ToString(CultureInfo.InvariantCulture));
             sb.Append(" ");
-            sb.Append(matrix4x4.M43);
+            sb.Append(matrix4x4.M33.ToString(CultureInfo.InvariantCulture));
             sb.Append(" ");
-            sb.Append(matrix4x4.M44);
+            sb.Append(matrix4x4.M34.ToString(CultureInfo.InvariantCulture));
+            sb.Append(" ");
+
+            sb.Append(matrix4x4.M41.ToString(CultureInfo.InvariantCulture));
+            sb.Append(" ");
+            sb.Append(matrix4x4.M42.ToString(CultureInfo.InvariantCulture));
+            sb.Append(" ");
+            sb.Append(matrix4x4.M43.ToString(CultureInfo.InvariantCulture));
+            sb.Append(" ");
+            sb.Append(matrix4x4.M44.ToString(CultureInfo.InvariantCulture));
 
             return sb.ToString();
         }
@@ -383,7 +392,7 @@ namespace MeshTopologyToolkit.Collada
             if (mesh?.Mesh == null)
                 yield break;
 
-            yield return new XElement(c + "instance_geometry",
+            yield return new XElement(Ns + "instance_geometry",
                 new XAttribute("url", "#" + ToColladaId(mesh.Mesh.Name)),
                 CreateMaterials(mesh.Materials));
         }
@@ -394,9 +403,9 @@ namespace MeshTopologyToolkit.Collada
             {
                 if (material != null)
                 {
-                    yield return new XElement(c + "bind_material",
-                        new XElement(c + "technique_common",
-                            new XElement(c + "instance_material",
+                    yield return new XElement(Ns + "bind_material",
+                        new XElement(Ns + "technique_common",
+                            new XElement(Ns + "instance_material",
                                 new XAttribute("symbol", material.Name),
                                 new XAttribute("target", "#" + ToColladaId(material.Name))
                             )

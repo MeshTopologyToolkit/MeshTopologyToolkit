@@ -13,6 +13,25 @@ public class ColladaFileFormatTests
         this._testOutput = testOutput;
     }
 
+    [Fact]
+    public void Face102030YUp()
+    {
+        var resourceName = this.GetType().Namespace + ".samples.primitives.Face102030";
+        var fileFormat = new FileFormatCollection(new GltfFileFormat(), new ColladaFileFormat());
+
+        Assert.True(fileFormat.TryRead(StreamFileSystemEntry.FromEmbeddedResource(resourceName+".glb"), out var glbContent));
+        Assert.True(fileFormat.TryRead(StreamFileSystemEntry.FromEmbeddedResource(resourceName+".dae"), out var daeContent));
+
+        var glbScene = glbContent.Scenes.First();
+        var daeScene = daeContent.Scenes.First();
+
+        var glbNode = glbScene.Children.First();
+        var daeNode = daeScene.Children.First();
+
+        var glbTransform = glbNode.Transform;
+        var daeTransform = daeNode.Transform;
+    }
+
     [Theory]
     //[InlineData("samples.corner.TwoCorners.glb")]
     //[InlineData("samples.kronos.AnimatedMorphCube.glb")]
