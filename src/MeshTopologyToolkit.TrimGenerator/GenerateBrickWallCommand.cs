@@ -17,6 +17,8 @@ namespace MeshTopologyToolkit.TrimGenerator
             [Option(Description = "Number of brick columns in the wall")] int columns = 8,
             [Option(Description = "Number of brick rows in the wall")] int rows = 16,
             [Option(Description = "Maximum random brick rotation in degrees")] float maxRot = 0.0f,
+            [Option(Description = "Boundary random generator seed")] int boundarySeed = 0,
+            [Option(Description = "Inner structure random generator seed")] int innerSeed = 0,
             [Option('b', Description = "Bevel width in pixels")] int bevelWidth = 8,
             [Option('m', Description = "Max deviation from the scale in percents")] float maxDeviation = 10.0f,
             [Option('n', Description = "Add normal map")] bool normalMap = false,
@@ -51,18 +53,24 @@ namespace MeshTopologyToolkit.TrimGenerator
 
             var scene = new Scene();
             container.Scenes.Add(scene);
-            var corner = new Vector3(-wallWidth*0.5f, wallHeight, 0.0f);
-            var rnd = new Random(0);
+            var corner = new Vector3((-wallWidth+brickWidth)*0.5f, wallHeight-brickHeight*0.5f, 0.0f);
+            var innerRnd = new Random(innerSeed);
+            var boundaryRnd = new Random(boundarySeed);
             for (int y=0; y<rows; ++y)
             {
                 var shiftBricks = (y % 2) == 0;
                 var rowCorner = corner + new Vector3(shiftBricks ?-brickWidth*0.5f : 0.0f, -y * brickHeight, 0.0f);
                 for (int x = 0; x < columns; ++x)
                 {
+                    var rnd = (x == 0 && shiftBricks) ? boundaryRnd : innerRnd;
+
                     var rotAngle = MathF.PI / 180.0f * maxRot * 2.0f*((float)rnd.NextDouble()-0.5f);
                     var rot = Quaternion.CreateFromYawPitchRoll(rotAngle, 0.0f, 0.0f);
+                    if (rnd.Next() == 0)
+                        rot = rot * Quaternion.CreateFromYawPitchRoll(0.0f, 0.0f, MathF.PI);
                     var brick = new Node($"brick_{x}_{y}");
-                    brick.Mesh = new MeshReference(meshes[rnd.Next(meshes.Length)], material);
+                    var mesh = meshes[rnd.Next(meshes.Length)];
+                    brick.Mesh = new MeshReference(mesh, material);
                     var pos = rowCorner + new Vector3(x * brickWidth, 0, 0.0f);
                     brick.Transform = new TRSTransform(pos, rot);
                     scene.AddChild(brick);
@@ -70,7 +78,7 @@ namespace MeshTopologyToolkit.TrimGenerator
                     if (x == 0 && shiftBricks)
                     {
                         brick = new Node($"brick_{columns}_{y}");
-                        brick.Mesh = new MeshReference(meshes[rnd.Next(meshes.Length)], material);
+                        brick.Mesh = new MeshReference(mesh, material);
                         pos = rowCorner + new Vector3(columns * brickWidth, 0, 0.0f);
                         brick.Transform = new TRSTransform(pos, rot);
                         scene.AddChild(brick);
