@@ -33,7 +33,7 @@ namespace MeshTopologyToolkit.TrimGenerator
             Material material = GenerateBoxCommand.BuildMaterial(normalMap, checkerMap, albedo, args);
 
             var container = new FileContainer();
-            container.Materials.Add(material);
+            container.Add(material);
             foreach (var texture in material.TextureParams.Values)
                 container.Textures.Add(texture);
 
@@ -59,10 +59,10 @@ namespace MeshTopologyToolkit.TrimGenerator
             }
 
             foreach (var mesh in meshes)
-                container.Meshes.Add(mesh);
+                container.Add(mesh);
 
             var scene = new Scene();
-            container.Scenes.Add(scene);
+            container.Add(scene);
             var corner = new Vector3((-wallWidth+brickWidth)*0.5f, wallHeight-brickHeight*0.5f, 0.0f);
             var innerRnd = new Random(innerSeed);
             var boundaryRnd = new Random(boundarySeed);

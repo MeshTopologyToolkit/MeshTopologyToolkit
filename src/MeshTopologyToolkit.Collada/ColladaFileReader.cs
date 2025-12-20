@@ -33,7 +33,7 @@ namespace MeshTopologyToolkit.Collada
             {
                 var scene = new Scene(visualScene.Attribute("name")?.Value);
                 ParseChildNodes(visualScene, scene);
-                _content.Scenes.Add(scene);
+                _content.Add(scene);
             }
         }
 
@@ -85,7 +85,7 @@ namespace MeshTopologyToolkit.Collada
                     throw new FormatException($"Duplicate mesh id \"{meshId}\"");
                 }
                 _meshMap.Add(meshId, mesh);
-                _content.Meshes.Add(mesh);
+                _content.Add(mesh);
 
                 // Find the <mesh> element inside the <geometry>
                 var meshElement = geometry.Element(Ns + "mesh");

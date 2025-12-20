@@ -169,12 +169,20 @@ namespace MeshTopologyToolkit
         {
             return Merge((IReadOnlyList<UnifiedIndexedMesh>)meshes);
         }
+
         public static UnifiedIndexedMesh Merge(IReadOnlyCollection<UnifiedIndexedMesh> meshes)
+        {
+            return Merge(meshes.Select(m => new MeshAndTransform { Mesh = m, Transform = Matrix4x4.Identity }).ToList());
+        }
+
+        public static UnifiedIndexedMesh Merge(IReadOnlyCollection<MeshAndTransform> meshesAndTransforms)
         {
             List<MeshAttributeKey> attributeKeys;
             var attributeKeySet = new Dictionary<MeshAttributeKey, Type>();
-            foreach (var mesh in meshes)
+            foreach (var mesheAndTransform in meshesAndTransforms)
             {
+                var mesh = mesheAndTransform.Mesh;
+
                 foreach (var key in mesh.GetAttributeKeys())
                 {
                     if (!mesh.TryGetAttribute(key, out var attr))
@@ -189,38 +197,69 @@ namespace MeshTopologyToolkit
 
             var mergedMesh = new UnifiedIndexedMesh();
 
-            void MergeAttrs<T>(MeshAttributeKey key, T defaultValue) where T : notnull
+            void MergeAttrs<T>(MeshAttributeKey key, T defaultValue, Func<T, Matrix4x4,T> proj) where T : notnull
             {
                 var targetAttribute = new ListMeshVertexAttribute<T>();
-                foreach (var mesh in meshes)
+                foreach (var meshAndTransform in meshesAndTransforms)
                 {
+                    var mesh = meshAndTransform.Mesh;
+                    var transform = meshAndTransform.Transform;
+
                     if (mesh.TryGetAttribute<T>(key, out var attribute))
                     {
-                        targetAttribute.AddRange(attribute);
+                        targetAttribute.AddRange(attribute.Select(v=>proj(v, transform)));
                     }
                     else
                     {
-                        targetAttribute.AddRange(Enumerable.Range(0, mesh.GetNumVertices()).Select(_ => defaultValue));
+                        var meshDefaultValue = proj(defaultValue, transform);
+                        targetAttribute.AddRange(Enumerable.Range(0, mesh.GetNumVertices()).Select(_ => meshDefaultValue));
                     }
                 }
                 mergedMesh.SetAttribute(key, targetAttribute);
+            }
+            T AsIs<T>(T value, Matrix4x4 m) where T : notnull
+            {
+                return value;
             }
             foreach (var key in attributeKeys)
             {
                 if (attributeKeySet[key] == typeof(Vector3))
                 {
-                    MergeAttrs(key, Vector3.Zero);
+                    switch (key.Name)
+                    {
+                        case MeshAttributeNames.Position:
+                            MergeAttrs(key, Vector3.Zero, (v,m)=>Vector3.Transform(v, m));
+                            break;
+                        case MeshAttributeNames.Normal:
+                            MergeAttrs(key, Vector3.Zero, (v, m) => Vector3.TransformNormal(v, m).NormalizedOrDefault(Vector3.UnitY));
+                            break;
+                        case MeshAttributeNames.Tangent:
+                            MergeAttrs(key, new Vector3(1,0,0), (v, m) => Vector3.TransformNormal(v, m).NormalizedOrDefault(Vector3.UnitX));
+                            break;
+                        default:
+                            MergeAttrs(key, Vector3.Zero, AsIs);
+                            break;
+                    }
                 }
                 else if (attributeKeySet[key] == typeof(Vector4))
                 {
-                    if (key == MeshAttributeKey.Tangent)
-                        MergeAttrs(key, new Vector4(1, 0, 0, 1));
-                    else
-                        MergeAttrs(key, Vector4.Zero);
+                    switch (key.Name)
+                    {
+                        case MeshAttributeNames.Tangent:
+                            MergeAttrs(key, new Vector4(1, 0, 0, 1), (v, m) => {
+                                Vector3 xyz = new Vector3(v.X, v.Y, v.Z);
+                                xyz = Vector3.TransformNormal(xyz, m).NormalizedOrDefault(Vector3.UnitY);
+                                return new Vector4(xyz, v.W);
+                            });
+                            break;
+                        default:
+                            MergeAttrs(key, Vector4.Zero, AsIs);
+                            break;
+                    }
                 }
                 else if (attributeKeySet[key] == typeof(Vector2))
                 {
-                    MergeAttrs(key, Vector2.Zero);
+                    MergeAttrs(key, Vector2.Zero, AsIs);
                 }
                 else
                 {
@@ -230,8 +269,10 @@ namespace MeshTopologyToolkit
 
             var vertexOffset = 0;
             var indexOffset = 0;
-            foreach (var mesh in meshes)
+            foreach (var mesheAndTransform in meshesAndTransforms)
             {
+                var mesh = mesheAndTransform.Mesh;
+
                 mergedMesh.AddIndices(mesh.Indices.Select(i => i + vertexOffset));
                 foreach (var drawCall in mesh.DrawCalls)
                 {
@@ -264,5 +305,10 @@ namespace MeshTopologyToolkit
             return _attributes.Remove(key);
         }
 
+        public struct MeshAndTransform
+        {
+            public UnifiedIndexedMesh Mesh;
+            public Matrix4x4 Transform;
+        }
     }
 }

@@ -101,7 +101,7 @@ public class ObjFileFormatTests
         var content = new FileContainer();
 
         // Store the mesh we just built in the container.
-        content.Meshes.Add(mesh);
+        content.Add(mesh);
 
         // Create a simple scene object named "My Scene".
         var scene = new Scene() { Name = "My Scene" };
@@ -116,7 +116,7 @@ public class ObjFileFormatTests
         // Add node the scene.
         scene.AddChild(node);
         // Add scene to the file content.
-        content.Scenes.Add(scene);
+        content.Add(scene);
 
         // Create an STL file format writer.
         var fileFormat = new ObjFileFormat();

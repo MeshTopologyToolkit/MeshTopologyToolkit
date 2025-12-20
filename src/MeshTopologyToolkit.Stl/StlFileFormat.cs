@@ -138,11 +138,11 @@ namespace MeshTopologyToolkit.Stl
             mesh.AddAttribute(MeshAttributeKey.Position, positions, positionIndices);
             mesh.AddAttribute(MeshAttributeKey.Normal, normals, normalIndices);
             mesh.DrawCalls.Add(new MeshDrawCall(0, 0, MeshTopology.TriangleList, 0, positionIndices.Count));
-            content.Meshes.Add(mesh);
+            content.Add(mesh);
 
             var scene = new Scene();
             scene.AddChild(new Node() { Mesh = new MeshReference(mesh) });
-            content.Scenes.Add(scene);
+            content.Add(scene);
 
             return true;
         }
@@ -180,11 +180,11 @@ namespace MeshTopologyToolkit.Stl
             mesh.AddAttribute(MeshAttributeKey.Position, positions, positionIndices);
             mesh.AddAttribute(MeshAttributeKey.Normal, normals, normalIndices);
             mesh.DrawCalls.Add(new MeshDrawCall(0, 0, MeshTopology.TriangleList, 0, positionIndices.Count));
-            content.Meshes.Add(mesh);
+            content.Add(mesh);
 
             var scene = new Scene();
             scene.AddChild(new Node() { Mesh = new MeshReference(mesh) });
-            content.Scenes.Add(scene);
+            content.Add(scene);
 
             return true;
         }

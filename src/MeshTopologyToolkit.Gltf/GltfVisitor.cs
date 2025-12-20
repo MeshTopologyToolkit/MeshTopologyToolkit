@@ -36,27 +36,27 @@ namespace MeshTopologyToolkit.Gltf
             {
                 var meshRef = VisitMesh(mesh);
                 if (meshRef?.Mesh != null)
-                    _content.Meshes.Add(meshRef.Mesh);
+                    _content.Add(meshRef.Mesh);
             }
 
             foreach (var gltfMaterial in modelRoot.LogicalMaterials)
             {
                 var material = VisitMaterial(gltfMaterial);
                 if (material != null)
-                    _content.Materials.Add(material);
+                    _content.Add(material);
             }
 
             foreach (var gltfTextures in modelRoot.LogicalTextures)
             {
                 var texture = VisitTexture(gltfTextures);
                 if (texture != null)
-                    _content.Textures.Add(texture);
+                    _content.Add(texture);
             }
 
             foreach (var sourceScene in modelRoot.LogicalScenes)
             {
                 var scene = new Scene(sourceScene.Name);
-                _content.Scenes.Add(scene);
+                _content.Add(scene);
                 VisitVisualChildren(scene, sourceScene.VisualChildren);
             }
         }
@@ -352,7 +352,7 @@ namespace MeshTopologyToolkit.Gltf
             if (_defaultMaterial == null)
             {
                 _defaultMaterial = new Material("Default");
-                _content.Materials.Add(_defaultMaterial);
+                _content.Add(_defaultMaterial);
             }
 
             return _defaultMaterial;

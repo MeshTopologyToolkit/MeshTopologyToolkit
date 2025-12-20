@@ -6,15 +6,22 @@ namespace MeshTopologyToolkit.Operators
 {
     public class ChangeSpaceOperator : ContentOperatorBase
     {
-        Matrix4x4 _transform;
+        private Matrix4x4 _transform;
+        private Matrix4x4 _rotation;
+        private Vector3 _scale;
+
         public ChangeSpaceOperator(SpaceTransform transform)
         {
-            _transform = transform.Transform;
+            _rotation = transform.Rotation;
+            _scale = transform.Scale;
+            _transform = _rotation * Matrix4x4.CreateScale(_scale);
             FlipV = transform.FlipV;
             FlipFaceIndices = transform.FlipFaceIndices;
         }
 
-        public Matrix4x4 Transoform => _transform;
+        public Matrix4x4 Rotation => _rotation;
+        public Matrix4x4 CombinedTransform => _transform;
+        public Vector3 Scale => _scale;
 
         public bool FlipV { get; private set; }
         public bool FlipFaceIndices { get; }
@@ -22,10 +29,10 @@ namespace MeshTopologyToolkit.Operators
         public override Node Transform(Node node)
         {
             var res = base.Transform(node);
-            if (_transform != Matrix4x4.Identity)
+            if (_rotation != Matrix4x4.Identity)
             {
                 var m = res.Transform.ToMatrix();
-                res.Transform = new MatrixTransform(m * _transform);
+                res.Transform = new MatrixTransform(m * _rotation);
             }
             return res;
         }
@@ -56,7 +63,7 @@ namespace MeshTopologyToolkit.Operators
                                 var data = new ListMeshVertexAttribute<Vector3>(normals.Count);
                                 foreach (var position in normals)
                                 {
-                                    data.Add(Vector3.Normalize(Vector3.TransformNormal(position, _transform)));
+                                    data.Add(Vector3.Normalize(Vector3.TransformNormal(position, _rotation)));
                                 }
                                 res.SetAttribute(key, data);
                             }
@@ -71,7 +78,7 @@ namespace MeshTopologyToolkit.Operators
                                     foreach (var tangent in tangents)
                                     {
                                         var t = new Vector3(tangent.X, tangent.Y, tangent.Z);
-                                        t = Vector3.Normalize(Vector3.TransformNormal(t, _transform));
+                                        t = Vector3.Normalize(Vector3.TransformNormal(t, _rotation));
                                         data.Add(new Vector4(t, tangent.W));
                                     }
                                     res.SetAttribute(key, data);
@@ -82,7 +89,7 @@ namespace MeshTopologyToolkit.Operators
                                     var data = new ListMeshVertexAttribute<Vector3>(tangents.Count);
                                     foreach (var tangent in tangents)
                                     {
-                                        data.Add(Vector3.Normalize(Vector3.TransformNormal(tangent, _transform)));
+                                        data.Add(Vector3.Normalize(Vector3.TransformNormal(tangent, _rotation)));
                                     }
                                     res.SetAttribute(key, data);
                                 }
@@ -128,7 +135,7 @@ namespace MeshTopologyToolkit.Operators
                                 var data = new ListMeshVertexAttribute<Vector3>(positions.Count);
                                 foreach (var uv in positions)
                                 {
-                                    data.Add(Vector3.Transform(uv, _transform));
+                                    data.Add(Vector3.Transform(uv, _rotation));
                                 }
                                 res.SetAttribute(key, data, TransformIndices(separatedIndexedMesh.GetAttributeIndices(key), separatedIndexedMesh.DrawCalls));
                             }
@@ -139,7 +146,7 @@ namespace MeshTopologyToolkit.Operators
                                 var data = new ListMeshVertexAttribute<Vector3>(normal.Count);
                                 foreach (var uv in normal)
                                 {
-                                    data.Add(Vector3.Normalize(Vector3.TransformNormal(uv, _transform)));
+                                    data.Add(Vector3.Normalize(Vector3.TransformNormal(uv, _rotation)));
                                 }
                                 res.SetAttribute(key, data, TransformIndices(separatedIndexedMesh.GetAttributeIndices(key), separatedIndexedMesh.DrawCalls));
                             }

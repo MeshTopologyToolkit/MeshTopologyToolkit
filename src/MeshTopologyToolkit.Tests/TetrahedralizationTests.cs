@@ -90,14 +90,14 @@ public class TetrahedralizationTests
 
         var content = new FileContainer();
         var scene = new Scene();
-        content.Scenes.Add(scene);
+        content.Add(scene);
 
         var tetrahedrons = new List<TetrahedronHelper>();
         foreach (var tet in res)
         {
             var tetrahedron = new TetrahedronHelper(tet, positions);
             tetrahedrons.Add(tetrahedron);
-            content.Meshes.Add(tetrahedron.Mesh);
+            content.Add(tetrahedron.Mesh);
             scene.AddChild(new Node { Mesh = new MeshReference(tetrahedron.Mesh), Transform = new TRSTransform(tetrahedron.Position) });
         }
 

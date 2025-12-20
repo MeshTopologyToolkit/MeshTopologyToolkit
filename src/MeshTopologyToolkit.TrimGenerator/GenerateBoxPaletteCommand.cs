@@ -22,12 +22,12 @@ namespace MeshTopologyToolkit.TrimGenerator
             Material material = GenerateBoxCommand.BuildMaterial(normalMap, checkerMap, albedo, args);
 
             var container = new FileContainer();
-            container.Materials.Add(material);
+            container.Add(material);
             foreach (var texture in material.TextureParams.Values)
-                container.Textures.Add(texture);
+                container.Add(texture);
 
             var scene = new Scene();
-            container.Scenes.Add(scene);
+            container.Add(scene);
 
             var allSizes = args.TrimRecepies.Select(_ => _.SizeInUnits.Y).Concat(new[] { args.TrimRecepies[0].SizeInUnits.X }).Distinct().Order().ToList();
             var x = 0.0f;

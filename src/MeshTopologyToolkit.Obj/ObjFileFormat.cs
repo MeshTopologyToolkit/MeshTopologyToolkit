@@ -109,11 +109,11 @@ namespace MeshTopologyToolkit.Obj
                 if (uvs.Count > 0)
                     mesh.AddAttribute(MeshAttributeKey.TexCoord, uvs, uvIndices);
                 mesh.DrawCalls.Add(new MeshDrawCall(0, 0, MeshTopology.TriangleList, 0, positionIndices.Count));
-                content.Meshes.Add(mesh);
+                content.Add(mesh);
 
                 var scene = new Scene();
                 scene.AddChild(new Node() { Mesh = new MeshReference(mesh) });
-                content.Scenes.Add(scene);
+                content.Add(scene);
 
                 return true;
             }

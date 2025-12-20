@@ -20,22 +20,22 @@ namespace MeshTopologyToolkit.Operators
             var result = new FileContainer();
             foreach (var asset in container.Textures)
             {
-                result.Textures.Add(Visit(asset));
+                result.Add(Visit(asset));
             }
 
             foreach (var asset in container.Materials)
             {
-                result.Materials.Add(Visit(asset));
+                result.Add(Visit(asset));
             }
 
             foreach (var asset in container.Meshes)
             {
-                result.Meshes.Add(Visit(asset));
+                result.Add(Visit(asset));
             }
 
             foreach (var asset in container.Scenes)
             {
-                result.Scenes.Add(Transform(asset));
+                result.Add(Transform(asset));
             }
 
             return result;

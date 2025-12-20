@@ -176,10 +176,6 @@ namespace MeshTopologyToolkit
                     var newTetra = new Tetrahedron(p, face.A, face.B, face.C, inputPoints);
                     if (!double.IsNaN(newTetra.CircumRadiusSq))
                         tetrahedra.Add(newTetra);
-                    else
-                    {
-                        newTetra = newTetra;
-                    }
 #if DEBUG
                     actualVolume += newTetra.Volume;
 #endif

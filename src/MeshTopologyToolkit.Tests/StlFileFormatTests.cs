@@ -44,8 +44,8 @@ public class StlFileFormatTests
         var mesh = new UnifiedIndexedMesh();
 
         // Create a vertex attribute to hold 3D positions for the mesh’s vertices.
-        // DictionaryMeshVertexAttribute<Vector3> is a simple container that only stores unique vertex positions.
-        IMeshVertexAttribute<Vector3> positions = new DictionaryMeshVertexAttribute<Vector3>();
+        // ListMeshVertexAttribute<Vector3> is a simple container that stores values as-is.
+        IMeshVertexAttribute<Vector3> positions = new ListMeshVertexAttribute<Vector3>();
 
         // Register the position attribute in the mesh using the predefined key for "Position".
         mesh.AddAttribute(MeshAttributeKey.Position, positions);
@@ -69,7 +69,7 @@ public class StlFileFormatTests
         var content = new FileContainer();
 
         // Store the mesh we just built in the container.
-        content.Meshes.Add(mesh);
+        content.Add(mesh);
 
         // Create a simple scene object named "My Scene".
         var scene = new Scene() { Name = "My Scene" };
@@ -84,7 +84,7 @@ public class StlFileFormatTests
         // Add node the scene.
         scene.AddChild(node);
         // Add scene to the file content.
-        content.Scenes.Add(scene);
+        content.Add(scene);
 
         // Create an STL file format writer.
         var fileFormat = new StlFileFormat();

@@ -163,12 +163,25 @@ namespace MeshTopologyToolkit
             var max = reader.ReadVector3();
             return new BoundingBox3(min, max);
         }
+        public static void Write(this BinaryWriter writer, Vector2 vector)
+        {
+            writer.Write(vector.X);
+            writer.Write(vector.Y);
+        }
 
         public static void Write(this BinaryWriter writer, Vector3 vector)
         {
             writer.Write(vector.X);
             writer.Write(vector.Y);
             writer.Write(vector.Z);
+        }
+
+        public static void Write(this BinaryWriter writer, Vector4 vector)
+        {
+            writer.Write(vector.X);
+            writer.Write(vector.Y);
+            writer.Write(vector.Z);
+            writer.Write(vector.W);
         }
 
         public static bool TryRead(this IFileFormat fileFormat, string fileName, out FileContainer content)

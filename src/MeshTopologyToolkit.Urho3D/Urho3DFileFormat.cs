@@ -1,4 +1,5 @@
 ﻿
+using MeshTopologyToolkit.Operators;
 using System.Numerics;
 
 namespace MeshTopologyToolkit.Urho3D
@@ -8,11 +9,14 @@ namespace MeshTopologyToolkit.Urho3D
         static readonly SupportedExtension[] _extensions = new[] {
             new SupportedExtension("Urho3D model", ".mdl"),
         };
-
-        const int LegacyVersion = 1;
-        const int MorphWeightVersion = 2;
+        private Urho3DModelVersion _preferableVersion;
 
         public IReadOnlyList<SupportedExtension> SupportedExtensions => _extensions;
+
+        public Urho3DFileFormat(Urho3DModelVersion preferableVersion = Urho3DModelVersion.Rbfx)
+        {
+            _preferableVersion = preferableVersion;
+        }
 
         public bool TryRead(IFileSystemEntry entry, out FileContainer content)
         {
@@ -31,22 +35,20 @@ namespace MeshTopologyToolkit.Urho3D
                     if (magic[0] != 'U' || magic[1] != 'M' || magic[2] != 'D')
                         return false;
 
-                    int version = LegacyVersion;
-                    bool hasVertexDeclarations = true;
+                    var flags = new Urho3DModelVersionFlags(Urho3DModelVersion.Original);
+
                     if (magic[3] == 'L')
                     {
-                        version = LegacyVersion;
-                        hasVertexDeclarations = false;
+                        flags = new Urho3DModelVersionFlags(Urho3DModelVersion.Original);
                     }
                     else if (magic[3] == '2')
                     {
-                        version = LegacyVersion;
-                        hasVertexDeclarations = true;
+                        flags = new Urho3DModelVersionFlags(Urho3DModelVersion.VertexDeclarations);
                     }
                     else if (magic[3] == '3')
                     {
-                        version = binaryReader.ReadInt32();
-                        hasVertexDeclarations = true;
+                        var version = binaryReader.ReadInt32();
+                        flags = new Urho3DModelVersionFlags(Urho3DModelVersion.Rbfx + (version-1));
                     }
                     else
                     {
@@ -60,7 +62,7 @@ namespace MeshTopologyToolkit.Urho3D
                     {
                         var vertexCount = binaryReader.ReadInt32();
                         var elements = new List<VertexElement>();
-                        if (!hasVertexDeclarations)
+                        if (!flags.HasVertexDeclarations)
                         {
                             var elementMask = binaryReader.ReadUInt32();
                             ushort offset = 0;
@@ -164,6 +166,8 @@ namespace MeshTopologyToolkit.Urho3D
                         for (uint lodLevelIndex = 0; lodLevelIndex < numLodLevels; ++lodLevelIndex)
                         {
                             var distance = binaryReader.ReadSingle();
+                            while (finalMesh.Lods.Count <= lodLevelIndex)
+                                finalMesh.Lods.Add(new MeshLod { Distance = distance });
                             var primitiveType = (PrimitiveType)binaryReader.ReadUInt32();
                             var vbIndex = binaryReader.ReadUInt32();
                             var ibIndex = binaryReader.ReadUInt32();
@@ -188,7 +192,7 @@ namespace MeshTopologyToolkit.Urho3D
                     for (uint morphIndex = 0; morphIndex < numMorphs; ++morphIndex)
                     {
                         var name = binaryReader.ReadStringZ();
-                        if (version >= MorphWeightVersion)
+                        if (flags.HasMorphWeights)
                         {
                             var weight = binaryReader.ReadSingle();
                         }
@@ -220,7 +224,7 @@ namespace MeshTopologyToolkit.Urho3D
 
                     binaryReader.ReadBoundingBox3();
 
-                    content.Meshes.Add(finalMesh);
+                    content.Add(finalMesh);
                     content.AddSingleMeshScene(finalMesh);
                 }
                 return true;
@@ -246,7 +250,25 @@ namespace MeshTopologyToolkit.Urho3D
             }
             throw new NotSupportedException($"PrimitiveType {primitiveType} is not supported.");
         }
-
+        private PrimitiveType GetPrimType(MeshTopology primitiveType)
+        {
+            switch (primitiveType)
+            {
+                case MeshTopology.TriangleList:
+                    return PrimitiveType.TRIANGLE_LIST;
+                case MeshTopology.TriangleStrip:
+                    return PrimitiveType.TRIANGLE_STRIP;
+                case MeshTopology.TriangleFan:
+                    return PrimitiveType.TRIANGLE_FAN;
+                case MeshTopology.LineList:
+                    return PrimitiveType.LINE_LIST;
+                case MeshTopology.Points:
+                    return PrimitiveType.POINT_LIST;
+                case MeshTopology.LineStrip:
+                    return PrimitiveType.LINE_STRIP;
+            }
+            throw new NotSupportedException($"PrimitiveType {primitiveType} is not supported.");
+        }
         private IMeshVertexAttribute GetMeshAttr(VertexElement element, byte[] buffer, int vertexCount, int vertexSize)
         {
             var ms = new MemoryStream(buffer);
@@ -330,7 +352,192 @@ namespace MeshTopologyToolkit.Urho3D
 
         public bool TryWrite(IFileSystemEntry entry, FileContainer content)
         {
-            return false;
+            return this.TryWrite(entry, _preferableVersion, content);
+        }
+
+        public bool TryWrite(IFileSystemEntry entry, Urho3DModelVersion version, FileContainer content)
+        {
+
+            var singleMesh = content;
+            if (content.Meshes.Count > 1)
+                singleMesh = new MergeOperator().Transform(content);
+            if (content.Meshes.Count == 0)
+                return false;
+
+            var flags = new Urho3DModelVersionFlags(version);
+            using var stream = entry.OpenWrite();
+            using var writer = new BinaryWriter(stream);
+            writer.Write((byte)flags.Magic[0]);
+            writer.Write((byte)flags.Magic[1]);
+            writer.Write((byte)flags.Magic[2]);
+            writer.Write((byte)flags.Magic[3]);
+            if (flags.HasVersion)
+                writer.Write((uint)flags.Version);
+
+            var mesh = content.Meshes[0].AsUnified();
+            if (!mesh.HasAttribute(MeshAttributeKey.Normal))
+                mesh = new EnsureNormalsOperator().Transform(mesh).AsUnified();
+            if (!mesh.HasAttribute(MeshAttributeKey.Tangent))
+                mesh = new EnsureTangentsOperator().Transform(mesh).AsUnified();
+
+            // uint       Number of vertex buffers
+            writer.Write((uint)1);
+
+            var hasPositions = mesh.TryGetAttribute<Vector3>(MeshAttributeKey.Position, out var positions);
+            var hasTexCoords = mesh.TryGetAttribute<Vector2>(MeshAttributeKey.TexCoord, out var texCoords);
+            var hasNormals = mesh.TryGetAttribute<Vector3>(MeshAttributeKey.Normal, out var normals);
+            var hasTangents = mesh.TryGetAttribute<Vector4>(MeshAttributeKey.Tangent, out var tangents);
+            var hasColors = mesh.TryGetAttribute<Vector4>(MeshAttributeKey.Color, out var colors);
+
+            // uint Vertex count
+            writer.Write((uint)positions.Count);
+
+            if (flags.HasVertexDeclarations)
+            {
+                var elements = new List<VertexElement>();
+                if (hasPositions)
+                    elements.Add(VertexElement.LegacyVertexElements[0]);
+                if (hasNormals)
+                    elements.Add(VertexElement.LegacyVertexElements[1]);
+                if (hasColors)
+                    elements.Add(VertexElement.LegacyVertexElements[2]);
+                if (hasTexCoords)
+                    elements.Add(VertexElement.LegacyVertexElements[3]);
+                if (hasTangents)
+                    elements.Add(VertexElement.LegacyVertexElements[7]);
+
+                writer.Write((uint)elements.Count);
+                foreach (var el in elements)
+                {
+                    writer.Write((byte)el.Type);
+                    writer.Write((byte)el.Semantic);
+                    writer.Write((ushort)el.Index);
+                }
+            }
+            else
+            {
+                // uint Legacy vertex element mask(determines vertex size)
+                uint elementMask = 0;
+                if (hasPositions)
+                    elementMask |= (uint)VertexMaskFlags.MASK_POSITION;
+                if (hasNormals)
+                    elementMask |= (uint)VertexMaskFlags.MASK_NORMAL;
+                if (hasColors)
+                    elementMask |= (uint)VertexMaskFlags.MASK_COLOR;
+                if (hasTexCoords)
+                    elementMask |= (uint)VertexMaskFlags.MASK_TEXCOORD1;
+                if (hasTangents)
+                    elementMask |= (uint)VertexMaskFlags.MASK_TANGENT;
+                writer.Write((uint)elementMask);
+            }
+            // uint Morphable vertex range start index
+            writer.Write((uint)0);
+            // uint Morphable vertex count
+            writer.Write((uint)0);
+            // byte[] Vertex data(vertex count * vertex size)
+            for (int vertexIndex=0; vertexIndex<positions.Count; ++vertexIndex)
+            {
+                if (hasPositions)
+                    writer.Write(positions[vertexIndex]);
+                if (hasNormals)
+                    writer.Write(normals[vertexIndex]);
+                if (hasColors)
+                {
+                    var c = Vector4.Clamp(colors[vertexIndex], Vector4.Zero, Vector4.One)*255.0f;
+                    writer.Write((byte)colors[vertexIndex].X);
+                    writer.Write((byte)colors[vertexIndex].Y);
+                    writer.Write((byte)colors[vertexIndex].Z);
+                    writer.Write((byte)colors[vertexIndex].W);
+                }
+                if (hasTexCoords)
+                    writer.Write(texCoords[vertexIndex]);
+                if (hasTangents)
+                    writer.Write(tangents[vertexIndex]);
+            }
+
+            // uint Number of index buffers
+            writer.Write((uint)1);
+
+            //uint Index count
+            writer.Write((uint)mesh.Indices.Count);
+            if (mesh.Indices.Count < ushort.MaxValue)
+            {
+                //uint Index size(2 for 16 - bit indices, 4 for 32 - bit indices)
+                writer.Write((uint)2);
+                //byte[] Index data(index count * index size)
+                foreach (var i in mesh.Indices)
+                {
+                    writer.Write((ushort)i);
+                }
+            }
+            else
+            {
+                //uint Index size(2 for 16 - bit indices, 4 for 32 - bit indices)
+                writer.Write((uint)4);
+                //byte[] Index data(index count * index size)
+                foreach (var i in mesh.Indices)
+                {
+                    writer.Write((uint)i);
+                }
+            }
+
+            //uint    Number of geometries
+            var geometries = mesh.DrawCalls.ToLookup(_ => _.MaterialIndex).OrderBy(_ => _.Key).ToList();
+            var lodIndices = mesh.DrawCalls.Select(_=>_.LodLevel).Distinct().OrderBy(_=>_).ToList();
+            writer.Write((uint)geometries.Count());
+            var perGeometryBBox = new List<BoundingBox3>();
+            foreach (var geometry in geometries)
+            {
+                //uint Number of bone mapping entries
+                writer.Write((uint)0);
+
+                BoundingBox3 geomBbox = BoundingBox3.Empty;
+
+                //uint       Number of LOD levels
+                writer.Write((uint)lodIndices.Count);
+                foreach (var lodIndex in lodIndices)
+                {
+                    var drawCall = geometry.Where(_ => _.LodLevel == lodIndex).FirstOrDefault();
+                    //float      LOD distance
+                    if (lodIndex >= mesh.Lods.Count)
+                        throw new FormatException($"Unknown LOD level {lodIndex}");
+                    writer.Write(mesh.Lods[lodIndex].Distance ?? 0.0f);
+                    //uint       Primitive type
+                    writer.Write((uint)GetPrimType(drawCall.Type));
+                    //uint       Vertex buffer index
+                    writer.Write((uint)0);
+                    //uint       Index buffer index
+                    writer.Write((uint)0);
+                    //uint       Start index
+                    writer.Write((uint)drawCall.StartIndex);
+                    //uint       Index count
+                    writer.Write((uint)drawCall.NumIndices);
+
+                    for (int i=drawCall.StartIndex; i<drawCall.NumIndices; ++i)
+                    {
+                        geomBbox = geomBbox.Merge(positions[mesh.Indices[i]]);
+                    }
+                }
+
+                perGeometryBBox.Add(geomBbox);
+            }
+
+            //uint Number of vertex morphs (may be 0)
+            writer.Write((uint)0);
+
+            //uint       Number of bones (may be 0)
+            writer.Write((uint)0);
+
+            var bbox = new BoundingBox3(positions);
+            writer.Write(bbox.Min);
+            writer.Write(bbox.Max);
+
+            foreach (var perGeom in perGeometryBBox)
+            {
+                writer.Write((perGeom.Min + perGeom.Max) * 0.5f);
+            }
+
+            return true;
         }
     }
 

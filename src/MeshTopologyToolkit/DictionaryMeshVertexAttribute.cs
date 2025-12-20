@@ -27,6 +27,13 @@ namespace MeshTopologyToolkit
             return index;
         }
 
+        public int IndexOf(T value)
+        {
+            if (_map.TryGetValue(value, out var index))
+                return index;
+            return -1;
+        }
+
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
