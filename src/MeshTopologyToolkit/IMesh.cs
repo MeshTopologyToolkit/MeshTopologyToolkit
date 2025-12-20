@@ -34,6 +34,13 @@ namespace MeshTopologyToolkit
         bool HasAttribute(MeshAttributeKey key);
 
         /// <summary>
+        /// Remove attribute if exists.
+        /// </summary>
+        /// <param name="key">The attribute key to remove.</param>
+        /// <returns><c>true</c> if the attribute existed; otherwise <c>false</c>.</returns>
+        bool RemoveAttribute(MeshAttributeKey key);
+
+        /// <summary>
         /// Tries to get an attribute by <paramref name="key"/> as the untyped <see cref="IMeshVertexAttribute"/>.
         /// </summary>
         /// <param name="key">The attribute key to look up.</param>

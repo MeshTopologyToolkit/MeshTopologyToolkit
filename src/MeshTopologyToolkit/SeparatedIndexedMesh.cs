@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
 
 namespace MeshTopologyToolkit
 {
@@ -143,6 +142,12 @@ namespace MeshTopologyToolkit
             int count = (_attributes.Count != 0)? _attributes.First().Value.Indices.Count : 0;
             DrawCalls.Add(new MeshDrawCall(0, 0, MeshTopology.TriangleList, 0, count));
             return this;
+        }
+
+        /// <inheritdoc/>
+        public bool RemoveAttribute(MeshAttributeKey key)
+        {
+            return _attributes.Remove(key);
         }
     }
 }

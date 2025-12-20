@@ -24,7 +24,7 @@ namespace MeshTopologyToolkit.TrimGenerator
             switch (ext)
             {
                 case ".dae":
-                    container = new ChangeSpace(Matrix4x4.Identity, flipV: true).Transform(container);
+                    container = new ChangeSpaceOperator(new SpaceTransform(Matrix4x4.Identity, flipV: true)).Transform(container);
                     return new ColladaFileFormat(ColladaUpAxis.Y).TryWrite(fileName, container);
             }
 

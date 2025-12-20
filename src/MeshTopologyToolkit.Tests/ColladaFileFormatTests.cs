@@ -1,5 +1,6 @@
 ﻿using MeshTopologyToolkit.Collada;
 using MeshTopologyToolkit.Gltf;
+using System.Numerics;
 using Xunit.Abstractions;
 
 namespace MeshTopologyToolkit.Tests;
@@ -17,7 +18,9 @@ public class ColladaFileFormatTests
     public void Face102030YUp()
     {
         var resourceName = this.GetType().Namespace + ".samples.primitives.Face102030";
-        var fileFormat = new FileFormatCollection(new GltfFileFormat(), new ColladaFileFormat());
+        var fileFormat = new FileFormatCollection(
+            new FormatAndSpace(new GltfFileFormat(), new SpaceTransform(Matrix4x4.CreateScale(10.0f/0.254f))),
+            new FormatAndSpace(new ColladaFileFormat(), new SpaceTransform(Matrix4x4.Identity, flipV: true)));
 
         Assert.True(fileFormat.TryRead(StreamFileSystemEntry.FromEmbeddedResource(resourceName+".glb"), out var glbContent));
         Assert.True(fileFormat.TryRead(StreamFileSystemEntry.FromEmbeddedResource(resourceName+".dae"), out var daeContent));
@@ -30,6 +33,15 @@ public class ColladaFileFormatTests
 
         var glbTransform = glbNode.Transform;
         var daeTransform = daeNode.Transform;
+
+        var glbMesh = glbContent.Meshes.First();
+        var daeMesh = daeContent.Meshes.First();
+
+        var glbPositions = glbMesh.GetAttribute<Vector3>(MeshAttributeKey.Position);
+        var daePositions = daeMesh.GetAttribute<Vector3>(MeshAttributeKey.Position);
+
+        var glbPositionsIndices = glbMesh.GetAttributeIndices(MeshAttributeKey.Position);
+        var daePositionsIndices = daeMesh.GetAttributeIndices(MeshAttributeKey.Position);
     }
 
     [Theory]

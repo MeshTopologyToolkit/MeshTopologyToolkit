@@ -11,7 +11,11 @@ namespace MeshTopologyToolkit
             Mesh = mesh;
         }
 
-        public MeshReference(IMesh mesh, params Material[] materials)
+        public MeshReference(IMesh mesh, params Material[] materials):this(mesh, (IEnumerable<Material>)materials)
+        {
+        }
+
+        public MeshReference(IMesh mesh, IEnumerable<Material> materials)
         {
             Mesh = mesh;
             _materials.AddRange(materials);

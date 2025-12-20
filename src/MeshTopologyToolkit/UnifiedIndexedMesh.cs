@@ -257,5 +257,12 @@ namespace MeshTopologyToolkit
             DrawCalls.Add(new MeshDrawCall(0, 0, MeshTopology.TriangleList, 0, _indices.Count));
             return this;
         }
+
+        /// <inheritdoc/>
+        public bool RemoveAttribute(MeshAttributeKey key)
+        {
+            return _attributes.Remove(key);
+        }
+
     }
 }

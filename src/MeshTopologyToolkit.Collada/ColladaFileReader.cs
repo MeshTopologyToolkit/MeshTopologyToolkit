@@ -79,12 +79,13 @@ namespace MeshTopologyToolkit.Collada
             {
                 string meshId = geometry.Attribute("id")?.Value ?? "";
                 string meshName = geometry.Attribute("name")?.Value ?? meshId;
-                var newMesh = new SeparatedIndexedMesh { Name = meshName };
+                var mesh = new SeparatedIndexedMesh { Name = meshName };
                 if (_meshMap.ContainsKey(meshId))
                 {
                     throw new FormatException($"Duplicate mesh id \"{meshId}\"");
                 }
-                _meshMap.Add(meshId, newMesh);
+                _meshMap.Add(meshId, mesh);
+                _content.Meshes.Add(mesh);
 
                 // Find the <mesh> element inside the <geometry>
                 var meshElement = geometry.Element(Ns + "mesh");
@@ -160,7 +161,7 @@ namespace MeshTopologyToolkit.Collada
                         var sourceValue = sourceElement.Element(Ns + "float_array")?.Value;
                         if (sourceValue != null)
                         {
-                            newMesh.SetAttribute(attributeKey, BuildFloatMeshAttribute(sourceValue, sourceStride), indices[offset]);
+                            mesh.SetAttribute(attributeKey, BuildFloatMeshAttribute(sourceValue, sourceStride), indices[offset]);
                         }
                         else
                         {
@@ -180,7 +181,7 @@ namespace MeshTopologyToolkit.Collada
                         }
                     }
 
-                    newMesh.WithTriangleList();
+                    mesh.WithTriangleList();
                 }
             }
         }
@@ -214,7 +215,7 @@ namespace MeshTopologyToolkit.Collada
                 , float.Parse(input[2], CultureInfo.InvariantCulture)
                 , float.Parse(input[3], CultureInfo.InvariantCulture));
         }
-        private IMeshVertexAttribute<T> BuildMeshAttribute<T>(string? stringValue, int stride, Func<ArraySegment<string>, T> factory)
+        private IMeshVertexAttribute<T> BuildMeshAttribute<T>(string? stringValue, int stride, Func<ArraySegment<string>, T> factory) where T: notnull
         {
             var res = new ListMeshVertexAttribute<T>();
             if (string.IsNullOrEmpty(stringValue))

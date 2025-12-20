@@ -4,24 +4,31 @@ using System.Numerics;
 
 namespace MeshTopologyToolkit.Operators
 {
-    public class ChangeSpace : ContentOperatorBase
+    public class ChangeSpaceOperator : ContentOperatorBase
     {
         Matrix4x4 _transform;
-        public ChangeSpace(Matrix4x4 transform, bool flipV = false, bool flipFaceIndices = false)
+        public ChangeSpaceOperator(SpaceTransform transform)
         {
-            //if (transform != Matrix4x4.Identity)
-            //    throw new NotImplementedException("ChangeSpace operator currently only supports identity transform.");
-            //if (flipFaceIndices)
-            //    throw new NotImplementedException("ChangeSpace operator currently does not support flipping face indices.");
-            _transform = transform;
-            FlipV = flipV;
-            FlipFaceIndices = flipFaceIndices;
+            _transform = transform.Transform;
+            FlipV = transform.FlipV;
+            FlipFaceIndices = transform.FlipFaceIndices;
         }
 
         public Matrix4x4 Transoform => _transform;
 
         public bool FlipV { get; private set; }
         public bool FlipFaceIndices { get; }
+
+        public override Node Transform(Node node)
+        {
+            var res = base.Transform(node);
+            if (_transform != Matrix4x4.Identity)
+            {
+                var m = res.Transform.ToMatrix();
+                res.Transform = new MatrixTransform(m * _transform);
+            }
+            return res;
+        }
 
         public override IMesh Transform(IMesh mesh)
         {
@@ -41,6 +48,44 @@ namespace MeshTopologyToolkit.Operators
                                     data.Add(Vector3.Transform(position, _transform));
                                 }
                                 res.SetAttribute(key, data);
+                            }
+                            break;
+                        case MeshAttributeNames.Normal:
+                            {
+                                var normals = mesh.GetAttribute<Vector3>(key);
+                                var data = new ListMeshVertexAttribute<Vector3>(normals.Count);
+                                foreach (var position in normals)
+                                {
+                                    data.Add(Vector3.Normalize(Vector3.TransformNormal(position, _transform)));
+                                }
+                                res.SetAttribute(key, data);
+                            }
+                            break;
+                        case MeshAttributeNames.Tangent:
+                            {
+                                var attr = mesh.GetAttribute(key);
+                                if (attr.GetElementType() == typeof(Vector4))
+                                {
+                                    var tangents = mesh.GetAttribute<Vector4>(key);
+                                    var data = new ListMeshVertexAttribute<Vector4>(tangents.Count);
+                                    foreach (var tangent in tangents)
+                                    {
+                                        var t = new Vector3(tangent.X, tangent.Y, tangent.Z);
+                                        t = Vector3.Normalize(Vector3.TransformNormal(t, _transform));
+                                        data.Add(new Vector4(t, tangent.W));
+                                    }
+                                    res.SetAttribute(key, data);
+                                }
+                                else
+                                {
+                                    var tangents = mesh.GetAttribute<Vector3>(key);
+                                    var data = new ListMeshVertexAttribute<Vector3>(tangents.Count);
+                                    foreach (var tangent in tangents)
+                                    {
+                                        data.Add(Vector3.Normalize(Vector3.TransformNormal(tangent, _transform)));
+                                    }
+                                    res.SetAttribute(key, data);
+                                }
                             }
                             break;
                         case MeshAttributeNames.TexCoord:
@@ -84,6 +129,17 @@ namespace MeshTopologyToolkit.Operators
                                 foreach (var uv in positions)
                                 {
                                     data.Add(Vector3.Transform(uv, _transform));
+                                }
+                                res.SetAttribute(key, data, TransformIndices(separatedIndexedMesh.GetAttributeIndices(key), separatedIndexedMesh.DrawCalls));
+                            }
+                            break;
+                        case MeshAttributeNames.Normal:
+                            {
+                                var normal = separatedIndexedMesh.GetAttribute<Vector3>(key);
+                                var data = new ListMeshVertexAttribute<Vector3>(normal.Count);
+                                foreach (var uv in normal)
+                                {
+                                    data.Add(Vector3.Normalize(Vector3.TransformNormal(uv, _transform)));
                                 }
                                 res.SetAttribute(key, data, TransformIndices(separatedIndexedMesh.GetAttributeIndices(key), separatedIndexedMesh.DrawCalls));
                             }

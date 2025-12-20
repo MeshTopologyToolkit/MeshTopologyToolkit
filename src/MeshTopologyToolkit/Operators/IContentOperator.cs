@@ -6,8 +6,8 @@
 
         IMesh Transform(IMesh mesh);
 
-        Material Transform(Material mesh);
+        Material Transform(Material material);
 
-        Texture Transform(Texture mesh);
+        Texture Transform(Texture texture);
     }
 }

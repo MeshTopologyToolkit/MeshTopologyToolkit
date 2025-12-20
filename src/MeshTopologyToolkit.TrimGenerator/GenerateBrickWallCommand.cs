@@ -19,6 +19,8 @@ namespace MeshTopologyToolkit.TrimGenerator
             [Option(Description = "Maximum random brick rotation in degrees")] float maxRot = 0.0f,
             [Option(Description = "Boundary random generator seed")] int boundarySeed = 0,
             [Option(Description = "Inner structure random generator seed")] int innerSeed = 0,
+            [Option(Description = "No zig zag pattern")] bool noZigZag = false,
+            [Option(Description = "Keep T-vertices")] bool keepTVerts = false,
             [Option('b', Description = "Bevel width in pixels")] int bevelWidth = 8,
             [Option('m', Description = "Max deviation from the scale in percents")] float maxDeviation = 10.0f,
             [Option('n', Description = "Add normal map")] bool normalMap = false,
@@ -41,12 +43,20 @@ namespace MeshTopologyToolkit.TrimGenerator
                 wallThickness = brickHeight;
 
 
-            var meshes = new[] {
-                new EliminateTVerticesOperator().Transform(GenerateBoxCommand.BuildBoxMesh(new Vector3(brickWidth, brickHeight, wallThickness), args, new BoxBuilder(maxDeviation, false, false))),
-                new EliminateTVerticesOperator().Transform(GenerateBoxCommand.BuildBoxMesh(new Vector3(brickWidth, brickHeight, wallThickness), args, new BoxBuilder(maxDeviation, true, false))),
-                new EliminateTVerticesOperator().Transform(GenerateBoxCommand.BuildBoxMesh(new Vector3(brickWidth, brickHeight, wallThickness), args, new BoxBuilder(maxDeviation, false, true))),
-                new EliminateTVerticesOperator().Transform(GenerateBoxCommand.BuildBoxMesh(new Vector3(brickWidth, brickHeight, wallThickness), args, new BoxBuilder(maxDeviation, true, true))),
+            var meshes = new IMesh[] {
+                GenerateBoxCommand.BuildBoxMesh(new Vector3(brickWidth, brickHeight, wallThickness), args, new BoxBuilder(maxDeviation, false, false)),
+                GenerateBoxCommand.BuildBoxMesh(new Vector3(brickWidth, brickHeight, wallThickness), args, new BoxBuilder(maxDeviation, true, false)),
+                GenerateBoxCommand.BuildBoxMesh(new Vector3(brickWidth, brickHeight, wallThickness), args, new BoxBuilder(maxDeviation, false, true)),
+                GenerateBoxCommand.BuildBoxMesh(new Vector3(brickWidth, brickHeight, wallThickness), args, new BoxBuilder(maxDeviation, true, true)),
             };
+
+            if (!keepTVerts)
+            {
+                for (int i = 0; i < meshes.Length; i++)
+                {
+                    meshes[i] = new EliminateTVerticesOperator().Transform(meshes[i]);
+                }
+            }
 
             foreach (var mesh in meshes)
                 container.Meshes.Add(mesh);
@@ -58,7 +68,7 @@ namespace MeshTopologyToolkit.TrimGenerator
             var boundaryRnd = new Random(boundarySeed);
             for (int y=0; y<rows; ++y)
             {
-                var shiftBricks = (y % 2) == 0;
+                var shiftBricks = !noZigZag && (y % 2) == 0;
                 var rowCorner = corner + new Vector3(shiftBricks ?-brickWidth*0.5f : 0.0f, -y * brickHeight, 0.0f);
                 for (int x = 0; x < columns; ++x)
                 {
