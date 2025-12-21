@@ -52,5 +52,11 @@ namespace MeshTopologyToolkit
             var res = Vector4.Transform(new Vector4(localDirection, 0.0f), Transform);
             return new Vector3(res.X, res.Y, res.Z);
         }
+
+        public TRSTransform ToTRS()
+        {
+            Matrix4x4.Decompose(Transform, out var scale, out var rotation, out var translation);
+            return new TRSTransform(translation, rotation, scale);
+        }
     }
 }

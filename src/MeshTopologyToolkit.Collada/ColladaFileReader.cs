@@ -20,10 +20,42 @@ namespace MeshTopologyToolkit.Collada
 
         public void Parse(XDocument doc)
         {
+            ParseAsset(doc);
             ParseLibraryGeometries(doc);
             ParseLibraryVisualScenes(doc);
         }
+        private void ParseAsset(XDocument doc)
+        {
+            var asset = doc.Root.Element(Ns + "asset");
+            if (asset != null)
+            {
+                var unit = asset.Element(Ns + "unit");
+                if (unit == null)
+                    return;
+                var meter = unit.Attribute("meter")?.Value;
+                if (string.IsNullOrWhiteSpace(meter))
+                    return;
 
+                if (!float.TryParse(meter, NumberStyles.Any, CultureInfo.InvariantCulture, out var scale))
+                    return;
+
+                var upAxis = asset.Element(Ns + "up_axis");
+                if (upAxis == null)
+                    return;
+                if (string.IsNullOrWhiteSpace(upAxis.Value))
+                    return;
+                var up = ColladaUpAxis.Z;
+                switch (upAxis.Value)
+                {
+                    case "Y_UP":
+                        _content.FileToGltfTransform = new SpaceTransform(SpaceTransform.XYZ, scale);
+                        break;
+                    case "Z_UP":
+                        _content.FileToGltfTransform = new SpaceTransform(SpaceTransform.X_ZY, scale);
+                        break;
+                }
+            }
+        }
         private void ParseLibraryVisualScenes(XDocument doc)
         {
             // Find all <visual_scene> elements inside the <library_visual_scenes>

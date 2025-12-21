@@ -1,12 +1,116 @@
-﻿using System;
+﻿using MeshTopologyToolkit.Operators;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
 namespace MeshTopologyToolkit
 {
+    /// <summary>
+    /// Represents a container for managing collections of 3D assets, including meshes, materials, scenes, and textures.
+    /// </summary>
+    /// <remarks>The <see cref="FileContainer"/> class provides functionality to store and manage 3D assets
+    /// such as meshes, materials, scenes, and textures. It ensures that duplicate items are not added to the
+    /// collections and provides methods to add individual assets or create single-mesh scenes.</remarks>
     public class FileContainer
     {
-        internal class Collection<T>: IList<T>, IReadOnlyList<T>
+        private readonly Collection<IMesh> _meshes = new Collection<IMesh>();
+        private readonly Collection<Material> _materials = new Collection<Material>();
+        private readonly Collection<Scene> _scenes = new Collection<Scene>();
+        private readonly Collection<Texture> _textures = new Collection<Texture>();
+
+        /// <summary>
+        /// Transform to be applied when converting from file space to glTF space.
+        /// If null the original space is not known.
+        /// </summary>
+        public SpaceTransform? FileToGltfTransform { get; set; } = null;
+
+        /// <summary>
+        /// Gets the collection of meshes.
+        /// </summary>
+        /// <remarks>
+        /// The collection provides access to the meshes.
+        /// Modifications to the collection can be done via the value or via Add method in <see cref="FileContainer"/>.
+        /// </remarks>
+        public IList<IMesh> Meshes => _meshes;
+
+        /// <summary>
+        /// Gets the collection of materials.
+        /// </summary>
+        /// <remarks>
+        /// The collection provides access to the materials.
+        /// Modifications to the collection can be done via the value or via Add method in <see cref="FileContainer"/>.
+        /// </remarks>
+        public IList<Material> Materials => _materials;
+
+        public IList<Scene> Scenes => _scenes;
+
+        public IList<Texture> Textures => _textures;
+
+        public bool Add(IMesh mesh)
+        {
+            return _meshes.TryAdd(mesh);
+        }
+
+        public bool Add(Material material)
+        {
+            return _materials.TryAdd(material);
+        }
+
+        public bool Add(Scene scene)
+        {
+            return _scenes.TryAdd(scene);
+        }
+
+        public bool Add(Texture texture)
+        {
+            return _textures.TryAdd(texture);
+        }
+
+        public MeshReference AddSingleMeshScene(IMesh mesh)
+        {
+            Add(mesh);
+            var scene = new Scene(mesh.Name);
+            var node = new Node(mesh.Name);
+            node.Mesh = new MeshReference(mesh);
+            scene.AddChild(node);
+            Add(scene);
+            return node.Mesh;
+        }
+
+        public MeshReference AddSingleMeshScene(MeshReference mesh)
+        {
+            if (mesh.Mesh == null)
+                throw new ArgumentException($"No mesh provided");
+            Add(mesh.Mesh);
+            var scene = new Scene(mesh.Mesh.Name);
+            var node = new Node(mesh.Mesh.Name);
+            node.Mesh = mesh;
+            scene.AddChild(node);
+            Add(scene);
+            foreach (var m in mesh.Materials)
+            {
+                if (m != null)
+                {
+                    Add(m);
+                    foreach (var t in m.TextureParams)
+                    {
+                        Add(t.Value);
+                    }
+                }
+            }
+            return node.Mesh;
+        }
+
+        public FileContainer ToGltfSpace()
+        {
+            if (FileToGltfTransform == null)
+                return this;
+            if (FileToGltfTransform.IsIdentity())
+                return this;
+            return new SpaceTransformOperator(FileToGltfTransform).Transform(this);
+        }
+
+        internal class Collection<T> : IList<T>, IReadOnlyList<T>
         {
             private HashSet<T> _existingValues = new HashSet<T>();
             private List<T> _values = new List<T>();
@@ -113,74 +217,6 @@ namespace MeshTopologyToolkit
             {
                 return ((IEnumerable)_values).GetEnumerator();
             }
-        }
-
-        private readonly Collection<IMesh> _meshes = new Collection<IMesh>();
-        private readonly Collection<Material> _materials = new Collection<Material>();
-        private readonly Collection<Scene> _scenes = new Collection<Scene>();
-        private readonly Collection<Texture> _textures = new Collection<Texture>();
-        
-        public IList<IMesh> Meshes => _meshes;
-
-        public IList<Material> Materials => _materials;
-
-        public IList<Scene> Scenes => _scenes;
-
-        public IList<Texture> Textures => _textures;
-
-        public bool Add(IMesh mesh)
-        {
-            return _meshes.TryAdd(mesh);
-        }
-
-        public bool Add(Material material)
-        {
-            return _materials.TryAdd(material);
-        }
-
-        public bool Add(Scene scene)
-        {
-            return _scenes.TryAdd(scene);
-        }
-
-        public bool Add(Texture texture)
-        {
-            return _textures.TryAdd(texture);
-        }
-
-        public MeshReference AddSingleMeshScene(IMesh mesh)
-        {
-            Add(mesh);
-            var scene = new Scene(mesh.Name);
-            var node = new Node(mesh.Name);
-            node.Mesh = new MeshReference(mesh);
-            scene.AddChild(node);
-            Add(scene);
-            return node.Mesh;
-        }
-
-        public MeshReference AddSingleMeshScene(MeshReference mesh)
-        {
-            if (mesh.Mesh == null)
-                throw new ArgumentException($"No mesh provided");
-            Add(mesh.Mesh);
-            var scene = new Scene(mesh.Mesh.Name);
-            var node = new Node(mesh.Mesh.Name);
-            node.Mesh = mesh;
-            scene.AddChild(node);
-            Add(scene);
-            foreach (var m in mesh.Materials)
-            {
-                if (m != null)
-                {
-                    Add(m);
-                    foreach (var t in m.TextureParams)
-                    {
-                        Add(t.Value);
-                    }
-                }
-            }
-            return node.Mesh;
         }
     }
 }

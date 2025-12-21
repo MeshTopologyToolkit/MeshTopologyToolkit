@@ -23,5 +23,11 @@ namespace MeshTopologyToolkit
         /// <param name="localDirection">The direction vector in local space (does not need to be unit length).</param>
         /// <returns>The direction vector in world space (retains length from scale).</returns>
         Vector3 TransformDirection(Vector3 localDirection);
+
+        /// <summary>
+        /// Converts or casts the current object to a <see cref="TRSTransform"/> representation.
+        /// </summary>
+        /// <returns>A <see cref="TRSTransform"/> instance that represents the translation, rotation, and scale.</returns>
+        TRSTransform ToTRS();
     }
 }

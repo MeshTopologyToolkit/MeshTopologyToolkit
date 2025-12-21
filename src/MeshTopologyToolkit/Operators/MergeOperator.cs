@@ -21,11 +21,11 @@ namespace MeshTopologyToolkit.Operators
             {
                 throw new NotImplementedException($"{this.GetType().Name} is not designed to be reused");
             }
-            _container = container;
+            _container = result;
 
             foreach (var scene in container.Scenes)
             {
-                result.Add(Transform(scene));
+                _container.Add(Transform(scene));
             }
 
             _container = null;

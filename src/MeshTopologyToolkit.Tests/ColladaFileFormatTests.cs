@@ -1,5 +1,6 @@
 ﻿using MeshTopologyToolkit.Collada;
 using MeshTopologyToolkit.Gltf;
+using MeshTopologyToolkit.Operators;
 using System.Numerics;
 using Xunit.Abstractions;
 
@@ -19,29 +20,24 @@ public class ColladaFileFormatTests
     {
         var resourceName = this.GetType().Namespace + ".samples.primitives.Face102030";
         var fileFormat = new FileFormatCollection(
-            new FormatAndSpace(new GltfFileFormat(), new SpaceTransform(Matrix4x4.CreateScale(10.0f/0.254f))),
-            new FormatAndSpace(new ColladaFileFormat(), new SpaceTransform(Matrix4x4.Identity, flipV: true)));
+            new GltfFileFormat(),
+            new ColladaFileFormat());
 
         Assert.True(fileFormat.TryRead(StreamFileSystemEntry.FromEmbeddedResource(resourceName+".glb"), out var glbContent));
         Assert.True(fileFormat.TryRead(StreamFileSystemEntry.FromEmbeddedResource(resourceName+".dae"), out var daeContent));
+        Assert.True(fileFormat.TryRead(StreamFileSystemEntry.FromEmbeddedResource(resourceName + "ZUp.dae"), out var daeZUpContent));
 
-        var glbScene = glbContent.Scenes.First();
-        var daeScene = daeContent.Scenes.First();
+        FileContainer Process(FileContainer content)
+        {
+            content = content.ToGltfSpace();
+            return new MergeOperator().Transform(content);
+        }
+        ;
+        var variants = new [] { Process(glbContent), Process(daeContent), Process(daeZUpContent) };
 
-        var glbNode = glbScene.Children.First();
-        var daeNode = daeScene.Children.First();
+        var meshes = variants.Select(_ => _.Meshes.First()).ToList();
 
-        var glbTransform = glbNode.Transform;
-        var daeTransform = daeNode.Transform;
-
-        var glbMesh = glbContent.Meshes.First();
-        var daeMesh = daeContent.Meshes.First();
-
-        var glbPositions = glbMesh.GetAttribute<Vector3>(MeshAttributeKey.Position);
-        var daePositions = daeMesh.GetAttribute<Vector3>(MeshAttributeKey.Position);
-
-        var glbPositionsIndices = glbMesh.GetAttributeIndices(MeshAttributeKey.Position);
-        var daePositionsIndices = daeMesh.GetAttributeIndices(MeshAttributeKey.Position);
+        var positions = meshes.Select(_ => _.GetAttribute<Vector3>(MeshAttributeKey.Position)).ToList();
     }
 
     [Theory]

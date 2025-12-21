@@ -40,9 +40,9 @@ namespace MeshTopologyToolkit
                 {
                     if (format.TryRead(entry, out content))
                     {
-                        if (formatAndSpace.Transform != SpaceTransform.Identity)
+                        if (!formatAndSpace.Transform.IsIdentity())
                         {
-                            content = new ChangeSpaceOperator(formatAndSpace.Transform).Transform(content);
+                            content = new SpaceTransformOperator(formatAndSpace.Transform).Transform(content);
                         }
                         return true;
                     }
@@ -65,7 +65,7 @@ namespace MeshTopologyToolkit
                     if (transform != SpaceTransform.Identity)
                     {
                         transform = transform.Invert();
-                        content = new ChangeSpaceOperator(transform).Transform(content);
+                        content = new SpaceTransformOperator(transform).Transform(content);
                     }
                     if (format.TryWrite(entry, content))
                         return true;

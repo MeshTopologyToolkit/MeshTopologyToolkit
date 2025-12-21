@@ -3,9 +3,18 @@ using System.Numerics;
 
 namespace MeshTopologyToolkit
 {
-    public struct SpaceTransform : IEquatable<SpaceTransform>
+    /// <summary>
+    /// A class that defines transform from one coordinate space to another.
+    /// </summary>
+    public class SpaceTransform : IEquatable<SpaceTransform>
     {
         public static readonly SpaceTransform Identity = new SpaceTransform(Matrix4x4.Identity);
+
+        public static readonly Matrix4x4 XYZ = CreateMatrix(Vector3.UnitX, Vector3.UnitY, Vector3.UnitZ);
+        public static readonly Matrix4x4 _XYZ = CreateMatrix(-Vector3.UnitX, Vector3.UnitY, Vector3.UnitZ);
+        public static readonly Matrix4x4 XZY = CreateMatrix(Vector3.UnitX, Vector3.UnitZ, Vector3.UnitY);
+        public static readonly Matrix4x4 _XZY = CreateMatrix(-Vector3.UnitX, Vector3.UnitZ, Vector3.UnitY);
+        public static readonly Matrix4x4 X_ZY = CreateMatrix(Vector3.UnitX, -Vector3.UnitZ, Vector3.UnitY);
 
         /// <summary>
         /// Rotation matrix for space. Should not contain translation or scale!
@@ -13,9 +22,9 @@ namespace MeshTopologyToolkit
         public Matrix4x4 Rotation { get; }
 
         /// <summary>
-        /// Scale vector for the space.
+        /// Uniform scale factor for the transformation.
         /// </summary>
-        public Vector3 Scale { get; }
+        public float Scale { get; }
 
         /// <summary>
         /// Flip second texture coordinate.
@@ -27,23 +36,46 @@ namespace MeshTopologyToolkit
         /// </summary>
         public bool FlipFaceIndices { get; }
 
-        public SpaceTransform(Matrix4x4 rotation, bool flipV = false, bool flipFaceIndices = false)
-            :this(rotation, Vector3.One, flipV, flipFaceIndices)
-        {
-        }
-
-        public SpaceTransform(Matrix4x4 rotation, Vector3 scale, bool flipV = false, bool flipFaceIndices = false)
+        public SpaceTransform(Matrix4x4 rotation, float scale = 1.0f, bool flipV = false, bool flipFaceIndices = false)
         {
             if (rotation.Translation != Vector3.Zero)
                 throw new ArgumentException("Rotation matrix cannot contain translation.", nameof(rotation));
 
-            if (scale.X <= 0.0f && scale.Y <= 0.0f && scale.Z <= 0.0f)
+            var rotX = new Vector3(rotation.M11, rotation.M12, rotation.M13);
+            if (!ValidateRotationAxis(rotX))
+                throw new ArgumentException($"Rotation matrix axis X is not defined correctly: {rotX}. It should be a unit vector.", nameof(rotation));
+            var rotY = new Vector3(rotation.M21, rotation.M22, rotation.M23);
+            if (!ValidateRotationAxis(rotY))
+                throw new ArgumentException($"Rotation matrix axis Y is not defined correctly: {rotY}. It should be a unit vector.", nameof(rotation));
+            var rotZ = new Vector3(rotation.M31, rotation.M32, rotation.M33);
+            if (!ValidateRotationAxis(rotZ))
+                throw new ArgumentException($"Rotation matrix axis Z is not defined correctly: {rotZ}. It should be a unit vector.", nameof(rotation));
+
+            if (scale <= 0.0f)
                 throw new ArgumentException("Scale should be positive. If you need to flip axis direction use rotation matrix instead.", nameof(scale));
 
             Rotation = rotation;
             Scale = scale;
             FlipV = flipV;
             FlipFaceIndices = flipFaceIndices;
+        }
+
+        public SpaceTransformer Transformer => new SpaceTransformer(Rotation, Scale);
+
+        private static bool ValidateRotationAxis(Vector3 axis)
+        {
+            if (axis.X.IsNanOrInf() || axis.Y.IsNanOrInf() || axis.Z.IsNanOrInf())
+                return false;
+
+            int countNotUnitComponents = 0;
+            axis = Vector3.Abs(Vector3.Abs(axis) - Vector3.One);
+            if (axis.X > 1e-6f)
+                ++countNotUnitComponents;
+            if (axis.Y > 1e-6f)
+                ++countNotUnitComponents;
+            if (axis.Z > 1e-6f)
+                ++countNotUnitComponents;
+            return countNotUnitComponents == 2;
         }
 
         public override bool Equals(object? obj)
@@ -67,17 +99,20 @@ namespace MeshTopologyToolkit
         internal SpaceTransform Invert()
         {
             Matrix4x4.Invert(Rotation, out var inverted);
-            return new SpaceTransform(inverted, new Vector3(1.0f/Scale.X, 1.0f / Scale.Y, 1.0f / Scale.Z), FlipV, FlipFaceIndices);
+            return new SpaceTransform(inverted, 1.0f/Scale, FlipV, FlipFaceIndices);
         }
 
-        public static bool operator ==(SpaceTransform left, SpaceTransform right)
+        public static Matrix4x4 CreateMatrix(Vector3 x, Vector3 y, Vector3 z)
         {
-            return left.Equals(right);
+            return new Matrix4x4(x.X, x.Y, x.Z, 0.0f,
+                                 y.X, y.Y, y.Z, 0.0f,
+                                 z.X, z.Y, z.Z, 0.0f,
+                                 0.0f, 0.0f, 0.0f, 1.0f);
         }
 
-        public static bool operator !=(SpaceTransform left, SpaceTransform right)
+        public bool IsIdentity()
         {
-            return !(left == right);
+            return Rotation == Matrix4x4.Identity && Scale == 1.0f && FlipV == false && FlipFaceIndices == false;
         }
     }
 }

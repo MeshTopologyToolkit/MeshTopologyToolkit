@@ -118,5 +118,10 @@ namespace MeshTopologyToolkit
             // Translation is intentionally excluded for direction vectors.
             return rotatedDirection;
         }
+
+        public TRSTransform ToTRS()
+        {
+            return this;
+        }
     }
 }
