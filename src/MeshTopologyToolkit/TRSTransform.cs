@@ -106,7 +106,7 @@ namespace MeshTopologyToolkit
         /// </summary>
         /// <param name="localDirection">The direction vector in local space (does not need to be unit length).</param>
         /// <returns>The direction vector in world space (retains length from scale).</returns>
-        public Vector3 TransformDirection(Vector3 localDirection)
+        public Vector3 TransformNormal(Vector3 localDirection)
         {
             // 1. Apply Scale (component-wise multiplication)
             Vector3 scaledDirection = localDirection * Scale;

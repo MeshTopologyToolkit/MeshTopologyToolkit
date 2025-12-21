@@ -20,7 +20,7 @@ namespace MeshTopologyToolkit.Urho3D
 
         public bool TryRead(IFileSystemEntry entry, out FileContainer content)
         {
-            content = new FileContainer();
+            content = new FileContainer() { FileToGltfTransform = new SpaceTransform(SpaceTransform._XYZ, flipFaceIndices: true) };
             if (!entry.Exists)
                 return false;
 

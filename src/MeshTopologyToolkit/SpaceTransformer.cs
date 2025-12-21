@@ -8,10 +8,20 @@ namespace MeshTopologyToolkit
         public static readonly SpaceTransformer Identity = new SpaceTransformer(Matrix4x4.Identity, 1.0f);
 
         private Matrix4x4 _rotationOnly;
+        private Vector3 _axisSigns;
         private Matrix4x4 _unitRotation;
 
         public SpaceTransformer(Matrix4x4 rotationMatrix, float unitScale)
         {
+            var axisX = new Vector3(rotationMatrix.M11, rotationMatrix.M12, rotationMatrix.M13);
+            var axisY = new Vector3(rotationMatrix.M21, rotationMatrix.M22, rotationMatrix.M23);
+            var axisZ = new Vector3(rotationMatrix.M31, rotationMatrix.M32, rotationMatrix.M33);
+            _axisSigns = new Vector3(
+                Vector3.Abs(axisX) == axisX ? 1.0f : -1.0f,
+                Vector3.Abs(axisY) == axisY ? 1.0f : -1.0f,
+                Vector3.Abs(axisZ) == axisZ ? 1.0f : -1.0f
+            );
+
             _unitRotation = rotationMatrix;
             _unitRotation.M11 *= unitScale;
             _unitRotation.M12 *= unitScale;
@@ -140,13 +150,19 @@ namespace MeshTopologyToolkit
             translation = Vector3.Transform(translation, _unitRotation);
 
             // Rotation: remap axes
-            rotation = Quaternion.Normalize(rotation * Quaternion.CreateFromRotationMatrix(_rotationOnly));
+            var quatRotation = Quaternion.CreateFromRotationMatrix(_rotationOnly);
+            rotation = Quaternion.Normalize(rotation * quatRotation);
+            //rotation = new Quaternion(_axisSigns.X * rotation.X, _axisSigns.Y * rotation.Y, _axisSigns.Z * rotation.Z, rotation.W);
 
             // Scale: remap axes but no unit scale
+            var axisX = Vector3.Abs(new Vector3(_rotationOnly.M11, _rotationOnly.M21, _rotationOnly.M31));
+            var axisY = Vector3.Abs(new Vector3(_rotationOnly.M12, _rotationOnly.M22, _rotationOnly.M32));
+            var axisZ = Vector3.Abs(new Vector3(_rotationOnly.M13, _rotationOnly.M23, _rotationOnly.M33));
+
             Vector3 newScale = new Vector3(
-                scale.X * _rotationOnly.M11 + scale.Y * _rotationOnly.M12 + scale.Z * _rotationOnly.M13,
-                scale.X * _rotationOnly.M21 + scale.Y * _rotationOnly.M22 + scale.Z * _rotationOnly.M23,
-                scale.X * _rotationOnly.M31 + scale.Y * _rotationOnly.M32 + scale.Z * _rotationOnly.M33);
+                Vector3.Dot(scale, axisX),
+                Vector3.Dot(scale, axisY),
+                Vector3.Dot(scale, axisZ));
 
             scale = newScale;
         }

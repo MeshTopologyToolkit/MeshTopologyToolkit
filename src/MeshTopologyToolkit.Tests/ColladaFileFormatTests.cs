@@ -16,28 +16,64 @@ public class ColladaFileFormatTests
     }
 
     [Fact]
-    public void Face102030YUp()
+    public void Face102030()
     {
         var resourceName = this.GetType().Namespace + ".samples.primitives.Face102030";
         var fileFormat = new FileFormatCollection(
             new GltfFileFormat(),
             new ColladaFileFormat());
 
-        Assert.True(fileFormat.TryRead(StreamFileSystemEntry.FromEmbeddedResource(resourceName+".glb"), out var glbContent));
-        Assert.True(fileFormat.TryRead(StreamFileSystemEntry.FromEmbeddedResource(resourceName+".dae"), out var daeContent));
+        Assert.True(fileFormat.TryRead(StreamFileSystemEntry.FromEmbeddedResource(resourceName + ".glb"), out var glbContent));
+        Assert.True(fileFormat.TryRead(StreamFileSystemEntry.FromEmbeddedResource(resourceName + ".dae"), out var daeContent));
         Assert.True(fileFormat.TryRead(StreamFileSystemEntry.FromEmbeddedResource(resourceName + "ZUp.dae"), out var daeZUpContent));
+
+        var variants = new List<FileContainer>() { glbContent, daeContent, daeZUpContent };
+
+        PrintNodeTransforms(variants);
 
         FileContainer Process(FileContainer content)
         {
             content = content.ToGltfSpace();
-            return new MergeOperator().Transform(content);
+            content = new MergeOperator().Transform(content);
+            return content;
         }
         ;
-        var variants = new [] { Process(glbContent), Process(daeContent), Process(daeZUpContent) };
+
+        variants = variants.Select(Process).ToList();
+
+        _testOutput.WriteLine($"----------------");
+        _testOutput.WriteLine($"After tranfsorm:");
+        PrintNodeTransforms(variants);
 
         var meshes = variants.Select(_ => _.Meshes.First()).ToList();
 
         var positions = meshes.Select(_ => _.GetAttribute<Vector3>(MeshAttributeKey.Position)).ToList();
+
+        for (int i = 0; i < positions.Count; i++)
+        {
+            _testOutput.WriteLine($"Set {i}:");
+            foreach (var pos in positions[i])
+            {
+                _testOutput.WriteLine($"    Position: {pos}");
+            }
+        }
+    }
+
+    private void PrintNodeTransforms(List<FileContainer> variants)
+    {
+        for (int i = 0; i < variants.Count; i++)
+        {
+            _testOutput.WriteLine($"Variant {i}:");
+
+            foreach (var node in variants[i].Scenes[0].VisitAllChildren())
+            {
+                var t = node.Transform.ToTRS();
+                _testOutput.WriteLine($"    Node transform:");
+                _testOutput.WriteLine($"      Position: {t.Translation}");
+                _testOutput.WriteLine($"      Rotation: {t.Rotation}");
+                _testOutput.WriteLine($"      Scale: {t.Scale}");
+            }
+        }
     }
 
     [Theory]

@@ -61,29 +61,31 @@ public class Urho3DFileFormatTests
     }
 
 
-    //[Fact]
+    [Fact]
     public void MatchGlbTransform()
     {
         var urho3dResourceName = this.GetType().Namespace + ".samples.urho3d.BrickFloor01.mdl";
         var gltfResourceName = this.GetType().Namespace + ".samples.urho3d.BrickFloor01.glb";
 
         var fileFormat = new FileFormatCollection(
-            new FormatAndSpace(new GltfFileFormat(), SpaceTransform.Identity),
-            new FormatAndSpace(new Urho3DFileFormat(), new SpaceTransform(Matrix4x4.CreateScale(-1.0f, 1.0f, 1.0f))));
+            new GltfFileFormat(),
+            new Urho3DFileFormat());
 
         Assert.True(fileFormat.TryRead(StreamFileSystemEntry.FromEmbeddedResource(gltfResourceName), out var gltfContent));
         Assert.True(fileFormat.TryRead(StreamFileSystemEntry.FromEmbeddedResource(urho3dResourceName), out var urho3DContent));
 
+        urho3DContent = urho3DContent.ToGltfSpace();
+
         Assert.Equal(urho3DContent.Meshes.Count, gltfContent.Meshes.Count);
         Assert.Single(urho3DContent.Meshes);
 
-        //Assert.Equal(gltfContent.Scenes[0].Children[0].Transform.ToMatrix().Translation, urho3DContent.Scenes[0].Children[0].Transform.ToMatrix().Translation);
+        var urho3DBbox = new BoundingBox3(urho3DContent.Meshes[0].GetAttribute<Vector3>(MeshAttributeKey.Position));
+        var gltfBbox = new BoundingBox3(gltfContent.Meshes[0].GetAttribute<Vector3>(MeshAttributeKey.Position));
+
+        Assert.Equal(urho3DBbox.Min, gltfBbox.Min, Vector3EqualityComparer.Default);
+        Assert.Equal(urho3DBbox.Max, gltfBbox.Max, Vector3EqualityComparer.Default);
 
         var meshA = urho3DContent.Meshes[0];
         var meshB = gltfContent.Meshes[0];
-
-        //Assert.Equal(meshA.GetAttribute<Vector3>(MeshAttributeKey.Position), meshB.GetAttribute<Vector3>(MeshAttributeKey.Position), new Vector3EqualityComparer(1e-6f));
-        //Assert.Equal(meshA.GetAttribute<Vector3>(MeshAttributeKey.Normal), meshB.GetAttribute<Vector3>(MeshAttributeKey.Normal), new Vector3EqualityComparer(1e-6f));
-        //Assert.Equal(meshA.GetAttribute<Vector4>(MeshAttributeKey.Tangent), meshB.GetAttribute<Vector4>(MeshAttributeKey.Tangent), new Vector4EqualityComparer(1e-6f));
     }
 }

@@ -15,7 +15,7 @@ namespace MeshTopologyToolkit.Operators
         public FileContainer Transform(FileContainer container)
         {
             
-            var result = new FileContainer();
+            var result = new FileContainer() { FileToGltfTransform = container.FileToGltfTransform };
 
             if (_container != null)
             {

@@ -17,7 +17,7 @@ namespace MeshTopologyToolkit.Operators
 
         public FileContainer Transform(FileContainer container)
         {
-            var result = new FileContainer();
+            var result = new FileContainer() { FileToGltfTransform = container.FileToGltfTransform };
             foreach (var asset in container.Textures)
             {
                 result.Add(Visit(asset));

@@ -47,10 +47,9 @@ namespace MeshTopologyToolkit
         /// </summary>
         /// <param name="localDirection">The direction vector in local space (does not need to be unit length).</param>
         /// <returns>The direction vector in world space (retains length from scale).</returns>
-        public Vector3 TransformDirection(Vector3 localDirection)
+        public Vector3 TransformNormal(Vector3 localDirection)
         {
-            var res = Vector4.Transform(new Vector4(localDirection, 0.0f), Transform);
-            return new Vector3(res.X, res.Y, res.Z);
+            return Vector3.TransformNormal(localDirection, Transform);
         }
 
         public TRSTransform ToTRS()

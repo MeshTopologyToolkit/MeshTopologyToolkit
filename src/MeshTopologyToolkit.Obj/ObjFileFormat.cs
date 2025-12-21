@@ -303,9 +303,9 @@ namespace MeshTopologyToolkit.Obj
                     {
                         foreach (var face in drawCall.GetFaces(normalIndices))
                         {
-                            data.NormalIndices.Add(data.Normals.Add(transform.TransformDirection(normals[face.A])));
-                            data.NormalIndices.Add(data.Normals.Add(transform.TransformDirection(normals[face.B])));
-                            data.NormalIndices.Add(data.Normals.Add(transform.TransformDirection(normals[face.C])));
+                            data.NormalIndices.Add(data.Normals.Add(transform.TransformNormal(normals[face.A])));
+                            data.NormalIndices.Add(data.Normals.Add(transform.TransformNormal(normals[face.B])));
+                            data.NormalIndices.Add(data.Normals.Add(transform.TransformNormal(normals[face.C])));
                         }
                     }
                 }
@@ -315,9 +315,9 @@ namespace MeshTopologyToolkit.Obj
                     {
                         foreach (var face in drawCall.GetFaces(texCoordIndices))
                         {
-                            data.TexCoordIndices.Add(data.TexCoords.Add(transform.TransformDirection(texCoords[face.A])));
-                            data.TexCoordIndices.Add(data.TexCoords.Add(transform.TransformDirection(texCoords[face.B])));
-                            data.TexCoordIndices.Add(data.TexCoords.Add(transform.TransformDirection(texCoords[face.C])));
+                            data.TexCoordIndices.Add(data.TexCoords.Add(transform.TransformNormal(texCoords[face.A])));
+                            data.TexCoordIndices.Add(data.TexCoords.Add(transform.TransformNormal(texCoords[face.B])));
+                            data.TexCoordIndices.Add(data.TexCoords.Add(transform.TransformNormal(texCoords[face.C])));
                         }
                     }
                 }

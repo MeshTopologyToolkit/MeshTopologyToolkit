@@ -10,11 +10,104 @@ namespace MeshTopologyToolkit
     {
         public static readonly SpaceTransform Identity = new SpaceTransform(Matrix4x4.Identity);
 
+        #region Transform Matrices
+        // Transform matrix that maps vector (X, Y, Z) to (X, Y, Z)
         public static readonly Matrix4x4 XYZ = CreateMatrix(Vector3.UnitX, Vector3.UnitY, Vector3.UnitZ);
+        // Transform matrix that maps vector (X, Y, Z) to (-X, Y, Z)
         public static readonly Matrix4x4 _XYZ = CreateMatrix(-Vector3.UnitX, Vector3.UnitY, Vector3.UnitZ);
+        // Transform matrix that maps vector (X, Y, Z) to (X, -Y, Z)
+        public static readonly Matrix4x4 X_YZ = CreateMatrix(Vector3.UnitX, -Vector3.UnitY, Vector3.UnitZ);
+        // Transform matrix that maps vector (X, Y, Z) to (-X, -Y, Z)
+        public static readonly Matrix4x4 _X_YZ = CreateMatrix(-Vector3.UnitX, -Vector3.UnitY, Vector3.UnitZ);
+        // Transform matrix that maps vector (X, Y, Z) to (X, Y, -Z)
+        public static readonly Matrix4x4 XY_Z = CreateMatrix(Vector3.UnitX, Vector3.UnitY, -Vector3.UnitZ);
+        // Transform matrix that maps vector (X, Y, Z) to (-X, Y, -Z)
+        public static readonly Matrix4x4 _XY_Z = CreateMatrix(-Vector3.UnitX, Vector3.UnitY, -Vector3.UnitZ);
+        // Transform matrix that maps vector (X, Y, Z) to (X, -Y, -Z)
+        public static readonly Matrix4x4 X_Y_Z = CreateMatrix(Vector3.UnitX, -Vector3.UnitY, -Vector3.UnitZ);
+        // Transform matrix that maps vector (X, Y, Z) to (-X, -Y, -Z)
+        public static readonly Matrix4x4 _X_Y_Z = CreateMatrix(-Vector3.UnitX, -Vector3.UnitY, -Vector3.UnitZ);
+        // Transform matrix that maps vector (X, Y, Z) to (X, Z, Y)
         public static readonly Matrix4x4 XZY = CreateMatrix(Vector3.UnitX, Vector3.UnitZ, Vector3.UnitY);
+        // Transform matrix that maps vector (X, Y, Z) to (-X, Z, Y)
         public static readonly Matrix4x4 _XZY = CreateMatrix(-Vector3.UnitX, Vector3.UnitZ, Vector3.UnitY);
+        // Transform matrix that maps vector (X, Y, Z) to (X, -Z, Y)
         public static readonly Matrix4x4 X_ZY = CreateMatrix(Vector3.UnitX, -Vector3.UnitZ, Vector3.UnitY);
+        // Transform matrix that maps vector (X, Y, Z) to (-X, -Z, Y)
+        public static readonly Matrix4x4 _X_ZY = CreateMatrix(-Vector3.UnitX, -Vector3.UnitZ, Vector3.UnitY);
+        // Transform matrix that maps vector (X, Y, Z) to (X, Z, -Y)
+        public static readonly Matrix4x4 XZ_Y = CreateMatrix(Vector3.UnitX, Vector3.UnitZ, -Vector3.UnitY);
+        // Transform matrix that maps vector (X, Y, Z) to (-X, Z, -Y)
+        public static readonly Matrix4x4 _XZ_Y = CreateMatrix(-Vector3.UnitX, Vector3.UnitZ, -Vector3.UnitY);
+        // Transform matrix that maps vector (X, Y, Z) to (X, -Z, -Y)
+        public static readonly Matrix4x4 X_Z_Y = CreateMatrix(Vector3.UnitX, -Vector3.UnitZ, -Vector3.UnitY);
+        // Transform matrix that maps vector (X, Y, Z) to (-X, -Z, -Y)
+        public static readonly Matrix4x4 _X_Z_Y = CreateMatrix(-Vector3.UnitX, -Vector3.UnitZ, -Vector3.UnitY);
+        // Transform matrix that maps vector (X, Y, Z) to (Y, X, Z)
+        public static readonly Matrix4x4 YXZ = CreateMatrix(Vector3.UnitY, Vector3.UnitX, Vector3.UnitZ);
+        // Transform matrix that maps vector (X, Y, Z) to (-Y, X, Z)
+        public static readonly Matrix4x4 _YXZ = CreateMatrix(-Vector3.UnitY, Vector3.UnitX, Vector3.UnitZ);
+        // Transform matrix that maps vector (X, Y, Z) to (Y, -X, Z)
+        public static readonly Matrix4x4 Y_XZ = CreateMatrix(Vector3.UnitY, -Vector3.UnitX, Vector3.UnitZ);
+        // Transform matrix that maps vector (X, Y, Z) to (-Y, -X, Z)
+        public static readonly Matrix4x4 _Y_XZ = CreateMatrix(-Vector3.UnitY, -Vector3.UnitX, Vector3.UnitZ);
+        // Transform matrix that maps vector (X, Y, Z) to (Y, X, -Z)
+        public static readonly Matrix4x4 YX_Z = CreateMatrix(Vector3.UnitY, Vector3.UnitX, -Vector3.UnitZ);
+        // Transform matrix that maps vector (X, Y, Z) to (-Y, X, -Z)
+        public static readonly Matrix4x4 _YX_Z = CreateMatrix(-Vector3.UnitY, Vector3.UnitX, -Vector3.UnitZ);
+        // Transform matrix that maps vector (X, Y, Z) to (Y, -X, -Z)
+        public static readonly Matrix4x4 Y_X_Z = CreateMatrix(Vector3.UnitY, -Vector3.UnitX, -Vector3.UnitZ);
+        // Transform matrix that maps vector (X, Y, Z) to (-Y, -X, -Z)
+        public static readonly Matrix4x4 _Y_X_Z = CreateMatrix(-Vector3.UnitY, -Vector3.UnitX, -Vector3.UnitZ);
+        // Transform matrix that maps vector (X, Y, Z) to (Y, Z, X)
+        public static readonly Matrix4x4 YZX = CreateMatrix(Vector3.UnitY, Vector3.UnitZ, Vector3.UnitX);
+        // Transform matrix that maps vector (X, Y, Z) to (-Y, Z, X)
+        public static readonly Matrix4x4 _YZX = CreateMatrix(-Vector3.UnitY, Vector3.UnitZ, Vector3.UnitX);
+        // Transform matrix that maps vector (X, Y, Z) to (Y, -Z, X)
+        public static readonly Matrix4x4 Y_ZX = CreateMatrix(Vector3.UnitY, -Vector3.UnitZ, Vector3.UnitX);
+        // Transform matrix that maps vector (X, Y, Z) to (-Y, -Z, X)
+        public static readonly Matrix4x4 _Y_ZX = CreateMatrix(-Vector3.UnitY, -Vector3.UnitZ, Vector3.UnitX);
+        // Transform matrix that maps vector (X, Y, Z) to (Y, Z, -X)
+        public static readonly Matrix4x4 YZ_X = CreateMatrix(Vector3.UnitY, Vector3.UnitZ, -Vector3.UnitX);
+        // Transform matrix that maps vector (X, Y, Z) to (-Y, Z, -X)
+        public static readonly Matrix4x4 _YZ_X = CreateMatrix(-Vector3.UnitY, Vector3.UnitZ, -Vector3.UnitX);
+        // Transform matrix that maps vector (X, Y, Z) to (Y, -Z, -X)
+        public static readonly Matrix4x4 Y_Z_X = CreateMatrix(Vector3.UnitY, -Vector3.UnitZ, -Vector3.UnitX);
+        // Transform matrix that maps vector (X, Y, Z) to (-Y, -Z, -X)
+        public static readonly Matrix4x4 _Y_Z_X = CreateMatrix(-Vector3.UnitY, -Vector3.UnitZ, -Vector3.UnitX);
+        // Transform matrix that maps vector (X, Y, Z) to (Z, X, Y)
+        public static readonly Matrix4x4 ZXY = CreateMatrix(Vector3.UnitZ, Vector3.UnitX, Vector3.UnitY);
+        // Transform matrix that maps vector (X, Y, Z) to (-Z, X, Y)
+        public static readonly Matrix4x4 _ZXY = CreateMatrix(-Vector3.UnitZ, Vector3.UnitX, Vector3.UnitY);
+        // Transform matrix that maps vector (X, Y, Z) to (Z, -X, Y)
+        public static readonly Matrix4x4 Z_XY = CreateMatrix(Vector3.UnitZ, -Vector3.UnitX, Vector3.UnitY);
+        // Transform matrix that maps vector (X, Y, Z) to (-Z, -X, Y)
+        public static readonly Matrix4x4 _Z_XY = CreateMatrix(-Vector3.UnitZ, -Vector3.UnitX, Vector3.UnitY);
+        // Transform matrix that maps vector (X, Y, Z) to (Z, X, -Y)
+        public static readonly Matrix4x4 ZX_Y = CreateMatrix(Vector3.UnitZ, Vector3.UnitX, -Vector3.UnitY);
+        // Transform matrix that maps vector (X, Y, Z) to (-Z, X, -Y)
+        public static readonly Matrix4x4 _ZX_Y = CreateMatrix(-Vector3.UnitZ, Vector3.UnitX, -Vector3.UnitY);
+        // Transform matrix that maps vector (X, Y, Z) to (Z, -X, -Y)
+        public static readonly Matrix4x4 Z_X_Y = CreateMatrix(Vector3.UnitZ, -Vector3.UnitX, -Vector3.UnitY);
+        // Transform matrix that maps vector (X, Y, Z) to (-Z, -X, -Y)
+        public static readonly Matrix4x4 _Z_X_Y = CreateMatrix(-Vector3.UnitZ, -Vector3.UnitX, -Vector3.UnitY);
+        // Transform matrix that maps vector (X, Y, Z) to (Z, Y, X)
+        public static readonly Matrix4x4 ZYX = CreateMatrix(Vector3.UnitZ, Vector3.UnitY, Vector3.UnitX);
+        // Transform matrix that maps vector (X, Y, Z) to (-Z, Y, X)
+        public static readonly Matrix4x4 _ZYX = CreateMatrix(-Vector3.UnitZ, Vector3.UnitY, Vector3.UnitX);
+        // Transform matrix that maps vector (X, Y, Z) to (Z, -Y, X)
+        public static readonly Matrix4x4 Z_YX = CreateMatrix(Vector3.UnitZ, -Vector3.UnitY, Vector3.UnitX);
+        // Transform matrix that maps vector (X, Y, Z) to (-Z, -Y, X)
+        public static readonly Matrix4x4 _Z_YX = CreateMatrix(-Vector3.UnitZ, -Vector3.UnitY, Vector3.UnitX);
+        // Transform matrix that maps vector (X, Y, Z) to (Z, Y, -X)
+        public static readonly Matrix4x4 ZY_X = CreateMatrix(Vector3.UnitZ, Vector3.UnitY, -Vector3.UnitX);
+        // Transform matrix that maps vector (X, Y, Z) to (-Z, Y, -X)
+        public static readonly Matrix4x4 _ZY_X = CreateMatrix(-Vector3.UnitZ, Vector3.UnitY, -Vector3.UnitX);
+        // Transform matrix that maps vector (X, Y, Z) to (Z, -Y, -X)
+        public static readonly Matrix4x4 Z_Y_X = CreateMatrix(Vector3.UnitZ, -Vector3.UnitY, -Vector3.UnitX);
+        // Transform matrix that maps vector (X, Y, Z) to (-Z, -Y, -X)
+        public static readonly Matrix4x4 _Z_Y_X = CreateMatrix(-Vector3.UnitZ, -Vector3.UnitY, -Vector3.UnitX);
+        #endregion
 
         /// <summary>
         /// Rotation matrix for space. Should not contain translation or scale!
