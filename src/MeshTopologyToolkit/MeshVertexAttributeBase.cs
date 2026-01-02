@@ -110,5 +110,12 @@ namespace MeshTopologyToolkit
             }
             return result;
         }
+
+        public abstract IMeshVertexAttribute<T> DeepCopy();
+
+        IMeshVertexAttribute IMeshVertexAttribute.DeepCopy()
+        {
+            return DeepCopy();
+        }
     }
 }

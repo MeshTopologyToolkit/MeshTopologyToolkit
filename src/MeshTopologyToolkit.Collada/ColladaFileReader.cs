@@ -47,13 +47,17 @@ namespace MeshTopologyToolkit.Collada
                 var up = ColladaUpAxis.Z;
                 switch (upAxis.Value)
                 {
+                    case "X_UP":
+                        up = ColladaUpAxis.X;
+                        break;
                     case "Y_UP":
-                        _content.FileToGltfTransform = new SpaceTransform(SpaceTransform.XYZ, scale);
+                        up = ColladaUpAxis.Y;
                         break;
                     case "Z_UP":
-                        _content.FileToGltfTransform = new SpaceTransform(SpaceTransform.X_ZY, scale);
+                        up = ColladaUpAxis.Z;
                         break;
                 }
+                _content.FileToGltfTransform = ColladaFileFormat.GetToGltfTransform(up, scale);
             }
         }
         private void ParseLibraryVisualScenes(XDocument doc)

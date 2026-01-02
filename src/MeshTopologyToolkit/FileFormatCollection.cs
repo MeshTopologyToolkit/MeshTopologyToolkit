@@ -8,41 +8,52 @@ namespace MeshTopologyToolkit
 {
     public class FileFormatCollection : IFileFormat
     {
-        IList<FormatAndSpace> _formats;
+        private List<IFileFormat> _formats;
 
-        public FileFormatCollection(IEnumerable<FormatAndSpace> formats)
-        {
-            _formats = new List<FormatAndSpace>(formats);
-            SupportedExtensions = _formats.SelectMany(_ => _.FileFormat.SupportedExtensions).ToList();
-        }
+        private bool _forceGltfSpace = false;
 
-        public FileFormatCollection(IEnumerable<IFileFormat> formats):this(formats.Select(f=>new FormatAndSpace(f, SpaceTransform.Identity)))
+        public FileFormatCollection(IEnumerable<IFileFormat> formats): this(false, formats)
         {
         }
 
-        public FileFormatCollection(params FormatAndSpace[] formats) : this((IEnumerable<FormatAndSpace>)formats)
+        public FileFormatCollection(bool forceGltfSpace, IEnumerable < IFileFormat> formats)
+        {
+            _forceGltfSpace = forceGltfSpace;
+            _formats = new List<IFileFormat>(formats);
+            SupportedExtensions = _formats.SelectMany(_ => _.SupportedExtensions).ToList();
+        }
+
+        public FileFormatCollection(params IFileFormat[] formats) : this(false, (IEnumerable<IFileFormat>)formats)
         {
         }
 
-        public FileFormatCollection(params IFileFormat[] formats) : this((IEnumerable<IFileFormat>)formats)
+        public FileFormatCollection(bool forceGltfSpace, params IFileFormat[] formats) : this(forceGltfSpace, (IEnumerable<IFileFormat>)formats)
         {
         }
+
         public IReadOnlyList<SupportedExtension> SupportedExtensions { get; private set; }
+
+        public bool ForceGltfSpace => _forceGltfSpace;
+
+        public SpaceTransform FormatToGltfTransform { get
+            {
+                if (_forceGltfSpace)
+                    return SpaceTransform.Identity;
+                throw new NotSupportedException($"{nameof(FileFormatCollection)} does not have a single {nameof(FormatToGltfTransform)} when forceGltfSpace is false.");
+            } }
 
         public bool TryRead(IFileSystemEntry entry, out FileContainer content)
         {
             var ext = Path.GetExtension(entry.Name);
-            foreach (var formatAndSpace in _formats)
+            foreach (var format in _formats)
             {
-                var format = formatAndSpace.FileFormat;
-
                 if (format.SupportedExtensions.Any(_ => _.Extension.Equals(ext, StringComparison.OrdinalIgnoreCase)))
                 {
                     if (format.TryRead(entry, out content))
                     {
-                        if (!formatAndSpace.Transform.IsIdentity())
+                        if (_forceGltfSpace && content.FileToGltfTransform != null && !content.FileToGltfTransform.IsIdentity())
                         {
-                            content = new SpaceTransformOperator(formatAndSpace.Transform).Transform(content);
+                            content = new SpaceTransformOperator(content.FileToGltfTransform).Transform(content);
                         }
                         return true;
                     }
@@ -55,19 +66,18 @@ namespace MeshTopologyToolkit
         public bool TryWrite(IFileSystemEntry entry, FileContainer content)
         {
             var ext = Path.GetExtension(entry.Name);
-            foreach (var formatAndSpace in _formats)
+            foreach (var format in _formats)
             {
-                var format = formatAndSpace.FileFormat;
-
                 if (format.SupportedExtensions.Any(_ => _.Extension.Equals(ext, StringComparison.OrdinalIgnoreCase)))
                 {
-                    SpaceTransform transform = formatAndSpace.Transform;
-                    if (transform != SpaceTransform.Identity)
+                    FileContainer contentCopy = content;
+                    SpaceTransform transform = format.FormatToGltfTransform;
+                    if (_forceGltfSpace && !transform.IsIdentity())
                     {
                         transform = transform.Invert();
-                        content = new SpaceTransformOperator(transform).Transform(content);
+                        contentCopy = new SpaceTransformOperator(transform).Transform(contentCopy);
                     }
-                    if (format.TryWrite(entry, content))
+                    if (format.TryWrite(entry, contentCopy))
                         return true;
                 }
             }

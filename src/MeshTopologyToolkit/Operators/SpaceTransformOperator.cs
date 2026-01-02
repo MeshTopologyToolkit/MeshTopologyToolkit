@@ -14,6 +14,7 @@ namespace MeshTopologyToolkit.Operators
             _transformer = transform.Transformer;
             FlipV = transform.FlipV;
             FlipFaceIndices = transform.FlipFaceIndices;
+            FlipHandedness = transform.FlipHandedness;
         }
 
         public SpaceTransformer Transformer => _transformer;
@@ -21,6 +22,7 @@ namespace MeshTopologyToolkit.Operators
         public bool FlipV { get; private set; }
 
         public bool FlipFaceIndices { get; }
+        public bool FlipHandedness { get; }
 
         public override ITransform Transform(ITransform transform)
         {
@@ -100,7 +102,7 @@ namespace MeshTopologyToolkit.Operators
                             var data = new ListMeshVertexAttribute<Vector4>(tangents.Count);
                             foreach (var tangent in tangents)
                             {
-                                data.Add(_transformer.TransformTangent(tangent));
+                                data.Add(_transformer.TransformTangent(tangent, false));
                             }
                             return data;
                         }

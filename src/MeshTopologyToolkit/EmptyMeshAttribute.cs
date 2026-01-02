@@ -53,12 +53,18 @@ namespace MeshTopologyToolkit
         {
             throw new InvalidOperationException("Mesh attribute doesn't exist. Check result of TryGetAttribute method and assume attribute is missing if it returns false.");
         }
+
+        public virtual IMeshVertexAttribute DeepCopy()
+        {
+            // The EmptyMeshAttribute is immutable, so we can return the same instance.
+            return this;
+        }
     }
 
     /// <summary>
     /// Empty mesh attribute. This only exists for to avoid null reference exceptions in the code.
     /// </summary>
-    public class EmptyMeshAttribute<T> : EmptyMeshAttribute, IMeshVertexAttribute<T> where T : notnull
+    public sealed class EmptyMeshAttribute<T> : EmptyMeshAttribute, IMeshVertexAttribute<T> where T : notnull
     {
         public new static readonly EmptyMeshAttribute<T> Instance = new EmptyMeshAttribute<T>();
 
@@ -83,5 +89,13 @@ namespace MeshTopologyToolkit
         {
             return GetEnumerator();
         }
+
+        new public IMeshVertexAttribute<T> DeepCopy()
+        {
+            // The EmptyMeshAttribute is immutable, so we can return the same instance.
+            return this;
+        }
+
+
     }
 }

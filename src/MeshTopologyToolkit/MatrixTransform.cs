@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using System.Transactions;
 
 namespace MeshTopologyToolkit
 {
@@ -10,6 +11,12 @@ namespace MeshTopologyToolkit
         {
             Transform = Matrix4x4.Identity;
         }
+
+        /// <summary>
+        /// Returns true if this transform is an identity transform (no translation, no rotation, unit scale).
+        /// </summary>
+        /// <returns>Returns true if this transform is an identity transform (no translation, no rotation, unit scale), otherwise false.</returns>
+        public bool IsIdentity { get { return this.Transform.IsIdentity; } }
 
         public MatrixTransform(Matrix4x4 transform)
         {

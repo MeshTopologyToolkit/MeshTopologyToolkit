@@ -217,6 +217,11 @@ namespace MeshTopologyToolkit
             {
                 return ((IEnumerable)_values).GetEnumerator();
             }
+
+            public override string ToString()
+            {
+                return $"Collection<{typeof(T).Name}>[{Count}]";
+            }
         }
     }
 }

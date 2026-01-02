@@ -129,6 +129,12 @@ namespace MeshTopologyToolkit
         /// </summary>
         public bool FlipFaceIndices { get; }
 
+        /// <summary>
+        /// Flip handedness.
+        /// This property is deduced from the rotation matrix.
+        /// </summary>
+        public bool FlipHandedness { get; }
+
         public SpaceTransform(Matrix4x4 rotation, float scale = 1.0f, bool flipV = false, bool flipFaceIndices = false)
         {
             if (rotation.Translation != Vector3.Zero)
@@ -143,6 +149,11 @@ namespace MeshTopologyToolkit
             var rotZ = new Vector3(rotation.M31, rotation.M32, rotation.M33);
             if (!ValidateRotationAxis(rotZ))
                 throw new ArgumentException($"Rotation matrix axis Z is not defined correctly: {rotZ}. It should be a unit vector.", nameof(rotation));
+
+            if (Vector3.Dot(Vector3.Cross(rotX, rotY), rotZ) < 0.0f)
+                FlipHandedness = true;
+            else
+                FlipHandedness = false;
 
             if (scale <= 0.0f)
                 throw new ArgumentException("Scale should be positive. If you need to flip axis direction use rotation matrix instead.", nameof(scale));
@@ -189,7 +200,7 @@ namespace MeshTopologyToolkit
             return HashCode.Combine(Rotation, Scale, FlipV, FlipFaceIndices);
         }
 
-        internal SpaceTransform Invert()
+        public SpaceTransform Invert()
         {
             Matrix4x4.Invert(Rotation, out var inverted);
             return new SpaceTransform(inverted, 1.0f/Scale, FlipV, FlipFaceIndices);

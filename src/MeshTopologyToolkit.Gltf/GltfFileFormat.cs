@@ -12,6 +12,8 @@ namespace MeshTopologyToolkit.Gltf
             new SupportedExtension("glTF (Binary)", ".glb"),
         };
 
+        public SpaceTransform FormatToGltfTransform => SpaceTransform.Identity;
+
         public IReadOnlyList<SupportedExtension> SupportedExtensions => _extensions;
 
         public bool TryRead(IFileSystemEntry entry, out FileContainer content)

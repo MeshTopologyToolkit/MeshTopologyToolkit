@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Net.Http.Headers;
 using System.Numerics;
 using System.Reflection;
 
@@ -168,6 +169,17 @@ namespace MeshTopologyToolkit
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
+        }
+
+        public override IMeshVertexAttribute<Vector4> DeepCopy()
+        {
+            return new TangentRTree3MeshVertexAttribute(_boundingBoxExtend * 2.0f)
+            {
+                _values = new List<Vector4>(_values),
+                _valuePairs = new List<ValuePair>(_valuePairs),
+                _rtree = _rtree.DeepCopy(),
+                _weldRadiusSquared = _weldRadiusSquared
+            };
         }
     }
 }

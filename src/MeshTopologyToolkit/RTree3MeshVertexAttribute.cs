@@ -123,5 +123,16 @@ namespace MeshTopologyToolkit
                 Add(val);
             }
         }
+
+        public override IMeshVertexAttribute<Vector3> DeepCopy()
+        {
+            return new RTree3MeshVertexAttribute
+            {
+                _values = new List<Vector3>(_values),
+                _rtree = _rtree.DeepCopy(),
+                _boundingBoxExtend = _boundingBoxExtend,
+                _weldRadiusSquared = _weldRadiusSquared
+            };
+        }
     }
 }

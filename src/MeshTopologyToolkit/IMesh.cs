@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Numerics;
 
 namespace MeshTopologyToolkit
 {
@@ -93,5 +94,11 @@ namespace MeshTopologyToolkit
         /// </summary>
         /// <returns>A read-only collection of <see cref="MeshAttributeKey"/> instances.</returns>
         IReadOnlyCollection<MeshAttributeKey> GetAttributeKeys();
+
+        /// <summary>
+        /// Make a deep copy of this mesh including all attributes and data.
+        /// </summary>
+        /// <returns>Returns mesh copy.</returns>
+        IMesh DeepCopy();
     }
 }

@@ -45,5 +45,10 @@ namespace MeshTopologyToolkit
         {
             return GetEnumerator();
         }
+
+        public override IMeshVertexAttribute<T> DeepCopy()
+        {
+            return new ConstMeshVertexAttribute<T>(_value, Count);
+        }
     }
 }

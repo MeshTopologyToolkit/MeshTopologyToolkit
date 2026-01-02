@@ -21,6 +21,11 @@ namespace MeshTopologyToolkit
             throw new NotImplementedException("Can't add value to attribute container view");
         }
 
+        public override IMeshVertexAttribute<T> DeepCopy()
+        {
+            return new MeshVertexAttributeView<T>(_values);
+        }
+
         public override IEnumerator<T> GetEnumerator()
         {
             return _values.GetEnumerator();

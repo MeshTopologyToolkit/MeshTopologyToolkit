@@ -27,6 +27,8 @@ namespace MeshTopologyToolkit.Stl
         /// objects, each representing a specific file extension that is supported by the class.</remarks>
         public IReadOnlyList<SupportedExtension> SupportedExtensions => _extensions;
 
+        // TODO: Implement proper space transform.
+        public SpaceTransform FormatToGltfTransform => SpaceTransform.Identity;
 
         public bool TryRead(IFileSystemEntry entry, out FileContainer content)
         {

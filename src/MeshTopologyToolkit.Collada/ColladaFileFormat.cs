@@ -56,6 +56,9 @@ namespace MeshTopologyToolkit.Collada
             }
         }
 
+        public SpaceTransform FormatToGltfTransform => GetToGltfTransform(_upAxis);
+
+
         public bool TryWrite(IFileSystemEntry entry, FileContainer content)
         {
             content = new EnsureUniqueNames().Transform(content);
@@ -483,6 +486,21 @@ namespace MeshTopologyToolkit.Collada
             }
 
             return encoded;
+        }
+
+        internal static SpaceTransform GetToGltfTransform(ColladaUpAxis axis, float scale = 1.0f)
+        {
+            switch (axis)
+            {
+                case ColladaUpAxis.X:
+                    return new SpaceTransform(SpaceTransform.YZX, scale);
+                case ColladaUpAxis.Y:
+                    return new SpaceTransform(SpaceTransform.XYZ, scale);
+                case ColladaUpAxis.Z:
+                    return new SpaceTransform(SpaceTransform.X_ZY, scale);
+                default:
+                    throw new ArgumentException("Unknwon axis", nameof(axis));
+            }
         }
     }
 }

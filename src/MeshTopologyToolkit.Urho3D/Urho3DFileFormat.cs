@@ -13,6 +13,8 @@ namespace MeshTopologyToolkit.Urho3D
 
         public IReadOnlyList<SupportedExtension> SupportedExtensions => _extensions;
 
+        public SpaceTransform FormatToGltfTransform => new SpaceTransform(SpaceTransform._XYZ, flipFaceIndices: true);
+
         public Urho3DFileFormat(Urho3DModelVersion preferableVersion = Urho3DModelVersion.Rbfx)
         {
             _preferableVersion = preferableVersion;
@@ -20,7 +22,7 @@ namespace MeshTopologyToolkit.Urho3D
 
         public bool TryRead(IFileSystemEntry entry, out FileContainer content)
         {
-            content = new FileContainer() { FileToGltfTransform = new SpaceTransform(SpaceTransform._XYZ, flipFaceIndices: true) };
+            content = new FileContainer() { FileToGltfTransform = this.FormatToGltfTransform };
             if (!entry.Exists)
                 return false;
 

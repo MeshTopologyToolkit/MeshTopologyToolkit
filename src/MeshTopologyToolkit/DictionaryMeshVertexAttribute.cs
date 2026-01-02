@@ -38,5 +38,14 @@ namespace MeshTopologyToolkit
         {
             return GetEnumerator();
         }
+
+        public override IMeshVertexAttribute<T> DeepCopy()
+        {
+            return new DictionaryMeshVertexAttribute<T>
+            {
+                _values = new List<T>(_values),
+                _map = new Dictionary<T, int>(_map)
+            };
+        }
     }
 }

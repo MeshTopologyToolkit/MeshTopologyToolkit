@@ -11,15 +11,39 @@ public class SpaceTransformTests
         this._testOutput = testOutput;
     }
 
-
     [Fact]
     public void TansformPosition()
     {
-        for (int i = 1; i <= 4; ++i)
-            for (int j = 1; j <= 4; ++j)
-            {
-                _testOutput.WriteLine($"if (Math.Abs(reconstructed.M{i}{j} - nodeMatrix.Transform.M{i}{j}) > 1e-6f)");
-                _testOutput.WriteLine($"throw new Exception($\"Failed to decompose node matrix correctly {{reconstructed.M{i}{j}}} != {{nodeMatrix.Transform.M{i}{j}}}.\");");
-            }
+        var name = new[] { "X", "Y", "Z" };
+
+        for (int first = 0; first <= 2; first++)
+            for (int second = 0; second <= 2; second++)
+                for (int third = 0; third<= 2; third++)
+                {
+                    if (third == first || third == second || second == first)
+                        continue;
+
+                    for (int signs = 0; signs < 2 * 2 * 2; ++signs)
+                    {
+                        var names = new[] {
+                            name[first],
+                            name[second],
+                            name[third],
+                        };
+                        var sign = new[] { 
+                            (signs & 1) == 0 ? "" : "-",
+                            (signs & 2) == 0 ? "" : "-",
+                            (signs & 4) == 0 ? "" : "-",
+                        };
+                        var copmonents = new[] {
+                            $"{sign[0]}{names[0]}",
+                            $"{sign[1]}{names[1]}",
+                            $"{sign[2]}{names[2]}",
+                        };
+                        var prefix = sign.Select(_ => _.Replace("-", "_")).ToList();
+                        _testOutput.WriteLine($"// Transform matrix that maps vector (X, Y, Z) to ({copmonents[0]}, {copmonents[1]}, {copmonents[2]})");
+                        _testOutput.WriteLine($"public static readonly Matrix4x4 {prefix[0]}{names[0]}{prefix[1]}{names[1]}{prefix[2]}{names[2]} = CreateMatrix({sign[0]}Vector3.Unit{names[0]}, {sign[1]}Vector3.Unit{names[1]}, {sign[2]}Vector3.Unit{names[2]});");
+}
+                }
     }
 }

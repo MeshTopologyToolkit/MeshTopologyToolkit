@@ -268,7 +268,8 @@ namespace MeshTopologyToolkit
             }
 
             var vertexOffset = 0;
-            var indexOffset = 0;
+            var indicesPerLodAndMaterial = new Dictionary<MeshDrawCall, List<int>>();
+
             foreach (var mesheAndTransform in meshesAndTransforms)
             {
                 var mesh = mesheAndTransform.Mesh;
@@ -276,10 +277,24 @@ namespace MeshTopologyToolkit
                 mergedMesh.AddIndices(mesh.Indices.Select(i => i + vertexOffset));
                 foreach (var drawCall in mesh.DrawCalls)
                 {
-                    mergedMesh.DrawCalls.Add(new MeshDrawCall(drawCall.LodLevel, drawCall.MaterialIndex, drawCall.Type, drawCall.StartIndex + indexOffset, drawCall.NumIndices));
+                    var drawCallKey = new MeshDrawCall(drawCall.LodLevel, drawCall.MaterialIndex, drawCall.Type, 0, 0);
+                    if (!indicesPerLodAndMaterial.TryGetValue(drawCallKey, out var indexList))
+                    {
+                        indexList = new List<int>();
+                        indicesPerLodAndMaterial.Add(drawCallKey, indexList);
+                    }
+
+                    indexList.AddRange(mesh.Indices.Skip(drawCall.StartIndex).Take(drawCall.NumIndices).Select(i => i + vertexOffset));
                 }
-                indexOffset += mesh.Indices.Count;
                 vertexOffset += mesh.GetNumVertices();
+            }
+
+            foreach (var kvp in indicesPerLodAndMaterial)
+            {
+                var drawCallKey = kvp.Key;
+                var indices = kvp.Value;
+                mergedMesh.DrawCalls.Add(new MeshDrawCall(drawCallKey.LodLevel, drawCallKey.MaterialIndex, drawCallKey.Type, mergedMesh.Indices.Count, indices.Count));
+                mergedMesh.AddIndices(indices);
             }
             return mergedMesh;
         }
@@ -303,6 +318,21 @@ namespace MeshTopologyToolkit
         public bool RemoveAttribute(MeshAttributeKey key)
         {
             return _attributes.Remove(key);
+        }
+
+        public IMesh DeepCopy()
+        {
+            var result = new UnifiedIndexedMesh(Name);
+            result._indices.AddRange(_indices);
+            foreach (var kvp in _attributes)
+            {
+                result._attributes.Add(kvp.Key, kvp.Value.DeepCopy());
+            }
+            foreach (var drawCall in DrawCalls)
+            {
+                result.DrawCalls.Add(drawCall.Clone());
+            }
+            return result;
         }
 
         public struct MeshAndTransform

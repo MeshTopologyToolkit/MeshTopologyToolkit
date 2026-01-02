@@ -4,6 +4,12 @@ namespace MeshTopologyToolkit
 {
     public interface ITransform
     {
+        /// <summary>
+        /// Returns true if this transform is an identity transform (no translation, no rotation, unit scale).
+        /// </summary>
+        /// <returns>Returns true if this transform is an identity transform (no translation, no rotation, unit scale), otherwise false.</returns>
+        bool IsIdentity { get; }
+
         ITransform Combine(ITransform childTransform);
 
         /// <summary>

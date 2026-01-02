@@ -149,5 +149,19 @@ namespace MeshTopologyToolkit
         {
             return _attributes.Remove(key);
         }
+
+        public IMesh DeepCopy()
+        {
+            var result = new SeparatedIndexedMesh(Name);
+            foreach (var kvp in _attributes)
+            {
+                result._attributes.Add(kvp.Key, new AttributeAndIndices(kvp.Value.Attribute.DeepCopy(), kvp.Value.Indices.ToList()));
+            }
+            foreach (var drawCall in DrawCalls)
+            {
+                result.DrawCalls.Add(drawCall.Clone());
+            }
+            return result;
+        }
     }
 }

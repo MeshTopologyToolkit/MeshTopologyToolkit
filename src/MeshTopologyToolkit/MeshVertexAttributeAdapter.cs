@@ -103,5 +103,16 @@ namespace MeshTopologyToolkit
         {
             return typeof(TTo);
         }
+
+        public IMeshVertexAttribute<TTo> DeepCopy()
+        {
+            var result = new MeshVertexAttributeAdapter<TFrom, TTo>(_source.DeepCopy(), _converter);
+            return result;
+        }
+
+        IMeshVertexAttribute IMeshVertexAttribute.DeepCopy()
+        {
+            return DeepCopy();
+        }
     }
 }

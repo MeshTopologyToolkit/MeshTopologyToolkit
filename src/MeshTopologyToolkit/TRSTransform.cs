@@ -6,6 +6,12 @@ namespace MeshTopologyToolkit
     {
         public static readonly TRSTransform Identity = new TRSTransform();
 
+        /// <summary>
+        /// Returns true if this transform is an identity transform (no translation, no rotation, unit scale).
+        /// </summary>
+        /// <returns>Returns true if this transform is an identity transform (no translation, no rotation, unit scale), otherwise false.</returns>
+        public bool IsIdentity { get { return Translation.Equals(Vector3.Zero) && Rotation.Equals(Quaternion.Identity) && Scale.Equals(Vector3.One); } }
+
         public TRSTransform()
         {
             Translation = Vector3.Zero;

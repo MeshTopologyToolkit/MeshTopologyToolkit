@@ -10,6 +10,9 @@ namespace MeshTopologyToolkit.Obj
             new SupportedExtension("Wavefront .obj", ".obj"),
         };
 
+        // TODO: Implement proper space transform.
+        public SpaceTransform FormatToGltfTransform => SpaceTransform.Identity;
+
         public IReadOnlyList<SupportedExtension> SupportedExtensions => _extensions;
 
         public bool TryRead(IFileSystemEntry entry, out FileContainer content)

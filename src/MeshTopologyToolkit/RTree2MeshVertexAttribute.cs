@@ -114,6 +114,17 @@ namespace MeshTopologyToolkit
         {
             return GetEnumerator();
         }
+
+        public override IMeshVertexAttribute<Vector2> DeepCopy()
+        {
+            return new RTree2MeshVertexAttribute
+            {
+                _values = new List<Vector2>(_values),
+                _rtree = _rtree.DeepCopy(),
+                _boundingBoxExtend = _boundingBoxExtend,
+                _weldRadiusSquared = _weldRadiusSquared
+            };
+        }
     }
 
 }

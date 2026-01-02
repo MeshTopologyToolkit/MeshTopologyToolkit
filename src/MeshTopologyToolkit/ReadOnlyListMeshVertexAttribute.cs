@@ -21,6 +21,10 @@ namespace MeshTopologyToolkit
             throw new System.InvalidOperationException("The mesh attribute is read-only");
         }
 
+        public override IMeshVertexAttribute<T> DeepCopy()
+        {
+            return new ReadOnlyListMeshVertexAttribute<T>(_values);
+        }
 
         public override IEnumerator<T> GetEnumerator()
         {

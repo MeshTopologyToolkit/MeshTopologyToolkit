@@ -406,6 +406,13 @@ namespace MeshTopologyToolkit
             }
         }
 
+        public RTree3 DeepCopy()
+        {
+            var result = new RTree3(_maxEntries);
+            result._root = this._root?.DeepCopy();
+            return result;
+        }
+
         // internal node type
         internal class Node
         {
@@ -447,6 +454,24 @@ namespace MeshTopologyToolkit
                     throw new InvalidOperationException("Node is not a child of this parent.");
                 _children.Remove(current);
                 current.Parent = null;
+            }
+
+            internal Node DeepCopy()
+            {
+                var result = new Node(this.Bounds);
+
+                foreach (var entry in this.Entries)
+                {
+                    result.Entries.Add(entry);
+                }
+
+                foreach (var child in this._children)
+                {
+                    var childCopy = child.DeepCopy();
+                    result.AddChild(childCopy);
+                }
+
+                return result;
             }
         }
     }

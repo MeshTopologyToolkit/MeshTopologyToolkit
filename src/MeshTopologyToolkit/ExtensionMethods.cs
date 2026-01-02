@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace MeshTopologyToolkit
@@ -233,5 +234,29 @@ namespace MeshTopologyToolkit
                 throw new NotImplementedException();
             }
         }
+
+        /// <summary>
+        /// Replaces the attribute values for the given attribute key keeping existing indices.
+        /// </summary>
+        /// <param name="mesh">Mesh to replace attribute.</param>
+        /// <param name="key">Attribute key.</param>
+        /// <param name="attribute">Attribute values.</param>
+        /// <exception cref="NotImplementedException"></exception>
+        public static void ReplaceAttribute(this IMesh mesh, MeshAttributeKey key, IMeshVertexAttribute attribute)
+        {
+            if (mesh is SeparatedIndexedMesh separatedIndexedMesh)
+            {
+                separatedIndexedMesh.SetAttribute(key, attribute, mesh.GetAttributeIndices(key));
+            }
+            else if (mesh is UnifiedIndexedMesh unifiedIndexedMesh)
+            {
+                unifiedIndexedMesh.SetAttribute(key, attribute);
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
+        }
+
     }
 }

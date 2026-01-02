@@ -14,6 +14,10 @@ namespace MeshTopologyToolkit
         {
         }
 
+        public ListMeshVertexAttribute(IEnumerable<T> values) : base(values)
+        {
+        }
+
         public Type GetElementType()
         {
             return typeof(T);
@@ -103,6 +107,17 @@ namespace MeshTopologyToolkit
         public int Lerp(int from, int to, float amount)
         {
             return ((IMeshVertexAttribute<T>)this).Add(MathHelper<T>.Default.Lerp(this[from], this[to], amount));
+        }
+
+        public IMeshVertexAttribute<T> DeepCopy()
+        {
+            var result = new ListMeshVertexAttribute<T>(this);
+            return result;
+        }
+
+        IMeshVertexAttribute IMeshVertexAttribute.DeepCopy()
+        {
+            return DeepCopy();
         }
     }
 }

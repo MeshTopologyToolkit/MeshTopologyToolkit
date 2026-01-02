@@ -52,7 +52,7 @@ namespace MeshTopologyToolkit
         }
 
         // Transform vertex tangent
-        public Vector4 TransformTangent(Vector4 tangent)
+        public Vector4 TransformTangent(Vector4 tangent, bool flipW)
         {
             var t = new Vector3(tangent.X, tangent.Y, tangent.Z);
             t = TransformNormal(t);

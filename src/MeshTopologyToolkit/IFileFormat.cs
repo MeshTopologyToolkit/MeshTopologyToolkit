@@ -16,6 +16,11 @@ namespace MeshTopologyToolkit
         IReadOnlyList<SupportedExtension> SupportedExtensions { get; }
 
         /// <summary>
+        /// Gets the transform to convert from file space to glTF space.
+        /// </summary>
+        SpaceTransform FormatToGltfTransform { get; }
+
+        /// <summary>
         /// Attempts to read the provided file system entry and produce a <see cref="FileContainer"/>.
         /// </summary>
         /// <param name="entry">The file system entry to read from. Implementations should handle missing entries gracefully.</param>

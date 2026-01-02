@@ -48,6 +48,13 @@ namespace MeshTopologyToolkit
         /// Get number of vertices in attribute.
         /// </summary>
         int Count { get; }
+
+        /// <summary>
+        /// Make a deep copy of this mesh including all attributes and data.
+        /// </summary>
+        /// <returns>Returns mesh copy.</returns>
+        IMeshVertexAttribute DeepCopy();
+
     }
 
     public interface IMeshVertexAttribute<T> : IMeshVertexAttribute, IReadOnlyList<T> where T : notnull
@@ -58,5 +65,11 @@ namespace MeshTopologyToolkit
         /// Get number of vertices in attribute.
         /// </summary>
         new int Count { get; }
+
+        /// <summary>
+        /// Make a deep copy of this mesh including all attributes and data.
+        /// </summary>
+        /// <returns>Returns mesh copy.</returns>
+        new IMeshVertexAttribute<T> DeepCopy();
     }
 }
