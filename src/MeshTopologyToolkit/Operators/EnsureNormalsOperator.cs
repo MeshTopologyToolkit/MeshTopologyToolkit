@@ -5,13 +5,24 @@ namespace MeshTopologyToolkit.Operators
 {
     public class EnsureNormalsOperator : ContentOperatorBase
     {
+        private bool _overrideExisting;
+
+        public EnsureNormalsOperator(bool overrideExisting = false)
+        {
+            _overrideExisting = overrideExisting;
+        }
+
         public override IMesh Transform(IMesh mesh)
         {
             mesh = base.Transform(mesh);
 
-            if (mesh.HasAttribute(MeshAttributeKey.Normal))
+            if (!_overrideExisting && mesh.HasAttribute(MeshAttributeKey.Normal))
             {
                 return mesh;
+            }
+            else
+            {
+                mesh.RemoveAttribute(MeshAttributeKey.Normal);
             }
 
             var positions = mesh.GetAttribute<Vector3>(MeshAttributeKey.Position);

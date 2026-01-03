@@ -7,6 +7,13 @@ namespace MeshTopologyToolkit.Operators
 {
     public class EnsureTangentsOperator : ContentOperatorBase
     {
+        private bool _overrideExisting;
+
+        public EnsureTangentsOperator(bool overrideExisting = false)
+        {
+            _overrideExisting = overrideExisting;
+        }
+
         private struct ComponentIndices
         {
             public int Position;
@@ -18,9 +25,13 @@ namespace MeshTopologyToolkit.Operators
         {
             mesh = base.Transform(mesh);
 
-            if (mesh.HasAttribute(MeshAttributeKey.Tangent))
+            if (!_overrideExisting && mesh.HasAttribute(MeshAttributeKey.Tangent))
             {
                 return mesh;
+            }
+            else
+            {
+                mesh.RemoveAttribute(MeshAttributeKey.Tangent);
             }
 
             mesh = new EnsureNormalsOperator().Transform(mesh);
@@ -40,7 +51,6 @@ namespace MeshTopologyToolkit.Operators
                 throw new NotImplementedException($"Unknown mesh type. Only {nameof(SeparatedIndexedMesh)} and {nameof(UnifiedIndexedMesh)} supported.");
             }
         }
-
 
         private static void EnsureSeparatedIndexedMeshTangents(SeparatedIndexedMesh mesh)
         {
