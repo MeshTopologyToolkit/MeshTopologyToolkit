@@ -1,5 +1,4 @@
 ﻿using Avalonia.OpenGL;
-using static Avalonia.OpenGL.GlConsts;
 
 namespace MeshTopologyToolkit.Viewer;
 
@@ -32,8 +31,6 @@ public class DrawCall
         {
             gl.DrawElements(Type, IndexCount, GL_UNSIGNED_INT, new IntPtr(IndexOffset * sizeof(ushort)));
             gl.CheckError();
-            //gl.DrawArrays(Type, 0, 3);
-            //gl.CheckError();
         }
     }
 }

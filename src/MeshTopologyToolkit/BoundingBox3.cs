@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 
 namespace MeshTopologyToolkit
@@ -180,6 +181,27 @@ namespace MeshTopologyToolkit
         {
             var _factor = Vector3.One - factor;
             return _min * _factor + _max * factor;
+        }
+
+        public BoundingBox3 Transform(Matrix4x4 nodeMatrix)
+        {
+            return new BoundingBox3(this.GetVertices().Select(v => Vector3.Transform(v, nodeMatrix)));
+        }
+
+        private IEnumerable<Vector3> GetVertices()
+        {
+            for (int index=0; index<8; ++index)
+            {
+                yield return new Vector3(
+                    (index & 1) != 0 ? Min.X : Max.X,
+                    (index & 2) != 0 ? Min.Y : Max.Y,
+                    (index & 4) != 0 ? Min.Z : Max.Z);
+            }
+        }
+
+        public Vector3 Center()
+        {
+            return (Min + Max) * 0.5f;
         }
     }
 }

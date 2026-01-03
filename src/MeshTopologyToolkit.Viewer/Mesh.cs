@@ -24,19 +24,24 @@ public class Mesh : IDisposable
         VB = new VertexBuffer(_gl, vertices);
         IB = new IndexBuffer(_gl, indices);
 
-        // Setup Layout (Location 0 = Pos, Location 1 = Color)
         unsafe
         {
             _gl.BindVertexArray(Vao);
             _gl.CheckError();
-            int stride = 6 * sizeof(float);
+            int stride = 10 * sizeof(float);
             _gl.VertexAttribPointer(0, 3, GL_FLOAT, 0, stride, IntPtr.Zero);
             _gl.CheckError();
             _gl.EnableVertexAttribArray(0);
             _gl.CheckError();
+
             _gl.VertexAttribPointer(1, 3, GL_FLOAT, 0, stride, new IntPtr(3 * sizeof(float)));
             _gl.CheckError();
             _gl.EnableVertexAttribArray(1);
+            _gl.CheckError();
+
+            _gl.VertexAttribPointer(2, 4, GL_FLOAT, 0, stride, new IntPtr(6 * sizeof(float)));
+            _gl.CheckError();
+            _gl.EnableVertexAttribArray(2);
             _gl.CheckError();
         }
         _gl.BindVertexArray(0);

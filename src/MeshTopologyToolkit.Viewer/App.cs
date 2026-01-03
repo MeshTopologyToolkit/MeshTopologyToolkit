@@ -19,13 +19,13 @@ class App : Application
     {
         if (ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop)
         {
-            desktop.MainWindow = new Window
+
+            desktop.MainWindow = new SceneViewerWindow(_content)
             {
                 Title = "Mesh Topology Toolkit Viewer",
                 Width = 800,
                 Height = 600,
-                WindowState = WindowState.Maximized,
-                Content = new SceneViewerControl(_content)
+                WindowState = WindowState.Maximized
             };
         }
         base.OnFrameworkInitializationCompleted();

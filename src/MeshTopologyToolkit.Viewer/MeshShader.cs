@@ -4,7 +4,6 @@ using static Avalonia.OpenGL.GlConsts;
 
 namespace MeshTopologyToolkit.Viewer;
 
-
 public class MeshShader : IDisposable
 {
     private readonly GlInterface _gl;
@@ -21,26 +20,30 @@ public class MeshShader : IDisposable
 
         string vsSource = @"
             attribute vec3 aPos;
-            attribute vec3 aColor;
+            attribute vec3 aNormal;
+            attribute vec4 aColor;
 
             uniform mat4 model;
             uniform mat4 view;
             uniform mat4 projection;
 
-            varying vec3 ourColor;
+            varying vec4 ourColor;
 
             void main() {
                 gl_Position = projection * view * model * vec4(aPos, 1.0);
-                ourColor = aColor;
+                vec3 n = (model * vec4(aNormal, 0.0)).xyz;
+                vec3 eye = vec3(view[0][2], view[1][2], view[2][2]);
+                float scale = dot(normalize(n), eye) * 0.5 + 0.5;
+                ourColor = vec4(aColor.xyz * scale, aColor.w);
             }";
 
         string fsSource = @"
             precision mediump float;
-            varying vec3 ourColor;
+            varying vec4 ourColor;
             //DECLAREGLFRAG
 
             void main() {
-                gl_FragColor = vec4(ourColor, 1.0);
+                gl_FragColor = ourColor;
             }";
 
         Program = CompileProgram(gl, vsSource, fsSource);
@@ -101,7 +104,9 @@ public class MeshShader : IDisposable
 
         gl.BindAttribLocationString(prog, 0, "aPos");
         gl.CheckError();
-        gl.BindAttribLocationString(prog, 1, "aColor");
+        gl.BindAttribLocationString(prog, 1, "aNormal");
+        gl.CheckError();
+        gl.BindAttribLocationString(prog, 2, "aColor");
         gl.CheckError();
 
         var error = gl.LinkProgramAndGetError(prog);
