@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using Microsoft.VisualBasic;
+using System.Numerics;
 
 namespace MeshTopologyToolkit.TrimGenerator
 {
@@ -69,6 +70,11 @@ namespace MeshTopologyToolkit.TrimGenerator
                 y += trimHeight;
             }
             TrimRecepies = trimRecepies;
+        }
+
+        public float RecommendedLodDistanceInUnits(int resolusion, float fovInDegrees)
+        {
+            return PixelsToUnits * BevelInPixels * resolusion / (2.0f * MathF.Tan(fovInDegrees * 0.5f * MathF.PI / 180.0f));
         }
 
         internal TrimRecepie FindMatchingRecepie(float height)

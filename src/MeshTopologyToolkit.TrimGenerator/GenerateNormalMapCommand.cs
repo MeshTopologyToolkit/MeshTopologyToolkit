@@ -11,13 +11,51 @@ namespace MeshTopologyToolkit.TrimGenerator
             [Option('t', Description = "Trim height in pixels")] int[] trimHeight,
             [Option('w', Description = "Texture width in pixels")] int width = 1024,
             [Option('b', Description = "Bevel width in pixels")] int bevelWidth = 8,
-            [Option('o', Description = "Output file name")] string? output = null)
+            [Option('o', Description = "Output file name")] string output = "normals.png")
         {
             var args = new TrimGenerationArguments(trimHeight, width: width, bevelInPixels: bevelWidth);
 
-            var colors = BuildNormalMap(args);
 
-            Converter.SaveAs(output ?? "normals.png", colors, args.WidthInPixels, args.HeightInPixels);
+            if (string.Equals(Path.GetExtension(output), ".dds", StringComparison.InvariantCultureIgnoreCase))
+            {
+                var mips = new List<Color32[]>();
+                int w = args.WidthInPixels;
+                int h = args.HeightInPixels;
+                var trimHeights = args.TrimHeights.ToArray();
+                for (; ; )
+                {
+                    if (bevelWidth > 0)
+                    {
+                        var mipArgs = new TrimGenerationArguments(
+                            trimHeights,
+                            width: w,
+                            bevelInPixels: bevelWidth);
+                        if (mipArgs.HeightInPixels != h)
+                        {
+                            throw new NotImplementedException();
+                        }
+                        mips.Add(BuildNormalMap(mipArgs));
+                    }
+                    else
+                    {
+                        mips.Add(BuildBlancNormalMap(w, h));
+                    }
+                    if (w == 1 && h == 1)
+                    {
+                        break;
+                    }
+                    bevelWidth = bevelWidth / 2;
+                    trimHeights = trimHeights.Select(th => Math.Max(1, th / 2)).Where(_=>_ != 0).ToArray();
+                    w = Math.Max(1, w / 2);
+                    h = Math.Max(1, h / 2);
+                }
+                Converter.SaveAsDds(output, mips, args.WidthInPixels, args.HeightInPixels);
+            }
+            else
+            {
+                var colors = BuildNormalMap(args);
+                Converter.SaveAs(output, colors, args.WidthInPixels, args.HeightInPixels);
+            }
 
             return 0;
         }
@@ -30,6 +68,16 @@ namespace MeshTopologyToolkit.TrimGenerator
             var ms = new MemoryStream();
             Converter.SaveAsPng(ms, colors, args.WidthInPixels, args.HeightInPixels);
             return new InMemoryFileSystemEntry("normals.png", ms.ToArray());
+        }
+
+        public Color32[] BuildBlancNormalMap(int widthInPixels, int heightInPixels)
+        {
+            var colors = new Color32[widthInPixels * heightInPixels];
+            for (int i = 0; i < colors.Length; ++i)
+            {
+                colors[i] = new Color32(128, 128, 255, 255);
+            }
+            return colors;
         }
 
         public Color32[] BuildNormalMap(TrimGenerationArguments arguments)

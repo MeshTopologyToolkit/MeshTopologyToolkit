@@ -3,6 +3,7 @@ using SixLabors.ImageSharp.Formats.Jpeg;
 using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.PixelFormats;
 using System.Numerics;
+using System.Text;
 
 namespace MeshTopologyToolkit.TextureFormats
 {
@@ -83,10 +84,75 @@ namespace MeshTopologyToolkit.TextureFormats
             using var source = ToImage(ConvertColorsToRgba32(pixels), width, height);
             SaveAsImpl(fileName, source);
         }
+
         public static void SaveAs(string fileName, Color32[] pixels, int width, int height)
         {
             using var source = ToImage(ConvertColorsToRgba32(pixels), width, height);
             SaveAsImpl(fileName, source);
+        }
+
+        public static void SaveAsDds(string fileName, IReadOnlyList<Color32[]> mipLevels, int width, int height)
+        {
+            using var stream = new FileStream(fileName, FileMode.Create, FileAccess.Write);
+            using var writer = new BinaryWriter(stream);
+
+            int mipCount = mipLevels.Count;
+
+            writer.Write(Encoding.ASCII.GetBytes("DDS "));
+
+            writer.Write(124);                // dwSize
+            writer.Write(0x0002100F);          // dwFlags
+            writer.Write(height);             // dwHeight
+            writer.Write(width);              // dwWidth
+            writer.Write(width * 4);           // dwPitchOrLinearSize
+            writer.Write(0);                  // dwDepth
+            writer.Write(mipCount);            // dwMipMapCount
+
+            for (int i = 0; i < 11; i++)
+                writer.Write(0);
+
+            writer.Write(32);                 // dwSize
+            writer.Write(0x41);               // dwFlags (DDPF_RGB | DDPF_ALPHAPIXELS)
+            writer.Write(0);                  // dwFourCC
+            writer.Write(32);                 // dwRGBBitCount
+
+            writer.Write(0x000000FF);          // R mask
+            writer.Write(0x0000FF00);          // G mask
+            writer.Write(0x00FF0000);          // B mask
+            writer.Write(unchecked((int)0xFF000000)); // A mask
+
+            writer.Write(0x00401008);          // dwCaps (TEXTURE | MIPMAP | COMPLEX)
+            writer.Write(0);                  // dwCaps2
+            writer.Write(0);                  // dwCaps3
+            writer.Write(0);                  // dwCaps4
+            writer.Write(0);                  // dwReserved2
+
+            int mipWidth = width;
+            int mipHeight = height;
+
+            for (int mip = 0; mip < mipCount; mip++)
+            {
+                var pixels = mipLevels[mip];
+
+                int expectedPixelCount = mipWidth * mipHeight;
+                if (pixels.Length != expectedPixelCount)
+                {
+                    throw new InvalidOperationException(
+                        $"Mip {mip} has {pixels.Length} pixels but expected {expectedPixelCount}.");
+                }
+
+                for (int i = 0; i < pixels.Length; i++)
+                {
+                    var c = pixels[i];
+                    writer.Write(c.R);
+                    writer.Write(c.G);
+                    writer.Write(c.B);
+                    writer.Write(c.A);
+                }
+
+                mipWidth = Math.Max(1, mipWidth >> 1);
+                mipHeight = Math.Max(1, mipHeight >> 1);
+            }
         }
 
         private static void SaveAsImpl(string fileName, Image<Rgba32> source)

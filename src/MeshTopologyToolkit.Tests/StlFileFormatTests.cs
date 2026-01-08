@@ -2,6 +2,7 @@
 using System.Numerics;
 
 namespace MeshTopologyToolkit.Tests;
+
 public class StlFileFormatTests
 {
     [Fact]

@@ -11,7 +11,9 @@ namespace MeshTopologyToolkit.TrimGenerator
                 typeof(GenerateBoxPaletteCommand),
                 typeof(GenerateBrickWallCommand),
                 typeof(GenerateNormalMapCommand),
+                typeof(GenerateNoiseMapCommand),
                 typeof(GenerateMaskMapCommand),
+                typeof(GenerateOccluderQuadCommand),
                 typeof(GenerateCheckerMapCommand) });
 
             return 0;
