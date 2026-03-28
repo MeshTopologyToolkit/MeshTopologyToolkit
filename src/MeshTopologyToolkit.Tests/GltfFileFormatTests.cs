@@ -413,7 +413,7 @@ public class GltfFileFormatTests
         // The Add() method returns the index of the newly added vertex,
         // which we then add to the mesh’s index buffer.
         indices.Add(positions.Add(new Vector3(0, 0, 0)));
-        indices.Add(positions.Add(new Vector3(1, 0, 0)));
+        indices.Add(positions.Add(new Vector3(1.1f, 0.2f, 0.3f)));
         indices.Add(positions.Add(new Vector3(0, 1, 0)));
 
         // Add a draw call defining how to interpret the indices above.

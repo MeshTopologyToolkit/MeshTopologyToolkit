@@ -1,5 +1,4 @@
-﻿using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
+﻿using System.Numerics;
 namespace MeshTopologyToolkit.BasRelief
 {
     public class Heightmap
@@ -19,29 +18,26 @@ namespace MeshTopologyToolkit.BasRelief
             _data = new float[_width * _height];
         }
 
-        public Heightmap(Image<Rgba32> image) : this(image.Width, image.Height)
+        public Heightmap(IImageMipMap image) : this(image.Width, image.Height)
         {
-            image.ProcessPixelRows(accessor =>
+            var pixels = image.GetHdrPixels();
+            int pixelIndex = 0;
+            for (int y = 0; y < image.Height; y++)
             {
-                for (int y = 0; y < accessor.Height; y++)
+                for (int x = 0; x < image.Width; x++)
                 {
-                    Span<Rgba32> row = accessor.GetRowSpan(y);
-                    for (int x = 0; x < row.Length; x++)
-                    {
-                        ref Rgba32 pixel = ref row[x];
-                        this[x, y] = GetLuminocity(pixel);
-                    }
+                    this[x, y] = GetLuminocity(pixels[pixelIndex]);
+                    ++pixelIndex;
                 }
-            });
+            }
         }
 
-        private float GetLuminocity(Rgba32 pixel)
+        private float GetLuminocity(Vector4 pixel)
         {
-            const float scale = 1.0f / 255.0f;
-            float luminosity = pixel.R * 0.2126f +
-                   pixel.G * 0.7152f +
-                   pixel.B * 0.0722f;
-            return (luminosity * scale) * (pixel.A * scale);
+            float luminosity = pixel.X * 0.2126f +
+                   pixel.Y * 0.7152f +
+                   pixel.Z * 0.0722f;
+            return luminosity * pixel.W;
         }
 
         public float this[int x, int y]
@@ -211,7 +207,8 @@ namespace MeshTopologyToolkit.BasRelief
                 // Iterate over columns (x)
                 for (int x = 0; x < _width; x++)
                 {
-                    res[x, y] = (this[x, y] - min) * scale + padding;
+                    var h = this[x, y] - min;
+                    res[x, y] = h * scale + ((h <= 0.0f) ? 0.0f : padding);
                 }
             }
             return res;

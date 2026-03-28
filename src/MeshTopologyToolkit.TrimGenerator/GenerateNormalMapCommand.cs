@@ -15,6 +15,7 @@ namespace MeshTopologyToolkit.TrimGenerator
         {
             var args = new TrimGenerationArguments(trimHeight, width: width, bevelInPixels: bevelWidth);
 
+            var d = args.RecommendedLodDistanceInUnits(1080, 60);
 
             if (string.Equals(Path.GetExtension(output), ".dds", StringComparison.InvariantCultureIgnoreCase))
             {
@@ -86,7 +87,7 @@ namespace MeshTopologyToolkit.TrimGenerator
             var colors = new Color32[pixels.Length];
             for (int i = 0; i < colors.Length; ++i)
             {
-                colors[i] = Color32.FromNormal(pixels[i]);
+                colors[i] = Color32.EncodeNormal(pixels[i]);
             }
             return colors;
         }

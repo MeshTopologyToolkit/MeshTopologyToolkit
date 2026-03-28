@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.14.36408.4
+# Visual Studio Version 18
+VisualStudioVersion = 18.4.11620.152 stable
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeshTopologyToolkit", "MeshTopologyToolkit\MeshTopologyToolkit.csproj", "{9B8BAE0D-AC79-41C3-8847-EE982840F4A8}"
 EndProject
@@ -45,6 +45,12 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sandbox", "Sandbox\Sandbox.csproj", "{42E67809-5943-4A7F-96A5-1973DBB27F00}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{AA5BFF5F-FC3B-4CB0-B742-358A001C1074}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeshTopologyToolkit.ImageSharp", "MeshTopologyToolkit.ImageSharp\MeshTopologyToolkit.ImageSharp.csproj", "{A0F144CA-2A0C-4CC9-88CC-C26CA8A6E575}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeshTopologyToolkit.SystemDrawing", "MeshTopologyToolkit.SystemDrawing\MeshTopologyToolkit.SystemDrawing.csproj", "{6377C5D0-27F1-43E9-A28B-50D96FE54F81}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeshTopologyToolkit.SharpEXR", "MeshTopologyToolkit.SharpEXR\MeshTopologyToolkit.SharpEXR.csproj", "{C7E8C6A2-5FBF-440B-97EB-7A0FA03E781A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -116,6 +122,18 @@ Global
 		{42E67809-5943-4A7F-96A5-1973DBB27F00}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{42E67809-5943-4A7F-96A5-1973DBB27F00}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{42E67809-5943-4A7F-96A5-1973DBB27F00}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A0F144CA-2A0C-4CC9-88CC-C26CA8A6E575}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A0F144CA-2A0C-4CC9-88CC-C26CA8A6E575}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A0F144CA-2A0C-4CC9-88CC-C26CA8A6E575}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A0F144CA-2A0C-4CC9-88CC-C26CA8A6E575}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6377C5D0-27F1-43E9-A28B-50D96FE54F81}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6377C5D0-27F1-43E9-A28B-50D96FE54F81}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6377C5D0-27F1-43E9-A28B-50D96FE54F81}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6377C5D0-27F1-43E9-A28B-50D96FE54F81}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C7E8C6A2-5FBF-440B-97EB-7A0FA03E781A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C7E8C6A2-5FBF-440B-97EB-7A0FA03E781A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C7E8C6A2-5FBF-440B-97EB-7A0FA03E781A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C7E8C6A2-5FBF-440B-97EB-7A0FA03E781A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -137,6 +155,9 @@ Global
 		{4771F088-173A-4291-8601-A25CF5198A14} = {2D397983-D0B6-4BC7-921F-47F10499F146}
 		{7672BB49-4A55-4926-9E92-0E3BC54C96E4} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{42E67809-5943-4A7F-96A5-1973DBB27F00} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{A0F144CA-2A0C-4CC9-88CC-C26CA8A6E575} = {2D397983-D0B6-4BC7-921F-47F10499F146}
+		{6377C5D0-27F1-43E9-A28B-50D96FE54F81} = {2D397983-D0B6-4BC7-921F-47F10499F146}
+		{C7E8C6A2-5FBF-440B-97EB-7A0FA03E781A} = {2D397983-D0B6-4BC7-921F-47F10499F146}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {77388166-23D8-4103-BC76-F7EA4C9033BF}

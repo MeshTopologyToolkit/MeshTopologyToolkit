@@ -2,8 +2,6 @@
 using MeshTopologyToolkit.Gltf;
 using MeshTopologyToolkit.Operators;
 using MeshTopologyToolkit.Stl;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
 using System.Numerics;
 
 namespace MeshTopologyToolkit.BasRelief
@@ -25,7 +23,16 @@ namespace MeshTopologyToolkit.BasRelief
                 output = Path.ChangeExtension(input, ".stl");
             }
 
-            using (Image<Rgba32> image = Image.Load<Rgba32>(input))
+            var imageFormat = new ImageFormatCollection(new ImageSharpImageFormat(), new ExrImageFormat());
+
+            if (!imageFormat.TryRead(new FileSystemEntry(input), out var imageContainer))
+            {
+                var supportedFormats = string.Join(", ", imageFormat.SupportedExtensions);
+                throw new Exception($"Failed to read image from {input}. Supported formats: {supportedFormats}");
+            }
+
+            var image = imageContainer[0];
+
             {
                 var heigthmap = new Heightmap(image);
 
@@ -199,6 +206,8 @@ namespace MeshTopologyToolkit.BasRelief
                 if (!fileFormat.TryWrite(new FileSystemEntry(output), content))
                     return 1;
             }
+
+            Console.WriteLine($"Bas-relief generated and saved to {output}");
 
             return 0;
         }

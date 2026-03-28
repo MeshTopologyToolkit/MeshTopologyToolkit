@@ -23,12 +23,13 @@
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="Cocona.Lite" Version="2.2.0" />
-		<PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
 	</ItemGroup>
 	<ItemGroup>
 	  <ProjectReference Include="..\MeshTopologyToolkit.Collada\MeshTopologyToolkit.Collada.csproj" />
 	  <ProjectReference Include="..\MeshTopologyToolkit.Gltf\MeshTopologyToolkit.Gltf.csproj" />
+	  <ProjectReference Include="..\MeshTopologyToolkit.ImageSharp\MeshTopologyToolkit.ImageSharp.csproj" />
 	  <ProjectReference Include="..\MeshTopologyToolkit.Obj\MeshTopologyToolkit.Obj.csproj" />
+	  <ProjectReference Include="..\MeshTopologyToolkit.SharpEXR\MeshTopologyToolkit.SharpEXR.csproj" />
 	  <ProjectReference Include="..\MeshTopologyToolkit.Stl\MeshTopologyToolkit.Stl.csproj" />
 	  <ProjectReference Include="..\MeshTopologyToolkit\MeshTopologyToolkit.csproj" />
 	</ItemGroup>
