@@ -35,9 +35,9 @@
 		<ProjectReference Include="..\MeshTopologyToolkit.Ase\MeshTopologyToolkit.Ase.csproj" />
 		<ProjectReference Include="..\MeshTopologyToolkit.Collada\MeshTopologyToolkit.Collada.csproj" />
 		<ProjectReference Include="..\MeshTopologyToolkit.Gltf\MeshTopologyToolkit.Gltf.csproj" />
+		<ProjectReference Include="..\MeshTopologyToolkit.ImageSharp\MeshTopologyToolkit.ImageSharp.csproj" />
 		<ProjectReference Include="..\MeshTopologyToolkit.Obj\MeshTopologyToolkit.Obj.csproj" />
 		<ProjectReference Include="..\MeshTopologyToolkit.Stl\MeshTopologyToolkit.Stl.csproj" />
-		<ProjectReference Include="..\MeshTopologyToolkit.TextureFormats\MeshTopologyToolkit.TextureFormats.csproj" />
 	</ItemGroup>
 
 </Project>

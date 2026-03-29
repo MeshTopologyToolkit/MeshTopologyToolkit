@@ -1,5 +1,4 @@
 ﻿using Cocona;
-using MeshTopologyToolkit.TextureFormats;
 using System.Numerics;
 
 namespace MeshTopologyToolkit.TrimGenerator
@@ -19,7 +18,7 @@ namespace MeshTopologyToolkit.TrimGenerator
 
             if (string.Equals(Path.GetExtension(output), ".dds", StringComparison.InvariantCultureIgnoreCase))
             {
-                var mips = new List<Color32[]>();
+                var mips = new ImageContainer();
                 int w = args.WidthInPixels;
                 int h = args.HeightInPixels;
                 var trimHeights = args.TrimHeights.ToArray();
@@ -35,11 +34,11 @@ namespace MeshTopologyToolkit.TrimGenerator
                         {
                             throw new NotImplementedException();
                         }
-                        mips.Add(BuildNormalMap(mipArgs));
+                        mips.Add(new LDRImageMipMap(w,h, 1, BuildNormalMap(mipArgs)));
                     }
                     else
                     {
-                        mips.Add(BuildBlancNormalMap(w, h));
+                        mips.Add(new LDRImageMipMap(w, h, 1, BuildBlancNormalMap(w, h)));
                     }
                     if (w == 1 && h == 1)
                     {
@@ -50,12 +49,13 @@ namespace MeshTopologyToolkit.TrimGenerator
                     w = Math.Max(1, w / 2);
                     h = Math.Max(1, h / 2);
                 }
-                Converter.SaveAsDds(output, mips, args.WidthInPixels, args.HeightInPixels);
+
+                new UncompressedDDSImageFormat(false).TryWrite(new FileSystemEntry(output), mips);
             }
             else
             {
                 var colors = BuildNormalMap(args);
-                Converter.SaveAs(output, colors, args.WidthInPixels, args.HeightInPixels);
+                ImageSharpImageFormat.SaveAs(output, colors, args.WidthInPixels, args.HeightInPixels);
             }
 
             return 0;
@@ -67,7 +67,7 @@ namespace MeshTopologyToolkit.TrimGenerator
             var colors = normalMapGenerator.BuildNormalMap(args);
 
             var ms = new MemoryStream();
-            Converter.SaveAsPng(ms, colors, args.WidthInPixels, args.HeightInPixels);
+            ImageSharpImageFormat.SaveAsPng(ms, colors, args.WidthInPixels, args.HeightInPixels);
             return new InMemoryFileSystemEntry("normals.png", ms.ToArray());
         }
 

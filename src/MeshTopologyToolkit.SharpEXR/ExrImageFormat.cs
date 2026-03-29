@@ -54,5 +54,10 @@ namespace MeshTopologyToolkit
 
             return true;
         }
+
+        public bool TryWrite(IFileSystemEntry entry, ImageContainer content)
+        {
+            return false;
+        }
     }
 }

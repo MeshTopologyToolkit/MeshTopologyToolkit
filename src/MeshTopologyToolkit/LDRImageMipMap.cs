@@ -5,15 +5,17 @@ using System.Numerics;
 
 namespace MeshTopologyToolkit
 {
-    public class LRDImageMipMap : IImageMipMap
+    public class LDRImageMipMap : IImageMipMap
     {
         public int Width { get; set; }
         public int Height { get; set; }
         public int Depth { get; set; }
 
+        public bool IsHDR => false;
+
         private IReadOnlyList<Color32> _pixels;
 
-        public LRDImageMipMap(int width, int height, int depth, IReadOnlyList<Color32> rgbaPixels)
+        public LDRImageMipMap(int width, int height, int depth, IReadOnlyList<Color32> rgbaPixels)
         {
             if (rgbaPixels.Count != width * height * depth)
                 throw new ArgumentException("Pixel count does not match the dimensions of the image.");

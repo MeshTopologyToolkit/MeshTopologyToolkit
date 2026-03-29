@@ -1,5 +1,4 @@
 ﻿using Cocona;
-using MeshTopologyToolkit.TextureFormats;
 
 namespace MeshTopologyToolkit.TrimGenerator
 {
@@ -16,7 +15,7 @@ namespace MeshTopologyToolkit.TrimGenerator
 
             var colors = BuildMaskMap(args);
 
-            Converter.SaveAs(output ?? "mask.png", colors, args.WidthInPixels, args.HeightInPixels);
+            ImageSharpImageFormat.SaveAs(output ?? "mask.png", colors, args.WidthInPixels, args.HeightInPixels);
 
             return 0;
         }

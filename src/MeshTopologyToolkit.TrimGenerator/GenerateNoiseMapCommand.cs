@@ -1,6 +1,4 @@
 ﻿using Cocona;
-using MeshTopologyToolkit.TextureFormats;
-using SharpGLTF.Schema2;
 using System.Numerics;
 
 namespace MeshTopologyToolkit.TrimGenerator
@@ -41,7 +39,7 @@ namespace MeshTopologyToolkit.TrimGenerator
                 }
             }
 
-            Converter.SaveAs(output, colors, width, height);
+            ImageSharpImageFormat.SaveAs(output, colors, width, height);
 
             return 0;
         }

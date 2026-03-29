@@ -1,5 +1,4 @@
 ﻿using Cocona;
-using MeshTopologyToolkit.TextureFormats;
 using System.Numerics;
 
 namespace MeshTopologyToolkit.TrimGenerator
@@ -17,7 +16,7 @@ namespace MeshTopologyToolkit.TrimGenerator
         {
             var pixels = Build(width, height, levels, cellSize, gridLevels);
 
-            Converter.SaveAs(output ?? "checker.png", pixels, width, height);
+            ImageSharpImageFormat.SaveAs(output ?? "checker.png", pixels, width, height);
             return 0;
         }
 
@@ -108,7 +107,7 @@ namespace MeshTopologyToolkit.TrimGenerator
             var colors = generator.Build(width, height, levels, cellSize, gridLevels);
 
             var ms = new MemoryStream();
-            Converter.SaveAsPng(ms, colors, width, height);
+            ImageSharpImageFormat.SaveAsPng(ms, colors, width, height);
             return new InMemoryFileSystemEntry("checker.png", ms.ToArray());
         }
     }

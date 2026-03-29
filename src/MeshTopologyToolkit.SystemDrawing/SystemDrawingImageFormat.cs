@@ -26,9 +26,14 @@ namespace MeshTopologyToolkit
                 throw new FileNotFoundException($"Can't read image from {entry?.Name}.");
             }
 
-            image = new ImageContainer(new LRDImageMipMap(bmp.Width, bmp.Height, 1, GetPixels(bmp)));
+            image = new ImageContainer(new LDRImageMipMap(bmp.Width, bmp.Height, 1, GetPixels(bmp)));
 
             return true;
+        }
+
+        public bool TryWrite(IFileSystemEntry entry, ImageContainer content)
+        {
+            return false;
         }
 
         private IReadOnlyList<Color32> GetPixels(Bitmap bmp)

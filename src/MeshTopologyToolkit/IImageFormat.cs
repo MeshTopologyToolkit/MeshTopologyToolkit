@@ -10,6 +10,8 @@ namespace MeshTopologyToolkit
         /// </summary>
         IReadOnlyList<SupportedExtension> SupportedExtensions { get; }
 
-        public bool TryRead(IFileSystemEntry entry, out ImageContainer image);
+        bool TryRead(IFileSystemEntry entry, out ImageContainer image);
+
+        bool TryWrite(IFileSystemEntry entry, ImageContainer content);
     }
 }

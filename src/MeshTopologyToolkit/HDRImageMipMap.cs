@@ -10,6 +10,7 @@ namespace MeshTopologyToolkit
         public int Width { get; set; }
         public int Height { get; set; }
         public int Depth { get; set; }
+        public bool IsHDR => true;
         
         private IReadOnlyList<Vector4> _pixels;
 

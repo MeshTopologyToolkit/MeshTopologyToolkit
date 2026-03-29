@@ -9,6 +9,8 @@ namespace MeshTopologyToolkit
         int Height { get; }
         int Depth { get; }
 
+        bool IsHDR { get; }
+
         IReadOnlyList<Vector4> GetHdrPixels();
 
         IReadOnlyList<Color32> GetPixels();

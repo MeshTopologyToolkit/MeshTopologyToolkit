@@ -39,5 +39,20 @@ namespace MeshTopologyToolkit
             content = new ImageContainer();
             return false;
         }
+
+        public bool TryWrite(IFileSystemEntry entry, ImageContainer content)
+        {
+            var ext = Path.GetExtension(entry.Name);
+            foreach (var format in _formats)
+            {
+                if (format.SupportedExtensions.Any(_ => _.Extension.Equals(ext, StringComparison.OrdinalIgnoreCase))
+                    && format.TryWrite(entry, content))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
     }
 }

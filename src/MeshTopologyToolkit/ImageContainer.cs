@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace MeshTopologyToolkit
@@ -15,6 +16,11 @@ namespace MeshTopologyToolkit
         public IImageMipMap this[int index] => _mipmaps[index];
 
         public int Count => _mipmaps.Count;
+
+        public void Add(IImageMipMap mipmap)
+        {
+            _mipmaps.Add(mipmap);
+        }
 
         public IEnumerator<IImageMipMap> GetEnumerator()
         {

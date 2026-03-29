@@ -1,6 +1,4 @@
-﻿using MeshTopologyToolkit.TextureFormats;
-using Newtonsoft.Json.Linq;
-using System.Numerics;
+﻿using System.Numerics;
 
 namespace MeshTopologyToolkit.Tests;
 
@@ -28,7 +26,7 @@ public class SimplexNoiseTests
             }
         }
 
-        Converter.SaveAs("SimplexNoise2D.png", colors, w, h);
+        ImageSharpImageFormat.SaveAs("SimplexNoise2D.png", colors, w, h);
     }
 
     [Fact]
@@ -59,7 +57,7 @@ public class SimplexNoiseTests
             colors[x] = new Vector4(value, value, value, 1.0f);
         }
 
-        Converter.SaveAs("Turbulence.png", colors, w, w);
+        ImageSharpImageFormat.SaveAs("Turbulence.png", colors, w, w);
     }
 
     [Fact]
@@ -84,7 +82,7 @@ public class SimplexNoiseTests
             }
         }
 
-        Converter.SaveAs("FractalNoise2D.png", colors, w, w);
+        ImageSharpImageFormat.SaveAs("FractalNoise2D.png", colors, w, w);
     }
 
     [Fact]
@@ -109,7 +107,7 @@ public class SimplexNoiseTests
             }
         }
 
-        Converter.SaveAs("SimplexNoise3D.png", colors, w, h);
+        ImageSharpImageFormat.SaveAs("SimplexNoise3D.png", colors, w, h);
     }
 
     [Fact]
@@ -134,7 +132,7 @@ public class SimplexNoiseTests
             }
         }
 
-        Converter.SaveAs("SimplexNoise4D.png", colors, w, h);
+        ImageSharpImageFormat.SaveAs("SimplexNoise4D.png", colors, w, h);
     }
 
     [Fact]
@@ -169,6 +167,6 @@ public class SimplexNoiseTests
             }
         }
 
-        Converter.SaveAs("FractalNoise4D.png", colors, w, w);
+        ImageSharpImageFormat.SaveAs("FractalNoise4D.png", colors, w, w);
     }
 }

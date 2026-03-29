@@ -79,9 +79,10 @@ namespace MeshTopologyToolkit
             return new Color32(r, g, b, 255);
         }
 
-        private static byte ToByte(float r)
+        private static byte ToByte(float value)
         {
-            return r <= 0.0f ? (byte)0 : r >= 1.0f ? (byte)255 : (byte)(MathF.Round(r * 255.0f));
+            var intValue = (int)MathF.Round(value * 255.0f);
+            return intValue <= 0 ? (byte)0 : intValue >= 255 ? (byte)255 : (byte)intValue;
         }
     }
 }
