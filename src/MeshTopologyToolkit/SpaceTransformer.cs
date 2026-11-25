@@ -157,14 +157,13 @@ namespace MeshTopologyToolkit
         /// Expresses a rotation in the new space (basis change U^-1 * R * U, which also works when the space change flips handedness).
         /// </summary>
         /// <remarks>
-        /// Conjugating a rotation by an orthogonal matrix U keeps the angle and maps the axis to det(U) * U^-1 * axis,
-        /// so the quaternion remap is linear (and can be applied to cubic spline tangents too).
+        /// Conjugating a rotation by an orthogonal matrix U keeps the angle and maps the axis to det(U) * axis * U (row vector convention,
+        /// the same as positions), so the quaternion remap is linear (and can be applied to cubic spline tangents too).
         /// </remarks>
         public Quaternion TransformRotation(Quaternion rotation)
         {
-            Matrix4x4.Invert(_rotationOnly, out var inverse);
             float determinant = _rotationOnly.GetDeterminant() < 0.0f ? -1.0f : 1.0f;
-            var axis = Vector3.TransformNormal(new Vector3(rotation.X, rotation.Y, rotation.Z), inverse) * determinant;
+            var axis = Vector3.TransformNormal(new Vector3(rotation.X, rotation.Y, rotation.Z), _rotationOnly) * determinant;
             return new Quaternion(axis, rotation.W);
         }
 

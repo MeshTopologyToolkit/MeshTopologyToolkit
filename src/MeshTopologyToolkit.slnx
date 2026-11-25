@@ -1,0 +1,35 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/common/">
+    <File Path="Directory.Build.props" />
+  </Folder>
+  <Folder Name="/samples/">
+    <Project Path="MeshTopologyToolkit.BasRelief/MeshTopologyToolkit.BasRelief.csproj" />
+    <Project Path="MeshTopologyToolkit.TrimGenerator/MeshTopologyToolkit.TrimGenerator.csproj" />
+    <Project Path="MeshTopologyToolkit.Viewer/MeshTopologyToolkit.Viewer.csproj" />
+    <Project Path="Sandbox/Sandbox.csproj" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="MeshTopologyToolkit.Ase/MeshTopologyToolkit.Ase.csproj" />
+    <Project Path="MeshTopologyToolkit.Bsp/MeshTopologyToolkit.Bsp.csproj" />
+    <Project Path="MeshTopologyToolkit.Collada/MeshTopologyToolkit.Collada.csproj" />
+    <Project Path="MeshTopologyToolkit.Gltf/MeshTopologyToolkit.Gltf.csproj" />
+    <Project Path="MeshTopologyToolkit.ImageSharp/MeshTopologyToolkit.ImageSharp.csproj" />
+    <Project Path="MeshTopologyToolkit.Obj/MeshTopologyToolkit.Obj.csproj" />
+    <Project Path="MeshTopologyToolkit.Off/MeshTopologyToolkit.Off.csproj" />
+    <Project Path="MeshTopologyToolkit.SharpEXR/MeshTopologyToolkit.SharpEXR.csproj" />
+    <Project Path="MeshTopologyToolkit.Stl/MeshTopologyToolkit.Stl.csproj" />
+    <Project Path="MeshTopologyToolkit.Svg/MeshTopologyToolkit.Svg.csproj" />
+    <Project Path="MeshTopologyToolkit.SystemDrawing/MeshTopologyToolkit.SystemDrawing.csproj" />
+    <Project Path="MeshTopologyToolkit.Urho3D/MeshTopologyToolkit.Urho3D.csproj" />
+    <Project Path="MeshTopologyToolkit/MeshTopologyToolkit.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="MeshTopologyToolkit.Tests/MeshTopologyToolkit.Tests.csproj" />
+  </Folder>
+  <Project Path="MeshTopologyToolkit.Fbx/MeshTopologyToolkit.Fbx.csproj" />
+</Solution>

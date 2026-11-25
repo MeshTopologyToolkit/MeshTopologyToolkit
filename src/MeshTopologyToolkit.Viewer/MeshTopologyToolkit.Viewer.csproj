@@ -18,6 +18,7 @@
   <ItemGroup>
     <ProjectReference Include="..\MeshTopologyToolkit.Ase\MeshTopologyToolkit.Ase.csproj" />
     <ProjectReference Include="..\MeshTopologyToolkit.Collada\MeshTopologyToolkit.Collada.csproj" />
+    <ProjectReference Include="..\MeshTopologyToolkit.Fbx\MeshTopologyToolkit.Fbx.csproj" />
     <ProjectReference Include="..\MeshTopologyToolkit.Gltf\MeshTopologyToolkit.Gltf.csproj" />
     <ProjectReference Include="..\MeshTopologyToolkit.Stl\MeshTopologyToolkit.Stl.csproj" />
     <ProjectReference Include="..\MeshTopologyToolkit.Urho3D\MeshTopologyToolkit.Urho3D.csproj" />

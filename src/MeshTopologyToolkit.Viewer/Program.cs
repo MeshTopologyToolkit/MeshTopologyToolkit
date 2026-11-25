@@ -2,6 +2,7 @@
 using Cocona;
 using MeshTopologyToolkit.Ase;
 using MeshTopologyToolkit.Collada;
+using MeshTopologyToolkit.Fbx;
 using MeshTopologyToolkit.Gltf;
 using MeshTopologyToolkit.Stl;
 using MeshTopologyToolkit.Urho3D;
@@ -19,6 +20,7 @@ class Program
                 new AseFileFormat(),
                 new StlFileFormat(),
                 new ColladaFileFormat(),
+                new FbxFileFormat(),
                 new Urho3DFileFormat());
 
             if (!fileFormat.TryRead(new FileSystemEntry(input), out FileContainer content))
