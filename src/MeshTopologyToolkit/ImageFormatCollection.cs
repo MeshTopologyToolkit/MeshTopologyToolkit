@@ -9,8 +9,6 @@ namespace MeshTopologyToolkit
     {
         private List<IImageFormat> _formats;
 
-        private bool _forceGltfSpace = false;
-
         public ImageFormatCollection(IEnumerable<IImageFormat> formats)
         {
             _formats = new List<IImageFormat>(formats);

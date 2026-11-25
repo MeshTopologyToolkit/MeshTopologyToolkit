@@ -61,7 +61,7 @@ public class TransformSpaceOperatorTests
     }
 
     //[Fact]
-    public void Rotate()
+    private void Rotate()
     {
         var mesh = TestUtils.BuildPointMesh(new Vector3(2.0f, 3.0f, 4.0f), Vector3.UnitY);
 

@@ -117,8 +117,9 @@ public class FbxWriteTests
         Assert.Equal(0.5f, color.W, 4);
         Assert.Equal(AlphaMode.Blend, copied.AlphaMode);
         var texture = Assert.Contains(MaterialParam.BaseColor, (IDictionary<string, Texture>)copied.TextureParams.ToDictionary(kv => kv.Key, kv => kv.Value));
-        Assert.Equal(pngBytes, texture.FileSystemEntry!.ReadAllBytes());
-        Assert.Equal("checker.png", texture.FileSystemEntry.Name);
+        var entry = Assert.IsAssignableFrom<IFileSystemEntry>(texture.FileSystemEntry);
+        Assert.Equal(pngBytes, entry.ReadAllBytes());
+        Assert.Equal("checker.png", entry.Name);
     }
 
     [Theory]

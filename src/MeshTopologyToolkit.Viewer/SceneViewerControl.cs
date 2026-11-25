@@ -11,9 +11,9 @@ namespace MeshTopologyToolkit.Viewer;
 
 public class SceneViewerControl : OpenGlControlBase
 {
-    private MeshShader _myShader;
+    private MeshShader _myShader = null!;
     private FileContainer _content;
-    private List<DrawableMesh> _drawables;
+    private List<DrawableMesh> _drawables = new();
 
     // Camera settings
     private float _moveSpeed = 0.5f;

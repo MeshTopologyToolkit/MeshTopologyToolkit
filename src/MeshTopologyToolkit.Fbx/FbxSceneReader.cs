@@ -328,7 +328,7 @@ namespace MeshTopologyToolkit.Fbx
             var fileName = GetLeafName(FirstNonEmpty(relative, absolute) ?? obj.Name);
             if (embedded != null && embedded.Length > 0)
             {
-                texture = new Texture(fileName, embedded);
+                texture = new Texture(fileName ?? "texture", embedded);
             }
             else
             {

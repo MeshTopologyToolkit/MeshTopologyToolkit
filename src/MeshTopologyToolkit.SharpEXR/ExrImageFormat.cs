@@ -34,7 +34,7 @@ namespace MeshTopologyToolkit
 
             stream.Dispose();
 
-            using var partStream = entry.OpenRead();
+            using var partStream = entry.OpenRead() ?? throw new InvalidOperationException($"Can't open {entry.Name}");
 
             part.Open(partStream);
 
