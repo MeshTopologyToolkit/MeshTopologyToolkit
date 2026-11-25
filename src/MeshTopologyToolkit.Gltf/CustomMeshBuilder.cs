@@ -10,7 +10,7 @@ namespace MeshTopologyToolkit.Gltf
     {
         private List<IPrimitiveReader<MaterialBuilder>> _primitives = new List<IPrimitiveReader<MaterialBuilder>>();
 
-        public CustomMeshBuilder(string name, UnifiedIndexedMesh sourceMesh, IReadOnlyList<MaterialBuilder> materials)
+        public CustomMeshBuilder(string name, UnifiedIndexedMesh sourceMesh, IReadOnlyList<MaterialBuilder> materials, bool skinned = false)
         {
             Name = name;
             Materials = materials;
@@ -18,7 +18,7 @@ namespace MeshTopologyToolkit.Gltf
             for (int i = 0; i < sourceMesh.DrawCalls.Count; i++)
             {
                 MeshDrawCall drawCall = sourceMesh.DrawCalls[i];
-                _primitives.Add(new CustomPrimitiveReader(sourceMesh, drawCall, materials[i]));
+                _primitives.Add(new CustomPrimitiveReader(sourceMesh, drawCall, materials[i], skinned));
             }
         }
 

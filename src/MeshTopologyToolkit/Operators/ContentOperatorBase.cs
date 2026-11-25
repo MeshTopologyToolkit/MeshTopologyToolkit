@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Numerics;
 
 namespace MeshTopologyToolkit.Operators
 {
@@ -11,8 +12,24 @@ namespace MeshTopologyToolkit.Operators
 
         Dictionary<Material, Material> _visitedMaterials = new Dictionary<Material, Material>();
 
+        Dictionary<Skin, Skin> _visitedSkins = new Dictionary<Skin, Skin>();
+
+        Dictionary<Node, Node> _visitedNodes = new Dictionary<Node, Node>();
+
+        List<(MeshReference Result, Skin Source)> _pendingSkins = new List<(MeshReference, Skin)>();
+
         public ContentOperatorBase()
         {
+        }
+
+        /// <summary>
+        /// Gets the result node for a source node that was already transformed, or the node itself if it was not visited.
+        /// </summary>
+        protected Node? MapNode(Node? source)
+        {
+            if (source == null)
+                return null;
+            return _visitedNodes.TryGetValue(source, out var result) ? result : source;
         }
 
         public FileContainer Transform(FileContainer container)
@@ -38,7 +55,64 @@ namespace MeshTopologyToolkit.Operators
                 result.Add(Transform(asset));
             }
 
+            // Skins refer to nodes, so they can only be resolved when all the scenes are transformed.
+            foreach (var asset in container.Skins)
+            {
+                result.Add(Visit(asset));
+            }
+
+            foreach (var pending in _pendingSkins)
+            {
+                pending.Result.Skin = Visit(pending.Source);
+                result.Add(pending.Result.Skin);
+            }
+            _pendingSkins.Clear();
+
+            foreach (var asset in container.Animations)
+            {
+                result.Add(Transform(asset));
+            }
+
             return result;
+        }
+
+        protected Skin Visit(Skin skin) => Visit(_visitedSkins, skin, Transform);
+
+        public virtual Skin Transform(Skin skin)
+        {
+            var result = new Skin(skin.Name);
+            foreach (var joint in skin.Joints)
+            {
+                result.Joints.Add(MapNode(joint)!);
+            }
+            foreach (var matrix in skin.InverseBindMatrices)
+            {
+                result.InverseBindMatrices.Add(TransformInverseBindMatrix(matrix));
+            }
+            result.Skeleton = MapNode(skin.Skeleton);
+            return result;
+        }
+
+        protected virtual Matrix4x4 TransformInverseBindMatrix(Matrix4x4 matrix) => matrix;
+
+        public virtual Animation Transform(Animation animation)
+        {
+            var result = new Animation(animation.Name);
+            foreach (var track in animation.Tracks)
+            {
+                result.Tracks.Add(Transform(track));
+            }
+            return result;
+        }
+
+        public virtual AnimationTrack Transform(AnimationTrack track)
+        {
+            return new AnimationTrack(MapNode(track.Target), track.TargetName)
+            {
+                Translation = track.Translation,
+                Rotation = track.Rotation,
+                Scale = track.Scale,
+            };
         }
 
         protected Texture Visit(Texture texture) => Visit(_visitedTextures, texture, Transform);
@@ -72,6 +146,14 @@ namespace MeshTopologyToolkit.Operators
             if (meshReference == null)
                 return null;
             var result = new MeshReference(Visit(meshReference.Mesh));
+            foreach (var material in meshReference.Materials)
+            {
+                result.Materials.Add(Visit(material));
+            }
+            if (meshReference.Skin != null)
+            {
+                _pendingSkins.Add((result, meshReference.Skin));
+            }
             return result;
         }
 
@@ -80,6 +162,7 @@ namespace MeshTopologyToolkit.Operators
         public virtual Node Transform(Node node)
         {
             var result = new Node();
+            _visitedNodes[node] = result;
             result.Name = node.Name;
             result.Transform = Transform(node.Transform);
             result.Mesh = Transform(node.Mesh);
@@ -93,6 +176,7 @@ namespace MeshTopologyToolkit.Operators
         public virtual Scene Transform(Scene scene)
         {
             var result = new Scene();
+            _visitedNodes[scene] = result;
             result.Name = scene.Name;
             foreach (var child in scene.Children)
             {

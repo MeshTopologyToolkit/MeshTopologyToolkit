@@ -16,7 +16,6 @@
     <ProjectReference Include="..\MeshTopologyToolkit.Off\MeshTopologyToolkit.Off.csproj" />
     <ProjectReference Include="..\MeshTopologyToolkit.Stl\MeshTopologyToolkit.Stl.csproj" />
     <ProjectReference Include="..\MeshTopologyToolkit.Svg\MeshTopologyToolkit.Svg.csproj" />
-    <ProjectReference Include="..\MeshTopologyToolkit.TextureFormats\MeshTopologyToolkit.TextureFormats.csproj" />
     <ProjectReference Include="..\MeshTopologyToolkit.Urho3D\MeshTopologyToolkit.Urho3D.csproj" />
   </ItemGroup>
 

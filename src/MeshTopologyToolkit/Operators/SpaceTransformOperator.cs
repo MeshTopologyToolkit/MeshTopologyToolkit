@@ -29,6 +29,20 @@ namespace MeshTopologyToolkit.Operators
             return _transformer.TransformNode(transform);
         }
 
+        protected override Matrix4x4 TransformInverseBindMatrix(Matrix4x4 matrix)
+        {
+            return _transformer.TransformMatrix(matrix);
+        }
+
+        public override AnimationTrack Transform(AnimationTrack track)
+        {
+            var result = base.Transform(track);
+            result.Translation = track.Translation?.Map(_transformer.TransformPosition);
+            result.Rotation = track.Rotation?.Map(_transformer.TransformRotation);
+            result.Scale = track.Scale?.Map(_transformer.TransformScale);
+            return result;
+        }
+
         public override IMesh Transform(IMesh mesh)
         {
             if (mesh is UnifiedIndexedMesh unifiedIndexedMesh)

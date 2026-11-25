@@ -17,6 +17,8 @@ namespace MeshTopologyToolkit
         private readonly Collection<Material> _materials = new Collection<Material>();
         private readonly Collection<Scene> _scenes = new Collection<Scene>();
         private readonly Collection<Texture> _textures = new Collection<Texture>();
+        private readonly Collection<Skin> _skins = new Collection<Skin>();
+        private readonly Collection<Animation> _animations = new Collection<Animation>();
 
         /// <summary>
         /// Transform to be applied when converting from file space to glTF space.
@@ -45,6 +47,20 @@ namespace MeshTopologyToolkit
         public IList<Scene> Scenes => _scenes;
 
         public IList<Texture> Textures => _textures;
+
+        public IList<Skin> Skins => _skins;
+
+        public IList<Animation> Animations => _animations;
+
+        public bool Add(Skin skin)
+        {
+            return _skins.TryAdd(skin);
+        }
+
+        public bool Add(Animation animation)
+        {
+            return _animations.TryAdd(animation);
+        }
 
         public bool Add(IMesh mesh)
         {

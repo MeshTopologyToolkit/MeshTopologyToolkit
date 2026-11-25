@@ -2,13 +2,20 @@
 
 using MeshTopologyToolkit;
 using MeshTopologyToolkit.Gltf;
+using MeshTopologyToolkit.Operators;
 
 var fileFormat = new FileFormatCollection(new GltfFileFormat());
 
 // ... write your code here:
 
-if (!fileFormat.TryRead(@"path_to_file.glb", out var content))
+if (!fileFormat.TryRead(@"C:\github\UltimateTrimImage\Data\Models\BrickFloor01.glb", out var content))
     throw new Exception("Failed to read file");
 
-if (!fileFormat.TryWrite(@"path_to_file.glb", content))
+var mesh = content.Meshes[0];
+mesh.RemoveAttribute(MeshAttributeKey.Normal);
+mesh.RemoveAttribute(MeshAttributeKey.Tangent);
+
+new EnsureTangentsOperator().Transform(mesh);
+
+if (!fileFormat.TryWrite(@"C:\github\UltimateTrimImage\Data\Models\BrickFloor02.glb", content))
     throw new Exception("Failed to read file");

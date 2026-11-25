@@ -21,6 +21,9 @@ namespace MeshTopologyToolkit.Gltf
         private Dictionary<GltfMesh, MeshReference> _visitedMeshes = new Dictionary<GltfMesh, MeshReference>();
         private Dictionary<GltfMaterial, Material> _visitedMaterials = new Dictionary<GltfMaterial, Material>();
         private Dictionary<GltfTexture, Texture> _visitedTextures = new Dictionary<GltfTexture, Texture>();
+        private Dictionary<SharpGLTF.Schema2.Node, Node> _visitedNodes = new Dictionary<SharpGLTF.Schema2.Node, Node>();
+        private Dictionary<SharpGLTF.Schema2.Skin, Skin> _visitedSkins = new Dictionary<SharpGLTF.Schema2.Skin, Skin>();
+        private List<(Node Node, SharpGLTF.Schema2.Skin Skin)> _skinnedNodes = new List<(Node, SharpGLTF.Schema2.Skin)>();
 
         public GltfVisitor(FileContainer content)
         {
@@ -59,6 +62,21 @@ namespace MeshTopologyToolkit.Gltf
                 _content.Add(scene);
                 VisitVisualChildren(scene, sourceScene.VisualChildren);
             }
+
+            foreach (var (node, gltfSkin) in _skinnedNodes)
+            {
+                node.Mesh!.Skin = VisitSkin(gltfSkin);
+            }
+
+            foreach (var gltfSkin in modelRoot.LogicalSkins)
+            {
+                _content.Add(VisitSkin(gltfSkin));
+            }
+
+            foreach (var gltfAnimation in modelRoot.LogicalAnimations)
+            {
+                _content.Add(VisitAnimation(gltfAnimation));
+            }
         }
 
         private void VisitVisualChildren(Node parent, IEnumerable<SharpGLTF.Schema2.Node> visualChildren)
@@ -72,14 +90,104 @@ namespace MeshTopologyToolkit.Gltf
         private Node VisitNode(SharpGLTF.Schema2.Node gltfNode)
         {
             var node = new Node(gltfNode.Name) { Transform = VisitTransform(gltfNode.LocalTransform) };
+            _visitedNodes[gltfNode] = node;
             VisitVisualChildren(node, gltfNode.VisualChildren);
 
             if (gltfNode.Mesh != null)
             {
                 node.Mesh = VisitMesh(gltfNode.Mesh);
+                if (gltfNode.Skin != null && node.Mesh != null)
+                {
+                    // The mesh reference is shared between nodes, but a skin belongs to the node.
+                    node.Mesh = new MeshReference(node.Mesh.Mesh, node.Mesh.Materials);
+                    _skinnedNodes.Add((node, gltfNode.Skin));
+                }
             }
 
             return node;
+        }
+
+        /// <summary>
+        /// Gets a node that was already visited. Nodes that are not a part of any scene are created on demand.
+        /// </summary>
+        private Node GetNode(SharpGLTF.Schema2.Node gltfNode)
+        {
+            if (_visitedNodes.TryGetValue(gltfNode, out var node))
+                return node;
+
+            node = new Node(gltfNode.Name) { Transform = VisitTransform(gltfNode.LocalTransform) };
+            _visitedNodes[gltfNode] = node;
+            if (gltfNode.VisualParent != null)
+                GetNode(gltfNode.VisualParent).AddChild(node);
+            return node;
+        }
+
+        private Skin VisitSkin(SharpGLTF.Schema2.Skin gltfSkin)
+        {
+            if (_visitedSkins.TryGetValue(gltfSkin, out var skin))
+                return skin;
+
+            skin = new Skin(gltfSkin.Name);
+            for (int i = 0; i < gltfSkin.JointsCount; ++i)
+            {
+                var (joint, inverseBindMatrix) = gltfSkin.GetJoint(i);
+                skin.Joints.Add(GetNode(joint));
+                skin.InverseBindMatrices.Add(inverseBindMatrix);
+            }
+            if (gltfSkin.Skeleton != null)
+                skin.Skeleton = GetNode(gltfSkin.Skeleton);
+            _visitedSkins.Add(gltfSkin, skin);
+            return skin;
+        }
+
+        private Animation VisitAnimation(SharpGLTF.Schema2.Animation gltfAnimation)
+        {
+            var animation = new Animation(gltfAnimation.Name);
+            // Morph target weight and animation pointer channels are not supported and are skipped.
+            var targets = gltfAnimation.Channels
+                .Where(c => c.TargetNode != null && (c.TargetNodePath == PropertyPath.translation || c.TargetNodePath == PropertyPath.rotation || c.TargetNodePath == PropertyPath.scale))
+                .Select(c => c.TargetNode)
+                .Distinct();
+            foreach (var gltfNode in targets)
+            {
+                var samplers = gltfNode.GetCurveSamplers(gltfAnimation);
+                var track = new AnimationTrack(GetNode(gltfNode))
+                {
+                    Translation = VisitCurve(samplers.Translation, AnimationCurve.CreateVector3),
+                    Rotation = VisitCurve(samplers.Rotation, AnimationCurve.CreateQuaternion),
+                    Scale = VisitCurve(samplers.Scale, AnimationCurve.CreateVector3),
+                };
+                if (track.Translation != null || track.Rotation != null || track.Scale != null)
+                    animation.Tracks.Add(track);
+            }
+            return animation;
+        }
+
+        private AnimationCurve<T>? VisitCurve<T>(IAnimationSampler<T>? sampler, Func<AnimationInterpolation, AnimationCurve<T>> createCurve) where T : struct
+        {
+            if (sampler == null)
+                return null;
+
+            AnimationCurve<T> curve;
+            switch (sampler.InterpolationMode)
+            {
+                case AnimationInterpolationMode.STEP:
+                    curve = createCurve(AnimationInterpolation.Step);
+                    foreach (var (time, value) in sampler.GetLinearKeys())
+                        curve.Add(time, value);
+                    break;
+                case AnimationInterpolationMode.CUBICSPLINE:
+                    curve = createCurve(AnimationInterpolation.CubicSpline);
+                    foreach (var (time, (inTangent, value, outTangent)) in sampler.GetCubicKeys())
+                        curve.Add(time, value, inTangent, outTangent);
+                    break;
+                default:
+                    curve = createCurve(AnimationInterpolation.Linear);
+                    foreach (var (time, value) in sampler.GetLinearKeys())
+                        curve.Add(time, value);
+                    break;
+            }
+            return curve.Keys.Count > 0 ? curve : null;
         }
 
         private ITransform VisitTransform(AffineTransform localTransform)
@@ -101,7 +209,13 @@ namespace MeshTopologyToolkit.Gltf
             if (_visitedMaterials.TryGetValue(sourceMaterial, out var material))
                 return material;
 
-            material = new Material() { Name = sourceMaterial.Name };
+            material = new Material()
+            {
+                Name = sourceMaterial.Name,
+                AlphaMode = VisitAlphaMode(sourceMaterial.Alpha),
+                AlphaCutoff = sourceMaterial.AlphaCutoff,
+                DoubleSided = sourceMaterial.DoubleSided,
+            };
             foreach (MaterialChannel channel in sourceMaterial.Channels)
             {
                 switch (channel.Key)
@@ -246,6 +360,19 @@ namespace MeshTopologyToolkit.Gltf
 
             _visitedMaterials.Add(sourceMaterial, material);
             return material;
+        }
+
+        private static AlphaMode VisitAlphaMode(SharpGLTF.Schema2.AlphaMode mode)
+        {
+            switch (mode)
+            {
+                case SharpGLTF.Schema2.AlphaMode.MASK:
+                    return AlphaMode.Mask;
+                case SharpGLTF.Schema2.AlphaMode.BLEND:
+                    return AlphaMode.Blend;
+                default:
+                    return AlphaMode.Opaque;
+            }
         }
 
         private Texture? VisitTexture(GltfTexture gltfTexture)

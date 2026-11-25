@@ -28,6 +28,12 @@ namespace MeshTopologyToolkit.Operators
                 _container.Add(Transform(scene));
             }
 
+            // Animations keep targeting the original nodes.
+            foreach (var animation in container.Animations)
+            {
+                _container.Add(animation);
+            }
+
             _container = null;
 
             return result;
@@ -57,6 +63,11 @@ namespace MeshTopologyToolkit.Operators
             var mesh = UnifiedIndexedMesh.Merge(nodes.Select(node => new UnifiedIndexedMesh.MeshAndTransform { Mesh = node.Mesh!.Mesh.AsUnified(), Transform = node.GetWorldSpaceTransform().ToMatrix() }).ToList());
             var res = new MeshReference(mesh, materials);
             _container!.Add(mesh);
+
+            // Joint indices are not remapped, so only the skin of the first skinned mesh is kept.
+            res.Skin = nodes.Select(n => n.Mesh!.Skin).FirstOrDefault(s => s != null);
+            if (res.Skin != null)
+                _container.Add(res.Skin);
 
             return res;
         }

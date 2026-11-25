@@ -14,7 +14,7 @@ namespace MeshTopologyToolkit.Gltf
         private MeshDrawCall _drawCall;
         private List<int> _indices = new List<int>();
 
-        public CustomPrimitiveReader(UnifiedIndexedMesh sourceMesh, MeshDrawCall drawCall, MaterialBuilder materialBuilder)
+        public CustomPrimitiveReader(UnifiedIndexedMesh sourceMesh, MeshDrawCall drawCall, MaterialBuilder materialBuilder, bool skinned = false)
         {
             this._sourceMesh = sourceMesh;
             this._drawCall = drawCall;
@@ -26,7 +26,7 @@ namespace MeshTopologyToolkit.Gltf
                 _indices.Add(remappedIndices.Add(sourceMesh.Indices[i]));
             }
 
-            Vertices = remappedIndices.Select(_ => new CustomVertexBuilder(sourceMesh, _)).ToList();
+            Vertices = remappedIndices.Select(_ => new CustomVertexBuilder(sourceMesh, _, skinned)).ToList();
 
             switch (drawCall.Type)
             {

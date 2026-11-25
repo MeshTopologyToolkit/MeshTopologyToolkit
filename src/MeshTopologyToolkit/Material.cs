@@ -31,6 +31,13 @@ namespace MeshTopologyToolkit
 
         public string? Name { get; set; }
 
+        public AlphaMode AlphaMode { get; set; } = AlphaMode.Opaque;
+
+        /// <summary>Alpha threshold used when <see cref="AlphaMode"/> is <see cref="AlphaMode.Mask"/>.</summary>
+        public float AlphaCutoff { get; set; } = 0.5f;
+
+        public bool DoubleSided { get; set; }
+
         public void SetScalar(string name, float scalar)
         {
             _scalarParams[name] = scalar;

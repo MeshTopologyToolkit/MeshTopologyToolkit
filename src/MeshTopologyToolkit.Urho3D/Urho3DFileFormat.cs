@@ -158,11 +158,13 @@ namespace MeshTopologyToolkit.Urho3D
                     }
                     // Read geometries.
                     uint numGeometries = binaryReader.ReadUInt32();
+                    var boneMappings = new List<int[]>();
                     for (uint geometryIndex = 0; geometryIndex < numGeometries; ++geometryIndex)
                     {
                         var boneMapping = new int[binaryReader.ReadInt32()];
                         for (uint j = 0; j < boneMapping.Length; ++j)
                             boneMapping[j] = (int)binaryReader.ReadUInt32();
+                        boneMappings.Add(boneMapping);
 
                         uint numLodLevels = binaryReader.ReadUInt32();
                         for (uint lodLevelIndex = 0; lodLevelIndex < numLodLevels; ++lodLevelIndex)
@@ -226,11 +228,65 @@ namespace MeshTopologyToolkit.Urho3D
 
                     binaryReader.ReadBoundingBox3();
 
+                    RemapBlendIndices(finalMesh, boneMappings);
+
                     content.Add(finalMesh);
-                    content.AddSingleMeshScene(finalMesh);
+                    var meshReference = content.AddSingleMeshScene(finalMesh);
+                    if (skeleton.Bones.Count > 0)
+                    {
+                        // The bones are siblings of the mesh node: a skinned mesh ignores the transform of its own node.
+                        var boneRoots = new List<Node>();
+                        var skin = skeleton.ToSkin(boneRoots, finalMesh.Name);
+                        meshReference.Skin = skin;
+                        content.Add(skin);
+                        foreach (var boneRoot in boneRoots)
+                            content.Scenes[content.Scenes.Count - 1].AddChild(boneRoot);
+                    }
                 }
                 return true;
             }
+        }
+
+        /// <summary>
+        /// When a geometry has a bone mapping, the blend indices of its vertices select from the mapping
+        /// instead of from the skeleton. Replace them with skeleton bone indices.
+        /// </summary>
+        private static void RemapBlendIndices(UnifiedIndexedMesh mesh, IReadOnlyList<int[]> boneMappings)
+        {
+            if (!boneMappings.Any(_ => _.Length > 0) ||
+                !mesh.TryGetAttribute<Vector4>(MeshAttributeKey.Joints, out var joints))
+                return;
+
+            var remapped = new ListMeshVertexAttribute<Vector4>(joints.Count);
+            for (int i = 0; i < joints.Count; ++i)
+                remapped.Add(joints[i]);
+
+            // A vertex is expected to be used by a single geometry. If it is not, the first geometry wins.
+            var visited = new bool[joints.Count];
+            foreach (var drawCall in mesh.DrawCalls)
+            {
+                if (drawCall.MaterialIndex >= boneMappings.Count)
+                    continue;
+                var mapping = boneMappings[drawCall.MaterialIndex];
+                if (mapping.Length == 0)
+                    continue;
+                for (int i = drawCall.StartIndex; i < drawCall.StartIndex + drawCall.NumIndices; ++i)
+                {
+                    var vertex = mesh.Indices[i];
+                    if (visited[vertex])
+                        continue;
+                    visited[vertex] = true;
+                    var j = joints[vertex];
+                    remapped[vertex] = new Vector4(Map(mapping, j.X), Map(mapping, j.Y), Map(mapping, j.Z), Map(mapping, j.W));
+                }
+            }
+            mesh.SetAttribute(MeshAttributeKey.Joints, remapped);
+        }
+
+        private static float Map(int[] mapping, float index)
+        {
+            int i = (int)(index + 0.5f);
+            return i >= 0 && i < mapping.Length ? mapping[i] : index;
         }
 
         private MeshTopology GetPrimType(PrimitiveType primitiveType)
@@ -357,6 +413,25 @@ namespace MeshTopologyToolkit.Urho3D
             return this.TryWrite(entry, _preferableVersion, content);
         }
 
+        private static Skin? FindSkin(FileContainer content, IMesh mesh)
+        {
+            foreach (var scene in content.Scenes)
+            {
+                foreach (var node in scene.VisitAllChildren())
+                {
+                    if (node.Mesh != null && node.Mesh.Mesh == mesh && node.Mesh.Skin != null)
+                        return node.Mesh.Skin;
+                }
+            }
+            return null;
+        }
+
+        private static byte ToBoneIndex(int[] jointToBone, float joint)
+        {
+            int index = (int)(joint + 0.5f);
+            return (byte)(index >= 0 && index < jointToBone.Length ? jointToBone[index] : 0);
+        }
+
         public bool TryWrite(IFileSystemEntry entry, Urho3DModelVersion version, FileContainer content)
         {
 
@@ -376,11 +451,27 @@ namespace MeshTopologyToolkit.Urho3D
             if (flags.HasVersion)
                 writer.Write((uint)flags.Version);
 
-            var mesh = content.Meshes[0].AsUnified();
+            var sourceMesh = singleMesh.Meshes[0];
+            var mesh = sourceMesh.AsUnified();
             if (!mesh.HasAttribute(MeshAttributeKey.Normal))
                 mesh = new EnsureNormalsOperator().Transform(mesh).AsUnified();
             if (!mesh.HasAttribute(MeshAttributeKey.Tangent))
                 mesh = new EnsureTangentsOperator().Transform(mesh).AsUnified();
+
+            // Skinning: the mesh needs joints and weights, and a skin that tells what the joints are.
+            Skeleton? skeleton = null;
+            int[] jointToBone = Array.Empty<int>();
+            IMeshVertexAttribute<Vector4>? joints = null;
+            IMeshVertexAttribute<Vector4>? weights = null;
+            var skin = FindSkin(singleMesh, sourceMesh);
+            if (skin != null && skin.Joints.Count > 0 &&
+                mesh.TryGetAttribute<Vector4>(MeshAttributeKey.Joints, out joints) &&
+                mesh.TryGetAttribute<Vector4>(MeshAttributeKey.Weights, out weights))
+            {
+                if (skin.Joints.Count > 256)
+                    throw new NotSupportedException($"Skins with more than 256 joints are not supported by {nameof(Urho3DFileFormat)} (the skin has {skin.Joints.Count}).");
+                skeleton = Skeleton.FromSkin(skin, mesh, out jointToBone);
+            }
 
             // uint       Number of vertex buffers
             writer.Write((uint)1);
@@ -407,6 +498,11 @@ namespace MeshTopologyToolkit.Urho3D
                     elements.Add(VertexElement.LegacyVertexElements[3]);
                 if (hasTangents)
                     elements.Add(VertexElement.LegacyVertexElements[7]);
+                if (skeleton != null)
+                {
+                    elements.Add(VertexElement.LegacyVertexElements[8]);
+                    elements.Add(VertexElement.LegacyVertexElements[9]);
+                }
 
                 writer.Write((uint)elements.Count);
                 foreach (var el in elements)
@@ -430,6 +526,8 @@ namespace MeshTopologyToolkit.Urho3D
                     elementMask |= (uint)VertexMaskFlags.MASK_TEXCOORD1;
                 if (hasTangents)
                     elementMask |= (uint)VertexMaskFlags.MASK_TANGENT;
+                if (skeleton != null)
+                    elementMask |= (uint)(VertexMaskFlags.MASK_BLENDWEIGHTS | VertexMaskFlags.MASK_BLENDINDICES);
                 writer.Write((uint)elementMask);
             }
             // uint Morphable vertex range start index
@@ -455,6 +553,15 @@ namespace MeshTopologyToolkit.Urho3D
                     writer.Write(texCoords[vertexIndex]);
                 if (hasTangents)
                     writer.Write(tangents[vertexIndex]);
+                if (skeleton != null)
+                {
+                    writer.Write(weights![vertexIndex]);
+                    var j = joints![vertexIndex];
+                    writer.Write(ToBoneIndex(jointToBone, j.X));
+                    writer.Write(ToBoneIndex(jointToBone, j.Y));
+                    writer.Write(ToBoneIndex(jointToBone, j.Z));
+                    writer.Write(ToBoneIndex(jointToBone, j.W));
+                }
             }
 
             // uint Number of index buffers
@@ -527,8 +634,11 @@ namespace MeshTopologyToolkit.Urho3D
             //uint Number of vertex morphs (may be 0)
             writer.Write((uint)0);
 
-            //uint       Number of bones (may be 0)
-            writer.Write((uint)0);
+            //uint       Number of bones (may be 0), followed by the bones
+            if (skeleton != null)
+                skeleton.Write(writer);
+            else
+                writer.Write((uint)0);
 
             var bbox = new BoundingBox3(positions);
             writer.Write(bbox.Min);

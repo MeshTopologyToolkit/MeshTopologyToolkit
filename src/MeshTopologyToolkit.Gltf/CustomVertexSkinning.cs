@@ -1,5 +1,6 @@
 ﻿using SharpGLTF.Geometry.VertexTypes;
 using SharpGLTF.Memory;
+using SharpGLTF.Schema2;
 using SharpGLTF.Transforms;
 using System;
 using System.Collections.Generic;
@@ -15,11 +16,11 @@ namespace MeshTopologyToolkit.Gltf
         private IMeshVertexAttribute<Vector4>? _jointsAttrLow;
         private IMeshVertexAttribute<Vector4>? _weightsAttrLow;
 
-        public CustomVertexSkinning(UnifiedIndexedMesh sourceMesh, int index)
+        public CustomVertexSkinning(UnifiedIndexedMesh sourceMesh, int index, bool skinned = true)
         {
             this.sourceMesh = sourceMesh;
             this._index = index;
-            foreach (var key in sourceMesh.GetAttributeKeys())
+            foreach (var key in skinned ? sourceMesh.GetAttributeKeys() : System.Linq.Enumerable.Empty<MeshAttributeKey>())
             {
                 if (key.Equals(MeshAttributeKey.Joints))
                 {
@@ -64,7 +65,7 @@ namespace MeshTopologyToolkit.Gltf
         public IEnumerable<KeyValuePair<string, AttributeFormat>> GetEncodingAttributes()
         {
             if (_jointsAttrLow != null)
-                yield return new KeyValuePair<string, AttributeFormat>(MeshAttributeNames.Joints + "_0", AttributeFormat.Float4);
+                yield return new KeyValuePair<string, AttributeFormat>(MeshAttributeNames.Joints + "_0", new AttributeFormat(DimensionType.VEC4, EncodingType.UNSIGNED_SHORT));
             if (_weightsAttrLow != null)
                 yield return new KeyValuePair<string, AttributeFormat>(MeshAttributeNames.Weights + "_0", AttributeFormat.Float4);
         }

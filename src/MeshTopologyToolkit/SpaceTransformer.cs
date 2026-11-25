@@ -149,22 +149,49 @@ namespace MeshTopologyToolkit
             // Translation: apply rotation + unit scale
             translation = Vector3.Transform(translation, _unitRotation);
 
-            // Rotation: remap axes
-            var quatRotation = Quaternion.CreateFromRotationMatrix(_rotationOnly);
-            rotation = Quaternion.Normalize(rotation * quatRotation);
-            //rotation = new Quaternion(_axisSigns.X * rotation.X, _axisSigns.Y * rotation.Y, _axisSigns.Z * rotation.Z, rotation.W);
+            rotation = TransformRotation(rotation);
+            scale = TransformScale(scale);
+        }
 
-            // Scale: remap axes but no unit scale
+        /// <summary>
+        /// Expresses a rotation in the new space (basis change U^-1 * R * U, which also works when the space change flips handedness).
+        /// </summary>
+        /// <remarks>
+        /// Conjugating a rotation by an orthogonal matrix U keeps the angle and maps the axis to det(U) * U^-1 * axis,
+        /// so the quaternion remap is linear (and can be applied to cubic spline tangents too).
+        /// </remarks>
+        public Quaternion TransformRotation(Quaternion rotation)
+        {
+            Matrix4x4.Invert(_rotationOnly, out var inverse);
+            float determinant = _rotationOnly.GetDeterminant() < 0.0f ? -1.0f : 1.0f;
+            var axis = Vector3.TransformNormal(new Vector3(rotation.X, rotation.Y, rotation.Z), inverse) * determinant;
+            return new Quaternion(axis, rotation.W);
+        }
+
+        /// <summary>
+        /// Remaps axes of a node scale. Unit scale is not applied.
+        /// </summary>
+        public Vector3 TransformScale(Vector3 scale)
+        {
             var axisX = Vector3.Abs(new Vector3(_rotationOnly.M11, _rotationOnly.M21, _rotationOnly.M31));
             var axisY = Vector3.Abs(new Vector3(_rotationOnly.M12, _rotationOnly.M22, _rotationOnly.M32));
             var axisZ = Vector3.Abs(new Vector3(_rotationOnly.M13, _rotationOnly.M23, _rotationOnly.M33));
 
-            Vector3 newScale = new Vector3(
+            return new Vector3(
                 Vector3.Dot(scale, axisX),
                 Vector3.Dot(scale, axisY),
                 Vector3.Dot(scale, axisZ));
+        }
 
-            scale = newScale;
+        /// <summary>
+        /// Expresses a matrix that maps between two spaces that are both being changed (for example, an inverse bind matrix) in the new space.
+        /// </summary>
+        public Matrix4x4 TransformMatrix(Matrix4x4 matrix)
+        {
+            var u = _unitRotation;
+            u.M44 = 1.0f;
+            Matrix4x4.Invert(u, out var inverse);
+            return inverse * matrix * u;
         }
     }
 }

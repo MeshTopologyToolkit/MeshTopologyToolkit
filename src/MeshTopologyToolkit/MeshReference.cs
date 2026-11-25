@@ -23,5 +23,10 @@ namespace MeshTopologyToolkit
 
         public IMesh Mesh { get; set; }
         public IList<Material> Materials => _materials;
+
+        /// <summary>
+        /// Optional skin. When set, joint indices of the mesh select from <see cref="Skin.Joints"/>.
+        /// </summary>
+        public Skin? Skin { get; set; }
     }
 }

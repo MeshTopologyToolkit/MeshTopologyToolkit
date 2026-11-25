@@ -11,11 +11,13 @@ namespace MeshTopologyToolkit.Gltf
     {
         private UnifiedIndexedMesh _sourceMesh;
         private int _index;
+        private bool _skinned;
 
-        public CustomVertexBuilder(UnifiedIndexedMesh sourceMesh, int index)
+        public CustomVertexBuilder(UnifiedIndexedMesh sourceMesh, int index, bool skinned = false)
         {
             this._sourceMesh = sourceMesh;
             this._index = index;
+            this._skinned = skinned;
         }
 
         public IMeshBuilder<TMaterial> CreateCompatibleMesh<TMaterial>(string? name = null)
@@ -35,7 +37,7 @@ namespace MeshTopologyToolkit.Gltf
 
         public IVertexSkinning GetSkinning()
         {
-            return new CustomVertexSkinning(_sourceMesh, _index);
+            return new CustomVertexSkinning(_sourceMesh, _index, _skinned);
         }
 
         public void SetGeometry(IVertexGeometry geometry)
