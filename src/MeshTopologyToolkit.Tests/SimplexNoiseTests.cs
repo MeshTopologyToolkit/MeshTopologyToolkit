@@ -26,7 +26,7 @@ public class SimplexNoiseTests
             }
         }
 
-        ImageSharpImageFormat.SaveAs("SimplexNoise2D.png", colors, w, h);
+        StbImageFormat.SaveAs("SimplexNoise2D.png", colors, w, h);
     }
 
     [Fact]
@@ -57,7 +57,7 @@ public class SimplexNoiseTests
             colors[x] = new Vector4(value, value, value, 1.0f);
         }
 
-        ImageSharpImageFormat.SaveAs("Turbulence.png", colors, w, w);
+        StbImageFormat.SaveAs("Turbulence.png", colors, w, w);
     }
 
     [Fact]
@@ -82,7 +82,7 @@ public class SimplexNoiseTests
             }
         }
 
-        ImageSharpImageFormat.SaveAs("FractalNoise2D.png", colors, w, w);
+        StbImageFormat.SaveAs("FractalNoise2D.png", colors, w, w);
     }
 
     [Fact]
@@ -107,7 +107,7 @@ public class SimplexNoiseTests
             }
         }
 
-        ImageSharpImageFormat.SaveAs("SimplexNoise3D.png", colors, w, h);
+        StbImageFormat.SaveAs("SimplexNoise3D.png", colors, w, h);
     }
 
     [Fact]
@@ -132,7 +132,7 @@ public class SimplexNoiseTests
             }
         }
 
-        ImageSharpImageFormat.SaveAs("SimplexNoise4D.png", colors, w, h);
+        StbImageFormat.SaveAs("SimplexNoise4D.png", colors, w, h);
     }
 
     [Fact]
@@ -167,6 +167,6 @@ public class SimplexNoiseTests
             }
         }
 
-        ImageSharpImageFormat.SaveAs("FractalNoise4D.png", colors, w, w);
+        StbImageFormat.SaveAs("FractalNoise4D.png", colors, w, w);
     }
 }

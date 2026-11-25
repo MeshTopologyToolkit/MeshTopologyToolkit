@@ -2,8 +2,6 @@
 using MeshTopologyToolkit.Gltf;
 using MeshTopologyToolkit.Operators;
 using MeshTopologyToolkit.Stl;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
 using System.Numerics;
 
 namespace MeshTopologyToolkit.BasRelief
@@ -25,7 +23,7 @@ namespace MeshTopologyToolkit.BasRelief
                 output = Path.ChangeExtension(input, ".stl");
             }
 
-            var imageFormat = new ImageFormatCollection(new ImageSharpImageFormat(), new ExrImageFormat());
+            var imageFormat = new ImageFormatCollection(new StbImageFormat(), new ExrImageFormat());
 
             if (!imageFormat.TryRead(new FileSystemEntry(input), out var imageContainer))
             {

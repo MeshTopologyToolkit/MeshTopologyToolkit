@@ -18,7 +18,7 @@
     <Project Path="MeshTopologyToolkit.Bsp/MeshTopologyToolkit.Bsp.csproj" />
     <Project Path="MeshTopologyToolkit.Collada/MeshTopologyToolkit.Collada.csproj" />
     <Project Path="MeshTopologyToolkit.Gltf/MeshTopologyToolkit.Gltf.csproj" />
-    <Project Path="MeshTopologyToolkit.ImageSharp/MeshTopologyToolkit.ImageSharp.csproj" />
+    <Project Path="MeshTopologyToolkit.StbImageSharp/MeshTopologyToolkit.StbImageSharp.csproj" />
     <Project Path="MeshTopologyToolkit.Obj/MeshTopologyToolkit.Obj.csproj" />
     <Project Path="MeshTopologyToolkit.Off/MeshTopologyToolkit.Off.csproj" />
     <Project Path="MeshTopologyToolkit.SharpEXR/MeshTopologyToolkit.SharpEXR.csproj" />

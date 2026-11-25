@@ -55,7 +55,7 @@ namespace MeshTopologyToolkit.TrimGenerator
             else
             {
                 var colors = BuildNormalMap(args);
-                ImageSharpImageFormat.SaveAs(output, colors, args.WidthInPixels, args.HeightInPixels);
+                StbImageFormat.SaveAs(output, colors, args.WidthInPixels, args.HeightInPixels);
             }
 
             return 0;
@@ -67,7 +67,7 @@ namespace MeshTopologyToolkit.TrimGenerator
             var colors = normalMapGenerator.BuildNormalMap(args);
 
             var ms = new MemoryStream();
-            ImageSharpImageFormat.SaveAsPng(ms, colors, args.WidthInPixels, args.HeightInPixels);
+            StbImageFormat.SaveAsPng(ms, colors, args.WidthInPixels, args.HeightInPixels);
             return new InMemoryFileSystemEntry("normals.png", ms.ToArray());
         }
 

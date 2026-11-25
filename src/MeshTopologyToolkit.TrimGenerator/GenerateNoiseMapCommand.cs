@@ -39,7 +39,7 @@ namespace MeshTopologyToolkit.TrimGenerator
                 }
             }
 
-            ImageSharpImageFormat.SaveAs(output, colors, width, height);
+            StbImageFormat.SaveAs(output, colors, width, height);
 
             return 0;
         }

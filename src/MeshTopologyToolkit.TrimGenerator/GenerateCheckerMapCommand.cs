@@ -16,7 +16,7 @@ namespace MeshTopologyToolkit.TrimGenerator
         {
             var pixels = Build(width, height, levels, cellSize, gridLevels);
 
-            ImageSharpImageFormat.SaveAs(output ?? "checker.png", pixels, width, height);
+            StbImageFormat.SaveAs(output ?? "checker.png", pixels, width, height);
             return 0;
         }
 
@@ -107,7 +107,7 @@ namespace MeshTopologyToolkit.TrimGenerator
             var colors = generator.Build(width, height, levels, cellSize, gridLevels);
 
             var ms = new MemoryStream();
-            ImageSharpImageFormat.SaveAsPng(ms, colors, width, height);
+            StbImageFormat.SaveAsPng(ms, colors, width, height);
             return new InMemoryFileSystemEntry("checker.png", ms.ToArray());
         }
     }

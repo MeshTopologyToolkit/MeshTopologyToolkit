@@ -23,7 +23,7 @@ namespace MeshTopologyToolkit.BasRelief
                 output = Path.ChangeExtension(input, ".stl");
             }
 
-            var imageFormat = new ImageFormatCollection(new ImageSharpImageFormat(), new ExrImageFormat());
+            var imageFormat = new ImageFormatCollection(new StbImageFormat(), new ExrImageFormat());
 
             if (!imageFormat.TryRead(new FileSystemEntry(input), out var imageContainer))
             {

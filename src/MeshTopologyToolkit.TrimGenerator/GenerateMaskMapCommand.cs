@@ -15,7 +15,7 @@ namespace MeshTopologyToolkit.TrimGenerator
 
             var colors = BuildMaskMap(args);
 
-            ImageSharpImageFormat.SaveAs(output ?? "mask.png", colors, args.WidthInPixels, args.HeightInPixels);
+            StbImageFormat.SaveAs(output ?? "mask.png", colors, args.WidthInPixels, args.HeightInPixels);
 
             return 0;
         }
