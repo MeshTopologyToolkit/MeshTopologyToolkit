@@ -1,0 +1,9 @@
+<Project>
+  <!-- Packages that do not define their own readme get the repository readme. -->
+  <PropertyGroup Condition="'$(PackageReadmeFile)' == ''">
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(PackageReadmeFile)' == 'README.md' And '$(IsPackable)' != 'false' And !Exists('$(MSBuildProjectDirectory)/README.md')">
+    <None Include="$(MSBuildThisFileDirectory)../README.md" Pack="true" PackagePath="" Visible="false" />
+  </ItemGroup>
+</Project>
