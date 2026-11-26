@@ -17,5 +17,11 @@
         }
 
         public IFileSystemEntry? FileSystemEntry { get; set; }
+
+        /// <summary>How the image repeats along U (the sampler's wrap S in glTF).</summary>
+        public TextureWrap WrapU { get; set; } = TextureWrap.Repeat;
+
+        /// <summary>How the image repeats along V (the sampler's wrap T in glTF).</summary>
+        public TextureWrap WrapV { get; set; } = TextureWrap.Repeat;
     }
 }

@@ -3,6 +3,7 @@ using SharpGLTF.Schema2;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Numerics;
 
 namespace MeshTopologyToolkit.Gltf
 {
@@ -64,7 +65,32 @@ namespace MeshTopologyToolkit.Gltf
 
         internal void SwitchToDefaultAdapter()
         {
-            _accessorAdapter = _accessorAdapter.MakeDefaultValueAdapter();
+            _accessorAdapter = DefaultAdapter();
+        }
+
+        /// <summary>Adds the neutral value <paramref name="count"/> times, for the indices of primitives that did not have this attribute.</summary>
+        internal void AddDefaultValues(int count)
+        {
+            if (count <= 0)
+                return;
+            var defaults = DefaultAdapter();
+            for (int i = 0; i < count; i++)
+            {
+                defaults.AddValueByIndex(0, MeshVertexAttribute!, MeshVertexAttributeIndices!);
+            }
+        }
+
+        /// <summary>What a vertex has when its primitive lacks the attribute: white for colours (zero would make the mesh black), zero for the rest.</summary>
+        private IAccessorAdapter DefaultAdapter()
+        {
+            if (OriginalKey.StartsWith("COLOR", StringComparison.Ordinal))
+            {
+                if (_accessorAdapter is Vec4AccessorAdapter)
+                    return new ConstAdapter<Vector4>(Vector4.One);
+                if (_accessorAdapter is Vec3AccessorAdapter)
+                    return new ConstAdapter<Vector3>(Vector3.One);
+            }
+            return _accessorAdapter.MakeDefaultValueAdapter();
         }
     }
 }

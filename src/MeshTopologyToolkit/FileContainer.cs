@@ -203,7 +203,6 @@ namespace MeshTopologyToolkit
                 if (_existingValues.Add(item))
                 {
                     ((IList<T>)_values).Insert(index, item);
-                    _values.Add(item);
                 }
                 else
                 {

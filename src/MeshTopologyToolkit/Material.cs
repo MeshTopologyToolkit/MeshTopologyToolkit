@@ -8,6 +8,7 @@ namespace MeshTopologyToolkit
         private Dictionary<string, float> _scalarParams = new Dictionary<string, float>();
         private Dictionary<string, Vector4> _vector4Params = new Dictionary<string, Vector4>();
         private Dictionary<string, Texture> _textureParams = new Dictionary<string, Texture>();
+        private Dictionary<string, int> _texCoordParams = new Dictionary<string, int>();
 
         public Material()
         {
@@ -55,6 +56,17 @@ namespace MeshTopologyToolkit
             else
                 _textureParams[name] = value;
         }
+
+        /// <summary>Selects the texture coordinate set (TEXCOORD channel) a texture slot reads; a slot without an entry reads set 0.</summary>
+        public void SetTexCoord(string name, int texCoord)
+        {
+            if (texCoord == 0)
+                _texCoordParams.Remove(name);
+            else
+                _texCoordParams[name] = texCoord;
+        }
+
+        public IReadOnlyDictionary<string, int> TexCoordParams => _texCoordParams;
 
         public IReadOnlyDictionary<string, float> ScalarParams => _scalarParams;
 

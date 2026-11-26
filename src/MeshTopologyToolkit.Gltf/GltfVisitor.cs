@@ -201,8 +201,6 @@ namespace MeshTopologyToolkit.Gltf
 
         private Material? VisitMaterial(GltfMaterial sourceMaterial)
         {
-            bool throwOnUnknownProperties = true;
-
             if (sourceMaterial == null)
                 return null;
 
@@ -216,150 +214,89 @@ namespace MeshTopologyToolkit.Gltf
                 AlphaCutoff = sourceMaterial.AlphaCutoff,
                 DoubleSided = sourceMaterial.DoubleSided,
             };
+
+            // Channels and parameters this library has no place for (clear coat, sheen, transmission, volume, IOR, iridescence,
+            // the specular-glossiness workflow...) are skipped: the rest of the material is still useful.
             foreach (MaterialChannel channel in sourceMaterial.Channels)
             {
                 switch (channel.Key)
                 {
                     case "BaseColor":
+                        material.SetVector4(MaterialParam.BaseColor, channel.Color);
+                        SetTexture(material, MaterialParam.BaseColor, channel);
+                        foreach (var parameter in channel.Parameters)
                         {
-                            material.SetVector4(MaterialParam.BaseColor, channel.Color);
-                            if (channel.Texture != null)
-                            {
-                                material.SetTexture(MaterialParam.BaseColor, VisitTexture(channel.Texture));
-                            }
-                            foreach (var parameter in channel.Parameters)
-                            {
-                                if (parameter.Name == "RGBA" && parameter.Value is Vector4 color)
-                                {
-                                    material.SetVector4(MaterialParam.BaseColor, color);
-                                }
-                                else
-                                {
-                                    if (throwOnUnknownProperties)
-                                        throw new NotImplementedException($"{channel.Key}:{parameter.Name} of {parameter.Value?.GetType()?.Name}");
-                                }
-                            }
+                            if (parameter.Name == "RGBA" && parameter.Value is Vector4 color)
+                                material.SetVector4(MaterialParam.BaseColor, color);
                         }
                         break;
                     case "Normal":
+                        SetTexture(material, MaterialParam.Normal, channel);
+                        foreach (var parameter in channel.Parameters)
                         {
-                            if (channel.Texture != null)
-                            {
-                                material.SetTexture(MaterialParam.Normal, VisitTexture(channel.Texture));
-                            }
-                            foreach (var parameter in channel.Parameters)
-                            {
-                                if (parameter.Name == "NormalScale" && parameter.Value is float normalScale)
-                                {
-                                    material.SetScalar(MaterialParam.NormalScale, normalScale);
-                                }
-                                else
-                                {
-                                    if (throwOnUnknownProperties)
-                                        throw new NotImplementedException($"{channel.Key}:{parameter.Name} of {parameter.Value?.GetType()?.Name}");
-                                }
-                            }
+                            if (parameter.Name == "NormalScale" && parameter.Value is float normalScale)
+                                material.SetScalar(MaterialParam.NormalScale, normalScale);
                         }
                         break;
                     case "MetallicRoughness":
+                        SetTexture(material, MaterialParam.MetallicRoughness, channel);
+                        foreach (var parameter in channel.Parameters)
                         {
-                            foreach (var parameter in channel.Parameters)
-                            {
-                                if (parameter.Name == "MetallicFactor" && parameter.Value is float metallicFactor)
-                                {
-                                    material.SetScalar(MaterialParam.MetallicFactor, metallicFactor);
-                                }
-                                else if (parameter.Name == "RoughnessFactor" && parameter.Value is float roughnessFactor)
-                                {
-                                    material.SetScalar(MaterialParam.RoughnessFactor, roughnessFactor);
-                                }
-                                else
-                                {
-                                    if (throwOnUnknownProperties)
-                                        throw new NotImplementedException($"{channel.Key}:{parameter.Name} of {parameter.Value?.GetType()?.Name}");
-                                }
-                            }
+                            if (parameter.Name == "MetallicFactor" && parameter.Value is float metallicFactor)
+                                material.SetScalar(MaterialParam.MetallicFactor, metallicFactor);
+                            else if (parameter.Name == "RoughnessFactor" && parameter.Value is float roughnessFactor)
+                                material.SetScalar(MaterialParam.RoughnessFactor, roughnessFactor);
                         }
                         break;
                     case "Occlusion":
+                        SetTexture(material, MaterialParam.Occlusion, channel);
+                        foreach (var parameter in channel.Parameters)
                         {
-                            foreach (var parameter in channel.Parameters)
-                            {
-                                if (parameter.Name == "OcclusionStrength" && parameter.Value is float occlusionStrength)
-                                {
-                                    material.SetScalar(MaterialParam.OcclusionStrength, occlusionStrength);
-                                }
-                                else
-                                {
-                                    if (throwOnUnknownProperties)
-                                        throw new NotImplementedException($"{channel.Key}:{parameter.Name} of {parameter.Value?.GetType()?.Name}");
-                                }
-                            }
+                            if (parameter.Name == "OcclusionStrength" && parameter.Value is float occlusionStrength)
+                                material.SetScalar(MaterialParam.OcclusionStrength, occlusionStrength);
                         }
                         break;
                     case "Emissive":
+                        SetTexture(material, MaterialParam.Emissive, channel);
+                        foreach (var parameter in channel.Parameters)
                         {
-                            foreach (var parameter in channel.Parameters)
-                            {
-                                if (parameter.Name == "RGB" && parameter.Value is Vector3 color)
-                                {
-                                    material.SetVector4(MaterialParam.Emissive, new Vector4(color, 1.0f));
-                                }
-                                else if (parameter.Name == "EmissiveStrength" && parameter.Value is float emissiveStrength)
-                                {
-                                    material.SetScalar(MaterialParam.EmissiveStrength, emissiveStrength);
-                                }
-                                else
-                                {
-                                    if (throwOnUnknownProperties)
-                                        throw new NotImplementedException($"{channel.Key}:{parameter.Name} of {parameter.Value?.GetType()?.Name}");
-                                }
-                            }
+                            if (parameter.Name == "RGB" && parameter.Value is Vector3 color)
+                                material.SetVector4(MaterialParam.Emissive, new Vector4(color, 1.0f));
+                            else if (parameter.Name == "EmissiveStrength" && parameter.Value is float emissiveStrength)
+                                material.SetScalar(MaterialParam.EmissiveStrength, emissiveStrength);
                         }
                         break;
                     case "SpecularColor":
+                        foreach (var parameter in channel.Parameters)
                         {
-                            foreach (var parameter in channel.Parameters)
-                            {
-                                if (parameter.Name == "RGB" && parameter.Value is Vector3 color)
-                                {
-                                    material.SetVector4(MaterialParam.SpecularColor, new Vector4(color, 1.0f));
-                                }
-                                else
-                                {
-                                    if (throwOnUnknownProperties)
-                                        throw new NotImplementedException($"{channel.Key}:{parameter.Name} of {parameter.Value?.GetType()?.Name}");
-                                }
-                            }
+                            if (parameter.Name == "RGB" && parameter.Value is Vector3 color)
+                                material.SetVector4(MaterialParam.SpecularColor, new Vector4(color, 1.0f));
                         }
                         break;
                     case "SpecularFactor":
+                        foreach (var parameter in channel.Parameters)
                         {
-                            foreach (var parameter in channel.Parameters)
-                            {
-                                if (parameter.Name == "SpecularFactor" && parameter.Value is float specularFactor)
-                                {
-                                    material.SetScalar(MaterialParam.SpecularFactor, specularFactor);
-                                }
-                                else
-                                {
-                                    if (throwOnUnknownProperties)
-                                        throw new NotImplementedException($"{channel.Key}:{parameter.Name} of {parameter.Value?.GetType()?.Name}");
-                                }
-                            }
+                            if (parameter.Name == "SpecularFactor" && parameter.Value is float specularFactor)
+                                material.SetScalar(MaterialParam.SpecularFactor, specularFactor);
                         }
                         break;
-                    default:
-                        if (throwOnUnknownProperties)
-                            throw new NotImplementedException($"{channel.Key}");
-                        else
-                            break;
                 }
             }
 
-
             _visitedMaterials.Add(sourceMaterial, material);
             return material;
+        }
+
+        /// <summary>Puts the channel's texture (when it has one) into a slot of the material, with the texture coordinate set it reads.</summary>
+        private void SetTexture(Material material, string slot, MaterialChannel channel)
+        {
+            if (channel.Texture == null)
+                return;
+            var texture = VisitTexture(channel.Texture);
+            if (texture == null)
+                return;
+            material.SetTexture(slot, texture);
+            material.SetTexCoord(slot, channel.TextureCoordinate);
         }
 
         private static AlphaMode VisitAlphaMode(SharpGLTF.Schema2.AlphaMode mode)
@@ -375,6 +312,19 @@ namespace MeshTopologyToolkit.Gltf
             }
         }
 
+        private static TextureWrap VisitWrap(TextureWrapMode? mode)
+        {
+            switch (mode)
+            {
+                case TextureWrapMode.CLAMP_TO_EDGE:
+                    return TextureWrap.Clamp;
+                case TextureWrapMode.MIRRORED_REPEAT:
+                    return TextureWrap.Mirror;
+                default:
+                    return TextureWrap.Repeat;
+            }
+        }
+
         private Texture? VisitTexture(GltfTexture gltfTexture)
         {
             if (gltfTexture == null)
@@ -383,7 +333,22 @@ namespace MeshTopologyToolkit.Gltf
             if (_visitedTextures.TryGetValue(gltfTexture, out var texture))
                 return texture;
 
-            texture = new Texture(new InMemoryFileSystemEntry(gltfTexture.Name ?? $"{gltfTexture.LogicalIndex}.png", gltfTexture.PrimaryImage.Content.Content));
+            var image = gltfTexture.PrimaryImage;
+            if (image == null)
+                return null;
+
+            // The entry is named after the image and ends in what the bytes are, so that a reader can tell PNG from JPEG by the name too.
+            var content = image.Content;
+            string name = !string.IsNullOrEmpty(image.Name) ? image.Name : !string.IsNullOrEmpty(gltfTexture.Name) ? gltfTexture.Name : $"texture{gltfTexture.LogicalIndex}";
+            string extension = content.IsPng ? ".png" : content.IsJpg ? ".jpg" : string.Empty;
+            if (extension.Length > 0 && !name.EndsWith(extension, StringComparison.OrdinalIgnoreCase) && !(content.IsJpg && name.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase)))
+                name += extension;
+
+            texture = new Texture(new InMemoryFileSystemEntry(name, content.Content.ToArray()))
+            {
+                WrapU = VisitWrap(gltfTexture.Sampler?.WrapS),
+                WrapV = VisitWrap(gltfTexture.Sampler?.WrapT),
+            };
 
             _visitedTextures.Add(gltfTexture, texture);
             return texture;
@@ -422,6 +387,10 @@ namespace MeshTopologyToolkit.Gltf
 
                 foreach (var accessor in prim.VertexAccessors)
                 {
+                    // Only attributes of two to four components have a place in a mesh; scalar custom attributes are skipped.
+                    var dimensions = accessor.Value.Format.Dimensions;
+                    if (dimensions != DimensionType.VEC2 && dimensions != DimensionType.VEC3 && dimensions != DimensionType.VEC4)
+                        continue;
                     var adapter = new AccessorAdapter(accessor.Key, accessor.Value);
                     primAdapters[adapter.OriginalKey] = adapter;
                     if (meshAdapters.TryGetValue(adapter.OriginalKey, out var existingAdapter))
@@ -436,11 +405,9 @@ namespace MeshTopologyToolkit.Gltf
                     }
                     else
                     {
-                        if (numIndices > 0)
-                        {
-                            throw new NotImplementedException("Inconsistent mesh attributes are not supported yet.");
-                        }
                         adapter.CreateMeshVertexAttribute();
+                        // An attribute the earlier primitives did not have: they get its neutral value.
+                        adapter.AddDefaultValues(numIndices);
                         mesh.AddAttribute(adapter.AttributeKey, adapter.MeshVertexAttribute!, adapter.MeshVertexAttributeIndices!);
                         meshAdapters[adapter.OriginalKey] = adapter;
                     }

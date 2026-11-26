@@ -18,8 +18,8 @@ namespace MeshTopologyToolkit
 
         public MeshDrawCall(int materialIndex, MeshTopology type, int startIndex, int numIndices)
         {
-            LodLevel = materialIndex;
-            MaterialIndex = 0;
+            LodLevel = 0;
+            MaterialIndex = materialIndex;
             Type = type;
             StartIndex = startIndex;
             NumIndices = numIndices;

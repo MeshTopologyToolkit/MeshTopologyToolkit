@@ -72,7 +72,8 @@ namespace MeshTopologyToolkit.Fbx
                 new Vector3(c.X, u.X, f.X),
                 new Vector3(c.Y, u.Y, f.Y),
                 new Vector3(c.Z, u.Z, f.Z));
-            return new SpaceTransform(rotation, scale, true);
+            // A file whose axes are left-handed is mirrored on its way to glTF, which turns the triangles inside out: their winding is flipped back.
+            return new SpaceTransform(rotation, scale, true, rotation.GetDeterminant() < 0.0f);
         }
 
         private static Vector3 AxisVector(int axis, float sign)
@@ -252,6 +253,17 @@ namespace MeshTopologyToolkit.Fbx
             var roughness = props.FindNameWithSuffix("roughness");
             if (roughness != null)
                 material.SetScalar(MaterialParam.RoughnessFactor, (float)props.GetDouble(roughness));
+            // Lambert and Phong materials describe a diffuse surface, not a metal: the roughness follows the Blinn-Phong exponent as in FBX2glTF.
+            if (metalness == null)
+                material.SetScalar(MaterialParam.MetallicFactor, 0.0f);
+            if (roughness == null)
+            {
+                var shininess = props.Has("Shininess") ? "Shininess" : props.Has("ShininessExponent") ? "ShininessExponent" : null;
+                float rough = 1.0f;
+                if (shininess != null)
+                    rough = (float)Math.Sqrt(2.0 / (2.0 + Math.Max(0.0, props.GetDouble(shininess, 0.0))));
+                material.SetScalar(MaterialParam.RoughnessFactor, rough);
+            }
             var doubleSided = props.FindNameWithSuffix("DoubleSided");
             if (doubleSided != null)
                 material.DoubleSided = props.GetBool(doubleSided);
@@ -351,6 +363,16 @@ namespace MeshTopologyToolkit.Fbx
                         break;
                     }
                 }
+            }
+
+            if (texture != null)
+            {
+                // WrapModeU/V: 0 repeats, 1 clamps.
+                var textureProps = obj.Props;
+                if (textureProps.Has("WrapModeU") && textureProps.GetInt("WrapModeU", 0) == 1)
+                    texture.WrapU = TextureWrap.Clamp;
+                if (textureProps.Has("WrapModeV") && textureProps.GetInt("WrapModeV", 0) == 1)
+                    texture.WrapV = TextureWrap.Clamp;
             }
 
             _textures[obj] = texture;

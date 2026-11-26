@@ -178,6 +178,9 @@ namespace MeshTopologyToolkit.Operators
             var result = new Scene();
             _visitedNodes[scene] = result;
             result.Name = scene.Name;
+            // The root can carry a transform and a mesh of its own, like any other node.
+            result.Transform = Transform(scene.Transform);
+            result.Mesh = Transform(scene.Mesh);
             foreach (var child in scene.Children)
             {
                 result.AddChild(Transform(child));

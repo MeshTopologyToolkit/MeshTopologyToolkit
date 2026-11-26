@@ -44,7 +44,8 @@ namespace MeshTopologyToolkit
             if (_parent == null)
                 return Transform;
 
-            return _parent.Transform.Combine(Transform);
+            // The whole chain of parents, not only the nearest one.
+            return _parent.GetWorldSpaceTransform().Combine(Transform);
         }
 
         public override string ToString()
