@@ -94,6 +94,48 @@ namespace MeshTopologyToolkit
         }
 
         /// <summary>
+        /// Generate a triangle mesh of the convex hull of a set of points.
+        /// </summary>
+        /// <param name="points">Input points (at least four, not coplanar).</param>
+        /// <param name="options">Shape generation options. Normals are generated (flat) if the mask includes them.</param>
+        /// <returns>Generated mesh.</returns>
+        /// <exception cref="ArgumentException">Fewer than four points, or the points are coincident, colinear or coplanar.</exception>
+        public static IMesh BuildConvexHull(IReadOnlyList<Vector3> points, ShapeGenerationOptions? options = null)
+        {
+            options = options ?? new ShapeGenerationOptions();
+
+            var hull = new ConvexHull();
+            hull.Build(points);
+            var hullMesh = hull.ToMesh((options.Mask & MeshAttributeMask.Normal) == MeshAttributeMask.Normal);
+
+            var mesh = new UnifiedIndexedMesh();
+            var positions = new ListMeshVertexAttribute<Vector3>();
+            hullMesh.TryGetAttribute<Vector3>(MeshAttributeKey.Position, out var sourcePositions);
+            for (int i = 0; i < sourcePositions.Count; ++i)
+            {
+                positions.Add(options.TransformPosition(sourcePositions[i]));
+            }
+            mesh.AddAttribute(MeshAttributeKey.Position, positions);
+
+            if (hullMesh.TryGetAttribute<Vector3>(MeshAttributeKey.Normal, out var sourceNormals))
+            {
+                var normals = new ListMeshVertexAttribute<Vector3>();
+                for (int i = 0; i < sourceNormals.Count; ++i)
+                {
+                    normals.Add(options.TransformNormal(sourceNormals[i]));
+                }
+                mesh.AddAttribute(MeshAttributeKey.Normal, normals);
+            }
+
+            foreach (var index in options.TransformIndices(hullMesh.Indices.ToList()))
+            {
+                mesh.Indices.Add(index);
+            }
+            mesh.DrawCalls.Add(new MeshDrawCall(0, 0, MeshTopology.TriangleList, 0, mesh.Indices.Count));
+            return mesh;
+        }
+
+        /// <summary>
         /// Generate sphere shape in Gltf style (right-handed UVs, bitangent pointing down).
         /// </summary>
         /// <param name="options">Shape generation options.</param>

@@ -50,6 +50,28 @@ namespace MeshTopologyToolkit
             return result;
         }
 
+        /// <summary>
+        /// Builds a mesh of the convex hull of the mesh positions that are referenced by its indices.
+        /// </summary>
+        /// <param name="mesh">Source mesh.</param>
+        /// <param name="flatNormals">If true, the result has per-face normals; otherwise positions only.</param>
+        /// <returns>Triangle mesh of the convex hull.</returns>
+        /// <exception cref="ArgumentException">Fewer than four distinct points, or the points are coincident, colinear or coplanar.</exception>
+        public static IMesh BuildConvexHull(this IMesh mesh, bool flatNormals = false)
+        {
+            var positions = mesh.GetAttribute<Vector3>(MeshAttributeKey.Position);
+            var used = new HashSet<int>(mesh.GetAttributeIndices(MeshAttributeKey.Position));
+            var points = new List<Vector3>(used.Count);
+            foreach (var index in used)
+            {
+                points.Add(positions[index]);
+            }
+
+            var hull = new ConvexHull();
+            hull.Build(points);
+            return hull.ToMesh(flatNormals);
+        }
+
         public static Vector3 NormalizedOrDefault(this Vector3 val, Vector3 defaultValue)
         {
             var res = Vector3.Normalize(val);

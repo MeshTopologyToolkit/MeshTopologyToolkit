@@ -14,6 +14,9 @@ Read and write common mesh formats (planned extensibility for others).
 ### Mesh editing utilities
 Recalculate normals, merge vertices, remap attributes, and convert between topology types.
 
+### Convex hulls
+Build convex hull meshes from point sets with `Shapes.BuildConvexHull` or `ConvexHull` (a port of John E. Lloyd's QuickHull3D, via the C# port by BioFluidiX, MIT).
+
 ### Lightweight and modular
 Built with clean, dependency-minimal C# design — ideal for integration into rendering engines, game tools, or CAD pipelines.
 
